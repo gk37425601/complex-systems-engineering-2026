@@ -174,6 +174,13 @@ tbody th { color: var(--green); white-space: nowrap; }
   .case, .layer { padding: .95rem; }
   .yard img { max-height: 190px; }
 }
+  .demo { padding: .9rem 1rem; border-top: 1px solid var(--line); background: #edf5ef; }
+  .demo-controls { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: .6rem; }
+  .demo button { min-height: 44px; padding: .4rem .85rem; border: 1px solid var(--green); border-radius: 8px; background: white; color: var(--green); font: inherit; font-weight: 700; cursor: pointer; }
+  .demo button:first-child { background: var(--green); color: white; }
+  .demo button:focus-visible { outline: 3px solid #a56314; outline-offset: 2px; }
+  .demo p { font-size: .91rem; }
+  .demo progress { width: 100%; height: .6rem; accent-color: var(--green); }
 </style>
 </head>
 <body id="top">
@@ -324,6 +331,11 @@ tbody th { color: var(--green); white-space: nowrap; }
                 <rect x="136" y="190" width="22" height="22" rx="5" fill="#ffd477" stroke="#173b32" stroke-width="3"/>
                 <text x="147" y="174" text-anchor="middle" fill="#ffdd90" font-size="19">停驻</text>
               </g>
+              <g id="demo-rover" hidden transform="translate(90 201)" aria-hidden="true">
+                <circle r="16" fill="#102622" stroke="#fff" stroke-width="2"/>
+                <rect x="-9" y="-7" width="18" height="14" rx="4" fill="#ffd477"/>
+                <circle r="3" fill="#102622"/>
+              </g>
             </svg>
             <figcaption><span class="figure-tag">FIG. 02</span><span>路线示意 · 实线为行进段 · 黄标为异常或停驻</span></figcaption>
           </figure>
@@ -359,6 +371,17 @@ tbody th { color: var(--green); white-space: nowrap; }
           </div>
         </div>
       </div>
+      <section class="demo" id="demo-player" aria-labelledby="demo-title" hidden>
+        <h3 id="demo-title">播放巡检过程</h3>
+        <p>切换上方工况即可比较不同路线。地图中的黄车表示演示位置。</p>
+        <div class="demo-controls">
+          <button type="button" id="demo-play">播放</button>
+          <button type="button" id="demo-step">下一阶段</button>
+          <button type="button" id="demo-reset">重置</button>
+        </div>
+        <progress id="demo-progress" max="1" value="0" aria-label="演示进度"></progress>
+        <p id="demo-event" role="status"></p>
+      </section>
       <figure class="yard">
         <img src="assets/training-yard.webp" width="960" height="640" loading="lazy" decoding="async"
           alt="救援训练场的并行通道，一侧放置模拟碎块，另一侧保持通畅">
@@ -487,8 +510,87 @@ function showScenario() {
   }
 }
 
-scenarioControls.addEventListener('change', showScenario);
+const player = document.getElementById('demo-player');
+const playButton = document.getElementById('demo-play');
+const rover = document.getElementById('demo-rover');
+const progressBar = document.getElementById('demo-progress');
+const eventLabel = document.getElementById('demo-event');
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const start = [0, '任务下达 · 指挥台确认点位与许可范围。'];
+const stages = {
+  normal: [start, [109, '感知 · 到达 A 点并记录通行情况。'], [250, '执行 · 主通道可用，继续前往 B 点。'], [426, '反馈 · 完成 B 点检查，两条记录进入报告。']],
+  blocked: [start, [109, '感知 · 完成 A 点检查，发现前方主通道受阻。'], [159, '规划 · 排除受阻段，确认可用的批准旁路。'], [353, '执行 · 沿旁路行进。'], [606, '反馈 · 到达 B 点，记录路障及路线变更。']],
+  position: [start, [109, '感知 · A 点检查完成后，定位质量标记变为无效。'], [109, '停驻 · 保持在 A 点，B 点待复核。']],
+  estop: [start, [57, '人工干预 · 到达 A 点前，操作员发出急停请求。'], [57, '停驻 · 等待新的任务授权。']]
+};
+const segmentTime = 1500;
+let routePath;
+let currentStages;
+let elapsed = 0;
+let shownStage = -1;
+let frame = 0;
+let lastTime = null;
+
+function renderDemo() {
+  const end = currentStages.length - 1;
+  const position = Math.min(elapsed / segmentTime, end);
+  const index = Math.floor(position);
+  const [distance, label] = currentStages[index];
+  const nextDistance = currentStages[Math.min(index + 1, end)][0];
+  const fraction = reducedMotion.matches ? 0 : position - index;
+  const point = routePath.getPointAtLength(distance + (nextDistance - distance) * fraction);
+  rover.setAttribute('transform', 'translate(' + point.x + ' ' + point.y + ')');
+  progressBar.value = position / end;
+  if (index !== shownStage) {
+    eventLabel.textContent = (index + 1) + ' / ' + currentStages.length + '　' + label;
+    shownStage = index;
+  }
+}
+function stopDemo() {
+  cancelAnimationFrame(frame);
+  frame = 0;
+  lastTime = null;
+  playButton.textContent = '播放';
+}
+function resetDemo() {
+  stopDemo();
+  const selection = scenarioControls.querySelector('input:checked').value;
+  currentStages = stages[selection];
+  routePath = document.querySelector('[data-route="' + selection + '"] > path');
+  elapsed = 0;
+  shownStage = -1;
+  renderDemo();
+}
+function tick(time) {
+  if (lastTime !== null) elapsed += time - lastTime;
+  lastTime = time;
+  renderDemo();
+  if (progressBar.value === 1) stopDemo();
+  else frame = requestAnimationFrame(tick);
+}
+playButton.addEventListener('click', () => {
+  if (frame) {
+    stopDemo();
+    return;
+  }
+  if (progressBar.value === 1) resetDemo();
+  playButton.textContent = '暂停';
+  frame = requestAnimationFrame(tick);
+});
+document.getElementById('demo-step').addEventListener('click', () => {
+  stopDemo();
+  elapsed = Math.min(Math.floor(elapsed / segmentTime) + 1, currentStages.length - 1) * segmentTime;
+  renderDemo();
+});
+document.getElementById('demo-reset').addEventListener('click', resetDemo);
+scenarioControls.addEventListener('change', () => {
+  showScenario();
+  resetDemo();
+});
 showScenario();
+resetDemo();
+rover.removeAttribute('hidden');
+player.hidden = false;
 scenarioControls.hidden = false;
 </script>
 </body>
