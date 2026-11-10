@@ -2,68 +2,494 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>具身智能无人系统｜复杂系统工程 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="复杂系统工程 2026 小组作业。通过震后通道巡检仿真，讲解具身智能无人系统的六层架构、系统接口和需求验证。">
+<meta name="theme-color" content="#102622">
+<title>基于具身智能的无人系统 · 复杂系统工程 2026</title>
 <style>
-:root{color-scheme:light;--ink:#142b3a;--muted:#435c6a;--accent:#00665d;--line:#d6e4e5;--paper:#f1f7f7}
-*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.75 system-ui,sans-serif}
-.wrap{width:min(1080px,calc(100% - 2rem));margin:auto}header{background:#102c3a;color:white;padding:3.6rem 0 3rem}h1{font-size:clamp(2rem,6vw,3.5rem);line-height:1.2;margin:.5rem 0 1rem}header p{max-width:48rem;color:#d7ebed}.eyebrow{color:#8eede0;font-weight:700}
-nav{display:flex;gap:.7rem;flex-wrap:wrap;margin:1.5rem 0}a{color:var(--accent)}nav a{padding:.3rem .7rem;border:1px solid var(--line);background:white;border-radius:1rem}section{margin:2.5rem 0}h2{line-height:1.35}h3{margin:0 0 .4rem}p{margin:.45rem 0 1rem}
-.layers{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,295px),1fr));gap:1rem}.layers li,.panel,details{background:white;border:1px solid var(--line);border-radius:1rem;padding:1rem 1.2rem}.layers li:nth-child(4){border:2px solid var(--accent)}.tag{color:var(--accent);font-weight:750;font-size:.85rem}.layers p{margin-bottom:0}
-details{margin:.6rem 0}summary{cursor:pointer;font-weight:700}.table-box{overflow:auto;background:white;border:1px solid var(--line);border-radius:1rem}table{width:100%;border-collapse:collapse;min-width:600px}th,td{text-align:left;vertical-align:top;padding:.8rem;border-bottom:1px solid var(--line)}tr:last-child td{border-bottom:0}thead{background:#e4f1f0}footer{border-top:1px solid var(--line);padding:1rem 0 2rem;color:var(--muted)}
+:root {
+  color-scheme: light;
+  --ink: #172b26;
+  --muted: #4c6259;
+  --paper: #f3f5ef;
+  --panel: #fff;
+  --line: #cddad1;
+  --deep: #102622;
+  --deep-2: #173b33;
+  --green: #146049;
+  --mint: #dff2e8;
+  --signal: #ffd477;
+  --radius: 18px;
+  --sans: system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-padding-top: 1.25rem; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.7 var(--sans); }
+main, header, footer, section, article, figure, nav, div { min-width: 0; }
+figure, p, h1, h2, h3, dl, dd { margin: 0; }
+img, svg { display: block; max-width: 100%; }
+a { color: var(--green); text-underline-offset: .18em; }
+a:focus-visible, summary:focus-visible, .table-scroll:focus-visible {
+  outline: 3px solid #a56314;
+  outline-offset: 4px;
+}
+.wrap { width: min(1160px, calc(100% - 3rem)); margin-inline: auto; }
+.skip { position: absolute; top: .5rem; left: 1rem; z-index: 5; padding: .5rem 1rem; background: white; transform: translateY(-160%); }
+.skip:focus { transform: none; }
+.masthead { color: #f5faf7; background: var(--deep); }
+.topbar { display: flex; gap: .55rem 1.5rem; align-items: center; justify-content: space-between; flex-wrap: wrap; padding-block: .7rem; }
+.brand { display: inline-flex; align-items: center; gap: .65rem; color: inherit; font-weight: 740; text-decoration: none; }
+.brand-mark { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border: 1px solid #628776; border-radius: 7px; color: var(--signal); font: 700 .8rem var(--mono); }
+.nav { display: flex; flex-wrap: wrap; column-gap: 1.2rem; }
+.nav a { display: inline-flex; align-items: center; min-height: 44px; color: #d4e4db; font-size: .88rem; text-decoration: none; }
+.nav a:hover, .nav a:focus-visible { color: var(--signal); text-decoration: underline; }
+.masthead a:focus-visible, .hero a:focus-visible { outline-color: var(--signal); }
+.hero {
+  padding-block: clamp(2.2rem, 6vw, 5.25rem);
+  color: #f5faf7;
+  background: radial-gradient(ellipse at 94% 92%, #225344 0, transparent 59%), var(--deep);
+  border-top: 1px solid #365449;
+}
+.hero-grid { display: grid; grid-template-columns: 1fr 1.04fr; gap: clamp(1.55rem, 4.5vw, 4.5rem); align-items: center; }
+.eyebrow, .section-index, .layer-code, .figure-tag, .test-code {
+  font: 700 .75rem/1.5 var(--mono);
+  letter-spacing: .1em;
+}
+.eyebrow { color: #b5d8c7; }
+h1 { margin-block: .65rem 1rem; font-size: clamp(2.15rem, 5.1vw, 4.35rem); line-height: 1.16; letter-spacing: -.045em; }
+h1 span { display: block; color: var(--signal); }
+.hero-copy { max-width: 34rem; color: #e0ece5; font-size: clamp(1rem, 1.65vw, 1.1rem); }
+.topic { max-width: 34rem; margin-top: .85rem; color: #bed3c8; font-size: .86rem; }
+.cta { display: inline-flex; align-items: center; gap: .85rem; min-height: 46px; margin-top: 1.4rem; padding: .55rem 1rem; border-radius: 7px; background: var(--signal); color: #261e0e; font-size: .94rem; font-weight: 750; text-decoration: none; }
+.cta:hover { background: #ffe39e; }
+.hero-photo { overflow: hidden; border: 1px solid #5a7a6c; border-radius: 12px; background: #19362e; }
+.hero-photo img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; }
+.hero-photo figcaption { display: flex; flex-wrap: wrap; gap: .4rem .9rem; align-items: baseline; padding: .65rem .9rem; color: #dfebe4; font-size: .83rem; }
+.hero-photo .figure-tag { color: var(--signal); }
+.brief { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--panel); border-bottom: 1px solid var(--line); }
+.brief > div { padding: 1.2rem clamp(.8rem, 2.6vw, 1.8rem); border-right: 1px solid var(--line); }
+.brief > div:last-child { border-right: 0; }
+.brief dt { font-size: .89rem; font-weight: 760; color: var(--green); }
+.brief dd { margin-top: .22rem; font-size: .93rem; }
+.section { margin-block: clamp(2.75rem, 7vw, 5.5rem); }
+.section-head { max-width: 48rem; margin-bottom: 1.4rem; }
+.section-index { display: block; margin-bottom: .4rem; color: var(--green); }
+h2 { font-size: clamp(1.66rem, 3.65vw, 2.85rem); line-height: 1.22; letter-spacing: -.035em; }
+.section-head p { margin-top: .65rem; color: var(--muted); }
+h3 { line-height: 1.36; }
+.layers { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; margin: 0; padding: 0; }
+.layer { position: relative; display: flex; flex-direction: column; gap: .55rem; min-width: 0; padding: 1.2rem; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.layer-code { color: var(--green); }
+.layer h3 { font-size: 1.17rem; }
+.layer p, .layer small { font-size: .9rem; }
+.layer small { display: block; margin-top: auto; padding-top: .55rem; border-top: 1px solid var(--line); color: var(--muted); }
+.layer small strong { color: var(--ink); }
+.layer-focus { background: var(--deep-2); border-color: var(--deep-2); color: #f6faf7; }
+.layer-focus .layer-code { color: var(--signal); }
+.layer-focus small { border-color: #557768; color: #d2e6db; }
+.layer-focus small strong { color: #f6faf7; }
+.trace-line { margin-top: .9rem; padding: .95rem 1.15rem; background: var(--mint); border-left: 4px solid var(--green); border-radius: 0 10px 10px 0; font-size: .91rem; }
+.trace-line strong { display: block; margin-bottom: .25rem; }
+.scenario-board { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+.scenario-toolbar { min-inline-size: 0; margin: 0; padding: .85rem 1rem 1rem; border: 0; }
+.scenario-toolbar legend { padding: .85rem 0 0; font-weight: 760; }
+.choices { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; }
+.choice { position: relative; display: block; cursor: pointer; }
+.choice input, .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.choice span { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: .4rem .45rem; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); font-size: .89rem; font-weight: 680; text-align: center; }
+.choice span:hover { border-color: var(--green); }
+.choice input:checked + span { background: var(--deep-2); border-color: var(--deep-2); color: white; }
+.choice input:focus-visible + span { outline: 3px solid #a56314; outline-offset: 2px; }
+.scenario-grid { display: grid; grid-template-columns: minmax(0, 1.28fr) minmax(0, 1fr); border-top: 1px solid var(--line); }
+.map { display: flex; flex-direction: column; padding: .9rem; background: #112d27; color: #dbece3; }
+.map svg { width: 100%; height: auto; margin-block: auto; }
+.map figcaption { display: flex; flex-wrap: wrap; gap: .3rem .8rem; justify-content: space-between; padding: .45rem .3rem .05rem; color: #dbece3; font-size: .78rem; }
+.map figcaption .figure-tag { color: var(--signal); }
+.no-script { padding: .85rem 1rem; }
+.case { padding: 1.05rem 1.2rem 1.2rem; }
+.case:not([hidden]) + .case:not([hidden]) { border-top: 1px solid var(--line); }
+.case h3 { margin-block: .5rem .2rem; font-size: 1.3rem; }
+.case-status { display: inline-block; padding: .16rem .55rem; border-radius: 5px; background: var(--mint); color: #18533e; font-size: .78rem; font-weight: 740; }
+.case-status.hold { background: #fff0d7; color: #733c0c; }
+.case p { color: var(--muted); font-size: .91rem; }
+.case dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .25rem .7rem; margin-top: .75rem; font-size: .88rem; }
+.case dt { font-weight: 730; }
+.case-links { display: flex; flex-wrap: wrap; gap: .25rem .7rem; margin-top: .55rem; }
+.case-links a { display: inline-flex; align-items: center; min-height: 28px; font-size: .86rem; font-weight: 700; }
+.yard { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); margin-top: .95rem; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+.yard img { width: 100%; height: 100%; max-height: 235px; min-height: 168px; object-fit: cover; object-position: center 66%; }
+.yard figcaption { align-self: center; padding: 1.2rem; }
+.yard .figure-tag { color: var(--green); }
+.yard strong { display: block; margin-block: .35rem; font-size: 1.13rem; }
+.yard p { color: var(--muted); font-size: .92rem; }
+.loop { padding: 1rem; background: #e5f0e8; border: 1px solid #c5d9cb; border-radius: var(--radius); }
+.loop h3 { margin: .1rem .15rem .7rem; font-size: 1.08rem; }
+.loop-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.05rem; list-style: none; padding: 0; margin: 0; }
+.loop-steps li { position: relative; padding: .65rem .75rem; border-radius: 8px; background: white; font-size: .87rem; }
+.loop-steps li:not(:last-child)::after { content: ""; position: absolute; right: -.66rem; top: calc(50% - .19rem); width: .42rem; height: .42rem; border-top: 2px solid var(--green); border-right: 2px solid var(--green); transform: rotate(45deg); }
+.loop-steps strong { display: block; margin-bottom: .22rem; color: var(--green); }
+.feedback { margin-top: .75rem; padding: .55rem .7rem; border: 1px dashed #6d9882; border-radius: 8px; color: #244e3c; font-size: .87rem; }
+.contracts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; margin-top: .9rem; }
+.contract { padding: .95rem 1rem; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.contract h3 { margin-bottom: .55rem; font-size: 1.04rem; }
+.contract dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .28rem .6rem; font-size: .88rem; }
+.contract dt { font-weight: 700; color: var(--green); }
+.notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-top: .95rem; }
+.note { padding: .95rem 1rem; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.note h3 { margin-bottom: .35rem; font-size: 1rem; }
+.note p { color: var(--muted); font-size: .9rem; }
+.table-scroll { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+table { width: 100%; min-width: 710px; border-collapse: collapse; font-size: .88rem; }
+caption { text-align: left; font-weight: 750; padding: .75rem .9rem; }
+thead { background: #e0eee6; }
+th, td { padding: .65rem .85rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+tbody tr:last-child > * { border-bottom: 0; }
+tbody tr:target { background: #fff1d2; }
+tbody th { color: var(--green); white-space: nowrap; }
+.test-code { display: block; color: var(--green); letter-spacing: .02em; }
+.table-hint { display: none; margin-bottom: .45rem; color: var(--muted); font-size: .81rem; }
+.reference { margin-top: .9rem; color: var(--muted); font-size: .88rem; }
+.footer { border-top: 1px solid var(--line); background: #e8eee7; }
+.footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem 1.2rem; padding-block: 1.15rem; color: var(--muted); font-size: .86rem; }
+@media (max-width: 850px) {
+  .layers, .contracts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .wrap { width: calc(100% - 2rem); }
+  .hero-grid, .scenario-grid, .yard { grid-template-columns: minmax(0, 1fr); }
+  .hero-photo img { max-height: 380px; object-position: center 65%; }
+  .table-hint { display: block; }
+}
+@media (max-width: 500px) {
+  .brief, .layers, .contracts, .notes { grid-template-columns: minmax(0, 1fr); }
+  .brief > div { border-right: 0; border-bottom: 1px solid var(--line); padding: .7rem .9rem; }
+  .brief > div:last-child { border-bottom: 0; }
+  .choices, .loop-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .loop-steps li:nth-child(2)::after { top: auto; bottom: -.66rem; right: calc(50% - .21rem); transform: rotate(135deg); }
+  .loop-steps li:nth-child(3) { grid-column: 2; grid-row: 2; }
+  .loop-steps li:nth-child(3)::after { left: -.66rem; transform: rotate(225deg); }
+  .map { padding: .45rem; }
+  .case, .layer { padding: .95rem; }
+  .yard img { max-height: 190px; }
+}
 </style>
 </head>
-<body>
-<header><div class="wrap">
-<div class="eyebrow">复杂系统工程 · 2026 · 小组作业 1</div>
-<h1>基于具身智能的无人系统</h1>
-<p>原选题为「基于具身智能的无人作战系统」。本页把课程建模限定在无武装、人员监督的应急搜救仿真，以震后建筑外场巡检为案例，分析无人平台怎样把感知、行动和反馈连成闭环。</p>
-</div></header>
-<main class="wrap">
-<nav aria-label="页面目录"><a href="#levels">六层架构</a><a href="#scenario">任务串联</a><a href="#interfaces">子系统接口</a><a href="#tests">验证方案</a></nav>
-<section id="levels">
-<h2>01 · 从任务到模块</h2>
-<ol class="layers">
-<li><span class="tag">01 / MISSION</span><h3>任务</h3><p>在划定的模拟灾区内调查通行状况，标记受阻路段和需复核的位置，向救援人员提交带时间戳的现场地图。任务结束时由人员核对报告并确认平台回收。</p></li>
-<li><span class="tag">02 / SYSTEM OF SYSTEMS</span><h3>体系</h3><p>由应急指挥台、独立运行的地面巡检车、固定观测站和救援班组组成。指挥台统一管理任务范围，观测站提供场景参考，班组复核现场报告。</p></li>
-<li><span class="tag">03 / VEHICLE</span><h3>整机</h3><p>低速轮式地面巡检车。整机集成底盘、电池、计算单元、相机和测距传感器。车辆把路线请求转换成实际运动，并回传位姿、电量和故障状态。</p></li>
-<li><span class="tag">04 / SYSTEM · 本组分析对象</span><h3>具身智能巡检系统</h3><p>接受已审批的巡检区域和通行约束，估计车体状态、判断可通行空间、执行低速巡检并更新地图。它依赖车载传感器和底盘与环境交互，遇到不确定路段则暂停并请求复核。</p></li>
-<li><span class="tag">05 / SUBSYSTEMS</span><h3>子系统</h3><p>感知与定位、语义记录、路线规划、运动控制、安全监督、人机交互与数据管理。各子系统通过统一地图坐标系和时间戳交换数据。</p></li>
-<li><span class="tag">06 / MODULES</span><h3>模块</h3><p>包括相机采集、测距读数、编码器与惯导融合、栅格更新、事件记录、候选路线生成、速度跟踪、急停接口、心跳监测和日志回放。</p></li>
-</ol>
-</section>
-<section id="scenario">
-<h2>02 · 一次巡检如何串起六层</h2>
-<details open><summary>任务下达 · 任务 → 体系 → 整机</summary><p>救援班组提出检查两处通道的需求。指挥台确定许可区域、巡检点和停止条件，将任务交给巡检车，并安排固定观测站记录外部视角。</p></details>
-<details><summary>发现通道受阻 · 整机 → 系统 → 子系统 → 模块</summary><p>车辆行驶时，测距模块与相机持续采样。感知子系统更新占据图，定位子系统给观测配准。规划子系统发现前方通道受阻后停止使用该路段，只在许可范围内提出绕行方案。定位或感知质量不足时，安全监督触发停车并将状态上报。</p></details>
-<details><summary>复核与交付 · 模块 → 子系统 → 系统 → 整机 → 体系 → 任务</summary><p>记录模块保存障碍位置、观测时间和证据。车辆停在预先指定的安全点，指挥台复核地图并决定是否继续。班组最终接收通行图和未覆盖区域清单，完成任务验收。</p></details>
-</section>
-<section id="interfaces">
-<h2>03 · 子系统与模块接口</h2>
-<div class="table-box" tabindex="0" aria-label="子系统接口表">
-<table><thead><tr><th scope="col">子系统</th><th scope="col">输入 → 输出</th><th scope="col">主要模块</th></tr></thead><tbody>
-<tr><td>感知与定位</td><td>图像、距离、惯导、里程 → 位姿、占据图、质量标记</td><td>同步与标定、融合定位、栅格更新</td></tr>
-<tr><td>语义记录</td><td>图像与位姿 → 通行异常候选、证据与置信度</td><td>场景标签、证据索引、人工复核队列</td></tr>
-<tr><td>路线规划</td><td>占据图、巡检点、许可区域 → 候选路线或不可达状态</td><td>地图可通行性检查、路径生成</td></tr>
-<tr><td>运动控制</td><td>许可路线、车体状态 → 限速运动指令、跟踪误差</td><td>速度跟踪、底盘接口</td></tr>
-<tr><td>安全监督</td><td>急停、心跳、定位质量和故障 → 放行、停车或待复核</td><td>心跳监测、急停接口、停车状态管理</td></tr>
-<tr><td>人机交互与数据管理</td><td>任务配置、运行记录 → 态势显示、审阅结果和验收报告</td><td>任务面板、地图展示、日志回放</td></tr>
-</tbody></table></div>
-<p>运动改变传感器的观察位置，新的观测随即更新地图和位姿。系统据此重新判断下一步行动，形成感知、规划、执行、反馈的闭环。人工复核结果进入任务记录，供后续验收。</p>
-</section>
-<section id="tests">
-<h2>04 · 仿真验证计划</h2>
-<div class="panel">
-<ul>
-<li><strong>任务覆盖</strong>。在正常地图上核对实际到达的巡检点，记录覆盖率和未覆盖原因。</li>
-<li><strong>临时路障</strong>。在巡检途中加入障碍，检查地图是否更新、规划是否排除受阻路段，并记录接触次数及人工介入次数。</li>
-<li><strong>定位质量下降与通信中断</strong>。分别注入故障，检查车辆是否进入停车状态，并记录从故障出现到停车的时间。</li>
-<li><strong>人工接管</strong>。执行急停，确认旧路线无法自行恢复，并检查日志能否重现停车与重新授权的顺序。</li>
-</ul>
-<p>以上为拟开展的仿真测试。实际覆盖率、停车耗时和介入次数由实验日志统计。</p>
-</div>
-</section>
+<body id="top">
+<a class="skip" href="#main">跳到正文</a>
+<header class="masthead">
+  <div class="wrap topbar">
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">26</span> 复杂系统工程</a>
+    <nav class="nav" aria-label="页面目录">
+      <a href="#levels">六层架构</a>
+      <a href="#scenario">场景推演</a>
+      <a href="#interfaces">系统接口</a>
+      <a href="#tests">验证矩阵</a>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <section class="hero" aria-labelledby="page-title">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">SYSTEMS ENGINEERING / 2026 · 小组作业 1</p>
+        <h1 id="page-title">基于具身智能的<span>无人系统</span></h1>
+        <p class="hero-copy">一辆巡检车在模拟震后场地里遇到通道阻断。它如何根据新观测调整行动，又在什么情况下应停下来等人复核？</p>
+        <p class="topic">课程原选题为「基于具身智能的无人作战系统」。本页以无武装、人工监督的震后通道巡检为课程仿真案例。</p>
+        <a class="cta" href="#scenario">进入场景推演 <span aria-hidden="true">↓</span></a>
+      </div>
+      <figure class="hero-photo">
+        <img src="assets/rescue-rover.webp" width="1200" height="800" fetchpriority="high"
+          alt="黄色轮式巡检机器人停在模拟震后训练场的标线通道上">
+        <figcaption><span class="figure-tag">FIG. 01</span> 轮式巡检平台与训练场地 · AI 生成概念图</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <dl class="brief" aria-label="任务摘要">
+      <div><dt>巡检范围</dt><dd>在许可区内检查 A、B 两处预设点位。</dd></div>
+      <div><dt>人员职责</dt><dd>指挥员下达范围、批准恢复，救援班组复核结果。</dd></div>
+      <div><dt>任务交付</dt><dd>提交通行记录、证据索引和未覆盖点位清单。</dd></div>
+    </dl>
+
+    <section class="section" id="levels">
+      <header class="section-head">
+        <span class="section-index">01 / ARCHITECTURE</span>
+        <h2>从任务到模块的六层架构</h2>
+        <p>沿课程要求逐层分解。向下分配职责与约束，向上汇总状态和证据。第 4 层是本组重点分析的系统。</p>
+      </header>
+      <ol class="layers">
+        <li class="layer">
+          <span class="layer-code">01 / MISSION</span><h3>任务</h3>
+          <p>检查模拟震后场地的两处通道点位，为救援班组提供一份可复核的通行报告。</p>
+          <small><strong>向体系交付</strong> · A、B 点位、许可区域和验收要求。</small>
+        </li>
+        <li class="layer">
+          <span class="layer-code">02 / SYSTEM OF SYSTEMS</span><h3>体系</h3>
+          <p>由应急指挥台、巡检车、固定观测站及救援班组组成。观测站独立记录现场，指挥台分配任务，班组核对证据。</p>
+          <small><strong>向整机下达</strong> · 巡检范围、通行约束和停止条件。</small>
+        </li>
+        <li class="layer">
+          <span class="layer-code">03 / VEHICLE</span><h3>整机</h3>
+          <p>低速轮式巡检车集成底盘、电池、计算单元、相机和测距传感器。车体的位置和朝向决定下一帧能观察到哪里。</p>
+          <small><strong>向系统提供</strong> · 车体状态、传感数据与底盘接口。</small>
+        </li>
+        <li class="layer layer-focus">
+          <span class="layer-code">04 / SYSTEM · 分析对象</span><h3>具身智能巡检系统</h3>
+          <p>根据当前观测更新通行判断，在许可区域内执行巡检或停驻，并形成可由人员核对的事件记录。</p>
+          <small><strong>向子系统分配</strong> · 感知、决策、执行、安全和报告职责。</small>
+        </li>
+        <li class="layer">
+          <span class="layer-code">05 / SUBSYSTEMS</span><h3>子系统</h3>
+          <p>感知与定位、语义记录、路线规划、运动控制、安全监督、人机交互与数据管理分工协作。</p>
+          <small><strong>向模块分配</strong> · 输入输出、数据有效性和异常状态约定。</small>
+        </li>
+        <li class="layer">
+          <span class="layer-code">06 / MODULES</span><h3>模块</h3>
+          <p>相机采集、定位融合、栅格更新、证据索引、路线检查、底盘接口、急停与日志回放等模块承接具体功能。</p>
+          <small><strong>向上回传</strong> · 带时间戳的观测、停驻事件和复核证据。</small>
+        </li>
+      </ol>
+      <p class="trace-line"><strong>一条可追踪的证据链</strong>“报告 B 点是否可达”从任务进入指挥台，再由巡检车的路线规划子系统检查通行区域。结果连同地图版本和事件记录返回班组，用于复核报告结论。</p>
+    </section>
+
+    <section class="section" id="scenario">
+      <header class="section-head">
+        <span class="section-index">02 / SCENARIO WALKTHROUGH</span>
+        <h2>同一场地，四种系统响应</h2>
+        <p>切换工况，比较相同任务在正常、受阻、定位异常和人工急停时的预期表现。路线和覆盖数是课堂推演示例。</p>
+      </header>
+      <div class="scenario-board">
+        <fieldset class="scenario-toolbar" id="scenario-controls" hidden>
+          <legend>选择工况</legend>
+          <div class="choices">
+            <label class="choice"><input type="radio" name="scenario" value="normal" checked><span>正常巡检</span></label>
+            <label class="choice"><input type="radio" name="scenario" value="blocked"><span>主路受阻</span></label>
+            <label class="choice"><input type="radio" name="scenario" value="position"><span>定位异常</span></label>
+            <label class="choice"><input type="radio" name="scenario" value="estop"><span>人工急停</span></label>
+          </div>
+        </fieldset>
+        <div class="sr-only" role="status" id="scenario-status"></div>
+        <noscript><p class="no-script">下图显示正常工况，四种工况的说明均列在图旁。</p></noscript>
+        <div class="scenario-grid">
+          <figure class="map">
+            <svg viewBox="0 0 600 310" role="img" aria-labelledby="map-title map-desc">
+              <title id="map-title">训练场路线示意图</title>
+              <desc id="map-desc">正常巡检，从起点沿主通道依次经过 A、B。</desc>
+              <defs>
+                <pattern id="yard-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M20 0H0V20" fill="none" stroke="#285147" stroke-width="1"/>
+                </pattern>
+              </defs>
+              <rect x="12" y="12" width="576" height="286" rx="13" fill="#173b32"/>
+              <rect x="12" y="12" width="576" height="286" rx="13" fill="url(#yard-grid)"/>
+              <rect x="35" y="45" width="530" height="219" rx="14" fill="none" stroke="#81a99a" stroke-width="2" stroke-dasharray="6 6"/>
+              <text x="51" y="76" fill="#d8e9df" font-size="19">许可巡检区</text>
+              <path d="M90 201H516 M249 201V111H457V201" fill="none" stroke="#355b50" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M90 201H516 M249 201V111H457V201" fill="none" stroke="#8bac9e" stroke-width="2" stroke-dasharray="7 8"/>
+              <text x="353" y="94" text-anchor="middle" fill="#e0eee7" font-size="18">预先批准的旁路</text>
+              <text x="353" y="241" text-anchor="middle" fill="#d8e9df" font-size="18">主通道</text>
+              <g fill="#173b32" stroke="#dbece3" stroke-width="3">
+                <circle cx="90" cy="201" r="12"/><circle cx="199" cy="201" r="12"/><circle cx="516" cy="201" r="12"/>
+              </g>
+              <g fill="#f0f7f3" font-size="19" font-weight="700" text-anchor="middle">
+                <text x="90" y="242">起点</text><text x="199" y="242">A 点</text><text x="516" y="242">B 点</text>
+              </g>
+              <g data-route="normal">
+                <path d="M90 201H516" stroke="#a6ebbb" stroke-width="5" stroke-linecap="round"/>
+                <g fill="#a6ebbb" stroke="#173b32" stroke-width="3">
+                  <circle cx="90" cy="201" r="9"/><circle cx="199" cy="201" r="9"/><circle cx="516" cy="201" r="9"/>
+                </g>
+              </g>
+              <g data-route="blocked" hidden>
+                <path d="M90 201H249V111H457V201H516" fill="none" stroke="#a6ebbb" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                <g fill="#a6ebbb" stroke="#173b32" stroke-width="3">
+                  <circle cx="90" cy="201" r="9"/><circle cx="199" cy="201" r="9"/><circle cx="516" cy="201" r="9"/>
+                </g>
+                <rect x="340" y="188" width="26" height="26" rx="5" fill="#ffd477"/>
+                <path d="m347 195 12 12m0-12-12 12" fill="none" stroke="#55390b" stroke-width="3" stroke-linecap="round"/>
+                <text x="353" y="177" text-anchor="middle" fill="#ffdd90" font-size="19">路障</text>
+              </g>
+              <g data-route="position" hidden>
+                <path d="M90 201H199" stroke="#a6ebbb" stroke-width="5" stroke-linecap="round"/>
+                <circle cx="90" cy="201" r="9" fill="#a6ebbb" stroke="#173b32" stroke-width="3"/>
+                <rect x="188" y="190" width="22" height="22" rx="5" fill="#ffd477" stroke="#173b32" stroke-width="3"/>
+                <text x="199" y="174" text-anchor="middle" fill="#ffdd90" font-size="19">停驻</text>
+              </g>
+              <g data-route="estop" hidden>
+                <path d="M90 201H147" stroke="#a6ebbb" stroke-width="5" stroke-linecap="round"/>
+                <circle cx="90" cy="201" r="9" fill="#a6ebbb" stroke="#173b32" stroke-width="3"/>
+                <rect x="136" y="190" width="22" height="22" rx="5" fill="#ffd477" stroke="#173b32" stroke-width="3"/>
+                <text x="147" y="174" text-anchor="middle" fill="#ffdd90" font-size="19">停驻</text>
+              </g>
+            </svg>
+            <figcaption><span class="figure-tag">FIG. 02</span><span>路线示意 · 实线为行进段 · 黄标为异常或停驻</span></figcaption>
+          </figure>
+          <div class="case-list">
+            <article class="case" data-case="normal" data-map="正常巡检，从起点沿主通道依次经过 A、B。">
+              <span class="case-status">按计划巡检 · 覆盖 2/2</span>
+              <h3>走主通道，完成 A 和 B</h3>
+              <p>观测更新与地图一致，两个点位之间的主通道可用。</p>
+              <dl><dt>响应</dt><dd>依次检查 A、B 并记录通行情况。</dd><dt>留证</dt><dd>两个点位各生成一条带时间戳的记录。</dd></dl>
+              <div class="case-links"><a href="#r01">对应验收 R01</a><a href="#r05">报告验收 R05</a></div>
+            </article>
+            <article class="case" data-case="blocked" data-map="主路受阻，从 A 点经许可区内的上侧旁路到达 B 点。">
+              <span class="case-status">使用批准旁路 · 覆盖 2/2</span>
+              <h3>更新地图，改走旁路</h3>
+              <p>检查完 A 后发现主通道受阻。图中旁路已预先批准，且当前观测支持通行。</p>
+              <dl><dt>响应</dt><dd>排除受阻路段，经批准旁路到 B。若旁路不可用，则停驻并将 B 记为未覆盖。</dd><dt>留证</dt><dd>路障位置、地图版本及路径变更原因。</dd></dl>
+              <div class="case-links"><a href="#r02">对应验收 R02</a></div>
+            </article>
+            <article class="case" data-case="position" data-map="定位异常发生在 A 点记录完成后，巡检车在 A 点停驻，B 点未到达。">
+              <span class="case-status hold">停驻待复核 · 覆盖 1/2</span>
+              <h3>在 A 点停驻，暂缓检查 B</h3>
+              <p>A 点记录完成后，定位质量标记变为无效。</p>
+              <dl><dt>响应</dt><dd>停止前进。定位恢复后仍需指挥员重新授权。</dd><dt>留证</dt><dd>定位异常、停驻时间和 B 点未覆盖原因。</dd></dl>
+              <div class="case-links"><a href="#r03">对应验收 R03</a></div>
+            </article>
+            <article class="case" data-case="estop" data-map="人工急停在到达 A 点前触发，巡检车停在起点与 A 点之间。">
+              <span class="case-status hold">人工急停 · 覆盖 0/2</span>
+              <h3>急停覆盖当前巡检指令</h3>
+              <p>操作员在巡检车到达 A 点前发出急停请求。</p>
+              <dl><dt>响应</dt><dd>转入停驻状态，解除急停后等待新的任务授权。</dd><dt>留证</dt><dd>急停、停驻和后续授权按顺序写入日志。</dd></dl>
+              <div class="case-links"><a href="#r04">对应验收 R04</a></div>
+            </article>
+          </div>
+        </div>
+      </div>
+      <figure class="yard">
+        <img src="assets/training-yard.webp" width="960" height="640" loading="lazy" decoding="async"
+          alt="救援训练场的并行通道，一侧放置模拟碎块，另一侧保持通畅">
+        <figcaption>
+          <span class="figure-tag">FIG. 03</span>
+          <strong>怎样读懂“主路受阻”</strong>
+          <p>一条通道放置模拟碎块，另一条保持通畅。是否能走旁路，还取决于任务授权与当前观测。此处为 AI 生成场景概念图。</p>
+        </figcaption>
+      </figure>
+    </section>
+
+    <section class="section" id="interfaces">
+      <header class="section-head">
+        <span class="section-index">03 / SYSTEM INTERFACES</span>
+        <h2>车体行动如何改变下一次观测</h2>
+        <p>巡检车运动后，视角、遮挡和测距读数会变。闭环的关键是用新观测修正下一步行动，并把停车或继续的依据保留下来。</p>
+      </header>
+      <div class="loop">
+        <h3>图 04 · 具身感知与行动闭环</h3>
+        <ol class="loop-steps">
+          <li><strong>01 感知</strong>更新车体位姿与通行图。</li>
+          <li><strong>02 规划</strong>在许可范围内提出路线。</li>
+          <li><strong>03 执行</strong>安全监督放行后，底盘执行。</li>
+          <li><strong>04 反馈</strong>车体位姿与观测视角改变。</li>
+        </ol>
+        <p class="feedback"><strong>反馈回到感知</strong> · 新读数进入下一轮。定位无效、通信中断或人工急停时，安全监督可独立要求停驻。</p>
+      </div>
+      <div class="contracts" aria-label="子系统接口清单">
+        <article class="contract">
+          <h3>感知与定位</h3>
+          <dl><dt>输入</dt><dd>图像、测距、惯导和里程。</dd><dt>输出</dt><dd>位姿、通行图与质量标记。</dd><dt>模块</dt><dd>时间对齐、融合定位、栅格更新。</dd></dl>
+        </article>
+        <article class="contract">
+          <h3>语义记录</h3>
+          <dl><dt>输入</dt><dd>图像、位姿和点位 ID。</dd><dt>输出</dt><dd>通行事件和证据索引。</dd><dt>模块</dt><dd>场景标签、记录归档。</dd></dl>
+        </article>
+        <article class="contract">
+          <h3>路线规划</h3>
+          <dl><dt>输入</dt><dd>通行图、点位与许可区。</dd><dt>输出</dt><dd>候选路线或不可达状态。</dd><dt>模块</dt><dd>区域约束检查、候选路线检查。</dd></dl>
+        </article>
+        <article class="contract">
+          <h3>运动控制</h3>
+          <dl><dt>输入</dt><dd>已放行路线、车体状态。</dd><dt>输出</dt><dd>底盘指令及执行反馈。</dd><dt>模块</dt><dd>速度跟踪、底盘接口。</dd></dl>
+        </article>
+        <article class="contract">
+          <h3>安全监督</h3>
+          <dl><dt>输入</dt><dd>急停、通信状态、定位质量。</dd><dt>输出</dt><dd>放行、停驻或等待授权。</dd><dt>模块</dt><dd>状态监测、急停接口。</dd></dl>
+        </article>
+        <article class="contract">
+          <h3>人机交互与数据管理</h3>
+          <dl><dt>输入</dt><dd>任务约束、证据和运行日志。</dd><dt>输出</dt><dd>人工复核意见与任务报告。</dd><dt>模块</dt><dd>任务面板、事件检索、日志回放。</dd></dl>
+        </article>
+      </div>
+      <div class="notes">
+        <article class="note">
+          <h3>接口约定</h3>
+          <p>位姿、通行图和事件统一引用场景坐标系，记录时间戳与地图版本。接收方可以据此识别数据陈旧或版本不匹配。</p>
+        </article>
+        <article class="note">
+          <h3>取舍与边界</h3>
+          <p>允许在已批准范围内调整路线，可减少常见阻断造成的中断。证据不充分时优先停驻，代价是覆盖率可能下降，报告需明确说明原因。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="tests">
+      <header class="section-head">
+        <span class="section-index">04 / VERIFICATION</span>
+        <h2>从任务要求追到测试证据</h2>
+        <p>每条需求对应一个承担职责的子系统、一个仿真用例和一条可判定的通过条件。下表是验证计划，页面中的推演结果为预期状态。</p>
+      </header>
+      <p class="table-hint" id="table-hint">窄屏可左右滑动查看完整矩阵。</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-labelledby="matrix-caption" aria-describedby="table-hint">
+        <table>
+          <caption id="matrix-caption">需求与验证矩阵</caption>
+          <thead><tr><th scope="col">需求</th><th scope="col">责任子系统</th><th scope="col">仿真用例</th><th scope="col">通过条件及证据</th></tr></thead>
+          <tbody>
+            <tr id="r01"><th scope="row">R01 · 点位覆盖</th><td>路线规划、语义记录</td><td><span class="test-code">T01</span>主通道正常</td><td>A、B 均完成检查。点位报告各有一条可检索记录。</td></tr>
+            <tr id="r02"><th scope="row">R02 · 阻断响应</th><td>感知与定位、路线规划</td><td><span class="test-code">T02</span>主路受阻，分别测试旁路可用与不可用</td><td>路线始终在许可区内且避开受阻段。旁路不可用时记录 B 未覆盖，地图与路线事件可回放。</td></tr>
+            <tr id="r03"><th scope="row">R03 · 异常停驻</th><td>安全监督、运动控制</td><td><span class="test-code">T03</span>分别注入定位无效和通信中断</td><td>故障后进入停驻，恢复信号后无未授权前进。日志提供故障与停驻时间，可计算响应耗时。</td></tr>
+            <tr id="r04"><th scope="row">R04 · 人工急停</th><td>安全监督、人机交互</td><td><span class="test-code">T04</span>移动期间触发急停</td><td>急停优先于巡检，解除后仍待授权。日志可核对急停、停驻、重新授权的顺序。</td></tr>
+            <tr id="r05"><th scope="row">R05 · 报告可复核</th><td>语义记录、数据管理</td><td><span class="test-code">T05</span>抽查覆盖和未覆盖报告项</td><td>每项含点位 ID、结论、时间和证据索引。未覆盖项说明原因，索引能定位源记录。</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="trace-line"><strong>怎样读测试结果</strong>覆盖率为已完成检查的点位数除以计划点位数。停驻响应时间为日志中停驻时刻减去故障或急停的触发时刻。报告同时保留未覆盖原因，以区分任务中断与报告漏项。</p>
+      <div class="notes">
+        <article class="note">
+          <h3>验证 · 系统是否满足需求</h3>
+          <p>复用同一份任务配置和场景地图，逐一改变故障条件。按用例保留地图版本、事件顺序和通过判定。</p>
+        </article>
+        <article class="note">
+          <h3>确认 · 交付是否满足班组需要</h3>
+          <p>请扮演救援班组的同学仅凭报告判断 A、B 的检查情况，并回溯至少一条证据。记录误解和缺失信息，用于修改报告结构。</p>
+        </article>
+      </div>
+      <p class="reference">需求编号和验证矩阵的组织参考 NASA《系统工程手册》附录 D、E。<a href="https://www.nasa.gov/reference/system-engineering-handbook-appendix/">查看方法参考</a></p>
+    </section>
+  </div>
 </main>
-<footer><div class="wrap">复杂系统工程 2026 · 无武装巡检与应急搜救仿真</div></footer>
+<footer class="footer">
+  <div class="wrap">
+    <p>复杂系统工程 2026 · 无武装应急巡检课程仿真</p>
+    <a href="#top">返回顶部 ↑</a>
+  </div>
+</footer>
+<script>
+const scenarioControls = document.getElementById('scenario-controls');
+const scenarioCases = document.querySelectorAll('[data-case]');
+const scenarioRoutes = document.querySelectorAll('[data-route]');
+const mapDescription = document.getElementById('map-desc');
+const liveStatus = document.getElementById('scenario-status');
+
+function showScenario() {
+  const selection = scenarioControls.querySelector('input:checked').value;
+  for (const route of scenarioRoutes) {
+    route.toggleAttribute('hidden', route.dataset.route !== selection);
+  }
+  for (const scenario of scenarioCases) {
+    const selected = scenario.dataset.case === selection;
+    scenario.hidden = !selected;
+    if (selected) {
+      mapDescription.textContent = scenario.dataset.map;
+      liveStatus.textContent = scenario.querySelector('.case-status').textContent;
+    }
+  }
+}
+
+scenarioControls.addEventListener('change', showScenario);
+showScenario();
+scenarioControls.hidden = false;
+</script>
 </body>
 </html>
