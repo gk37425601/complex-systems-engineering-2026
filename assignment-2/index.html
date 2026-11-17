@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="复杂系统工程小组作业 2，轮腿式无人作战平台的业务需求与相关方需求规格说明。">
+  <meta name="theme-color" content="#102e34">
+  <title>轮腿式无人作战平台 | 复杂系统工程 · 作业 2</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172d33;
+      --muted: #4b6369;
+      --accent: #006958;
+      --accent-dark: #035144;
+      --dark: #102e34;
+      --dark-soft: #184048;
+      --light: #f2f7f6;
+      --line: #d4e2df;
+      --block: #ffffff;
+      --container: 78rem;
+      font-family: Inter, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--light); color: var(--ink); }
+    html { scroll-padding-block-start: 1.25rem; }
+    a { color: var(--accent-dark); text-underline-offset: .18em; }
+    a:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
+      outline: .16rem solid #c56b0b;
+      outline-offset: .2rem;
+    }
+    .skip-link {
+      position: absolute;
+      z-index: 2;
+      inset: .8rem auto auto .8rem;
+      padding: .55rem .8rem;
+      background: #fff;
+      transform: translateY(-180%);
+    }
+    .skip-link:focus { transform: none; }
+    .container { width: min(var(--container), 100% - 3.5rem); margin-inline: auto; }
+    .masthead { background: var(--dark); color: #edf8f5; }
+    .masthead a { color: inherit; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .8rem 1.2rem;
+      padding-block: .95rem;
+      border-bottom: 1px solid #426268;
+    }
+    .home-link { display: inline-flex; gap: .55rem; align-items: center; font-weight: 700; text-decoration: none; }
+    .home-link::before { content: "←"; color: #8ad3bd; }
+    .topnav { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem 1.4rem; font-size: .89rem; }
+    .topnav a { text-decoration: none; }
+    .topnav a:hover, .home-link:hover { text-decoration: underline; }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(15rem, .85fr);
+      align-items: end;
+      gap: 2rem clamp(2rem, 6vw, 6rem);
+      padding-block: clamp(2.75rem, 7vw, 6.25rem) clamp(2.7rem, 6vw, 5.5rem);
+    }
+    .hero-label { margin: 0 0 1rem; color: #9ce0ca; font-size: .91rem; font-weight: 700; letter-spacing: .08em; }
+    h1 { margin: 0; font-size: clamp(2.35rem, 5.4vw, 4.35rem); letter-spacing: -.035em; line-height: 1.15; }
+    .hero-subtitle { margin: .95rem 0 0; color: #e9f6f3; font-size: clamp(1.12rem, 2.05vw, 1.6rem); }
+    .hero-scope { margin: 1.25rem 0 0; color: #bed9d7; font-size: .97rem; line-height: 1.65; }
+    .hero-docs {
+      border-top: 1px solid #57777b;
+      background: linear-gradient(115deg, transparent, #20464d55);
+    }
+    .hero-docs a {
+      display: grid;
+      grid-template-columns: 4.1rem minmax(0, 1fr) auto;
+      align-items: center;
+      gap: .8rem;
+      min-height: 3.8rem;
+      padding: .6rem .65rem .6rem .2rem;
+      border-bottom: 1px solid #57777b;
+      text-decoration: none;
+    }
+    .hero-docs a:hover { background: var(--dark-soft); }
+    .hero-docs strong { color: #9ce0ca; font-size: .92rem; letter-spacing: .05em; }
+    .hero-docs span { font-size: .9rem; }
+    .hero-docs span[aria-hidden] { color: #9ce0ca; }
+
+    .report-shell {
+      display: grid;
+      grid-template-columns: 12rem minmax(0, 1fr);
+      align-items: start;
+      gap: clamp(1.2rem, 3vw, 2.9rem);
+      padding-block: clamp(1.65rem, 4vw, 3.5rem) 4rem;
+    }
+    .outline {
+      position: sticky;
+      top: 1rem;
+      max-height: calc(100dvh - 2rem);
+      overflow-y: auto;
+      padding: .2rem .6rem .75rem .15rem;
+      color: var(--muted);
+      font-size: .87rem;
+      line-height: 1.5;
+      scrollbar-width: thin;
+    }
+    .outline summary { padding: .2rem 0 .55rem; color: var(--ink); font-size: 1rem; font-weight: 750; cursor: pointer; }
+    .outline p { margin: .65rem 0 .2rem; font-weight: 750; }
+    .outline ul { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--line); }
+    .outline li a { display: block; margin: .12rem 0; padding: .12rem .45rem; }
+    .outline a { color: inherit; text-decoration: none; }
+    .outline a:hover { color: var(--accent-dark); text-decoration: underline; }
+    .outline .review-link { display: inline-block; margin-top: .7rem; }
+
+    .document {
+      min-width: 0;
+      margin: 0 0 1.35rem;
+      padding: clamp(1.05rem, 3.1vw, 2.7rem);
+      border: 1px solid var(--line);
+      border-radius: .8rem;
+      background: var(--block);
+      font-size: 1rem;
+      line-height: 1.78;
+    }
+    .document:last-child { margin-bottom: 0; }
+    .doc-heading {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      column-gap: .7rem;
+      margin: 0;
+      padding-bottom: .8rem;
+      border-bottom: 2px solid #337864;
+      font-size: clamp(1.45rem, 2.75vw, 2.15rem);
+      letter-spacing: -.02em;
+      line-height: 1.35;
+    }
+    .doc-heading span { color: var(--accent); font-size: .72em; }
+    .document h3 { margin: 2.05rem 0 .65rem; color: var(--ink); font-size: clamp(1.19rem, 1.7vw, 1.42rem); line-height: 1.5; }
+    .document h4 { margin: 1.35rem 0 .46rem; color: var(--accent-dark); font-size: 1.06rem; line-height: 1.5; }
+    .document h5 { margin: 1.1rem 0 .4rem; font-size: 1rem; }
+    .document p { margin: .65rem 0; }
+    .document p:last-child { margin-bottom: 0; }
+    .document ul, .document ol { margin: .65rem 0 1rem; padding-inline-start: 1.38rem; }
+    .document li { padding-inline-start: .15rem; }
+    .document li + li { margin-top: .26rem; }
+    .document dl { margin: .65rem 0 1rem; }
+    .document dt { color: var(--accent-dark); font-weight: 720; }
+    .document dd { margin: 0 0 .6rem 0; }
+    .document :target { scroll-margin-block-start: .35rem; }
+    .document :is(h3,h4)[id]:target { color: var(--accent-dark); text-decoration: underline #8ac1ac .13rem; text-underline-offset: .25em; }
+    .document a { overflow-wrap: anywhere; }
+    .callout {
+      margin: 1rem 0;
+      padding: .65rem .85rem;
+      border-inline-start: .2rem solid #337864;
+      border-radius: 0 .25rem .25rem 0;
+      background: #edf6f3;
+      color: #24484a;
+    }
+    .document figure { margin: 1.15rem 0; }
+    .document figcaption { margin-top: .4rem; font-size: .89rem; color: var(--muted); }
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem .55rem;
+      align-items: center;
+      color: var(--accent-dark);
+    }
+    .flow > :is(span,li) {
+      padding: .3rem .58rem;
+      border-radius: .25rem;
+      background: #edf6f3;
+    }
+    .table-wrap {
+      max-width: 100%;
+      overflow-x: auto;
+      margin-block: .9rem 1.2rem;
+      scrollbar-width: thin;
+    }
+    .document table {
+      width: 100%;
+      margin-block: .9rem 1.2rem;
+      border-collapse: collapse;
+      font-size: .91rem;
+      line-height: 1.62;
+    }
+    .table-wrap table { margin: 0; }
+    .document caption { margin-bottom: .36rem; text-align: left; font-weight: 750; }
+    .document :is(th, td) {
+      padding: .55rem .68rem;
+      border: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+    .document thead th { background: #e5f1ee; color: #144d43; }
+    .document tbody tr:nth-child(even) { background: #f6faf9; }
+    .document tbody th[scope="row"], .document :is(td,th):first-child code { white-space: nowrap; }
+    .document code { color: #164f43; font-family: "IBM Plex Mono", Consolas, monospace; font-size: .91em; }
+    .footer { color: var(--muted); border-top: 1px solid var(--line); font-size: .88rem; }
+    .footer .container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .55rem 1rem; padding-block: 1.2rem; }
+
+    @media (max-width: 58rem) {
+      .container { width: calc(100% - 2.5rem); }
+      .report-shell { grid-template-columns: 10.4rem minmax(0, 1fr); gap: 1.1rem; }
+      .document :is(th,td) { padding: .52rem .5rem; }
+    }
+    @media (max-width: 44rem) {
+      .container { width: calc(100% - 1.5rem); }
+      .topbar { gap: .6rem 1rem; }
+      .topnav { gap: .3rem .8rem; }
+      .hero { grid-template-columns: minmax(0, 1fr); gap: 1.3rem; padding-block: 2.6rem 2.1rem; }
+      .hero h1 { font-size: clamp(1.98rem, 9.6vw, 2.9rem); text-wrap: balance; }
+      .hero-scope { margin-top: .75rem; }
+      .hero-docs a { min-height: 3rem; }
+      .report-shell { display: block; padding-bottom: 2rem; }
+      .outline { position: static; max-height: none; margin-bottom: 1rem; padding: .5rem .45rem; overflow-y: visible; }
+      .outline ul { display: flex; flex-wrap: wrap; border: 0; }
+      .outline li a { padding-inline: .35rem; }
+      .document { margin-bottom: .8rem; }
+      .document table { min-width: 33rem; }
+      .document > table, .document section > table {
+        display: block;
+        min-width: 0;
+        width: 100%;
+        overflow: auto;
+      }
+      .document > table :is(th,td), .document section > table :is(th,td) { min-width: 5rem; }
+    }
+    @media print {
+      @page { margin: 15mm; }
+      body, .masthead, .document { background: white; color: #111; }
+      .container { width: 100%; }
+      .topbar, .hero-docs, .outline, .footer, .skip-link { display: none; }
+      .hero, .report-shell { display: block; padding: 0; }
+      .hero { margin-bottom: 1.1rem; }
+      h1 { font-size: 2rem; }
+      .hero-label, .hero-subtitle, .hero-scope { color: #111; }
+      .document { padding: 0; border: 0; font-size: 10pt; }
+      .document + .document { break-before: page; }
+      .table-wrap { overflow: visible; }
+      .document table { display: table; min-width: 0; font-size: 8.7pt; }
+      .document :is(h2,h3,h4) { break-after: avoid; }
+      .document tr { break-inside: avoid; }
+      a { color: inherit; }
+    }
+  </style>
+</head>
+<body id="top">
+  <a class="skip-link" href="#main-content">跳转到作业正文</a>
+  <header class="masthead">
+    <div class="container">
+      <div class="topbar">
+        <a class="home-link" href="https://gk37425601.github.io/complex-systems-engineering-2026/">课程首页</a>
+        <nav class="topnav" aria-label="作业文档">
+          <a href="#brs">BRS</a>
+          <a href="#strs">StRS</a>
+          <a href="#review">追溯与评审</a>
+        </nav>
+      </div>
+      <div class="hero">
+        <div>
+          <p class="hero-label">复杂系统工程 · 小组作业 2</p>
+          <h1>轮腿式无人作战平台</h1>
+          <p class="hero-subtitle">业务需求与相关方需求规格说明</p>
+          <p class="hero-scope">封闭训练场内的非武装巡检与惰性物资转运</p>
+        </div>
+        <nav class="hero-docs" aria-label="规格说明入口">
+          <a href="#brs"><strong>BRS</strong><span>组织运营与业务目标</span><span aria-hidden="true">↓</span></a>
+          <a href="#strs"><strong>StRS</strong><span>系统运行与相关方需求</span><span aria-hidden="true">↓</span></a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="container report-shell" tabindex="-1">
+    <nav class="outline" aria-label="章节目录">
+      <details open>
+        <summary>章节目录</summary>
+        <p><a href="#brs">业务需求规格说明</a></p>
+        <ul>
+          <li><a href="#b1">1. 简介</a></li>
+          <li><a href="#b2">2. 参考文献</a></li>
+          <li><a href="#b3">3. 业务管理需求</a></li>
+          <li><a href="#b4">4. 业务运行需求</a></li>
+          <li><a href="#b5">5. 初步运行概念</a></li>
+          <li><a href="#b6">6. 初步生存周期概念</a></li>
+          <li><a href="#b7">7. 项目约束</a></li>
+          <li><a href="#b8">8. 附录</a></li>
+        </ul>
+        <p><a href="#strs">相关方需求规格说明</a></p>
+        <ul>
+          <li><a href="#s1">1. 简介</a></li>
+          <li><a href="#s2">2. 参考</a></li>
+          <li><a href="#s3">3. 业务管理需求</a></li>
+          <li><a href="#s4">4. 系统运行需求</a></li>
+          <li><a href="#s5">5. 用户需求</a></li>
+          <li><a href="#s6">6. 详细生存周期概念</a></li>
+          <li><a href="#s7">7. 项目约束</a></li>
+          <li><a href="#s8">8. 附录</a></li>
+        </ul>
+        <p><a class="review-link" href="#review">需求追溯与评审</a></p>
+      </details>
+    </nav>
+    <div>
+      <section id="brs" class="document" aria-labelledby="brs-title">
+        <h2 id="brs-title" class="doc-heading">业务需求规格说明 <span>BRS</span></h2>
+<section id="b1" aria-labelledby="b1-title">
+  <h3 id="b1-title">1. 简介</h3>
+  <h4>1.1 业务目的</h4>
+  <p>封闭训练场需要重复完成设施巡检和小件物资转运。以人工进入受控作业区作为比较基线，人员需要在路线内逐点查验或搬运，重复任务的过程记录也依赖现场人员汇总。本项目评估能否由人员在场外监控、由轮腿式无人作战平台进入已批准的作业区执行任务，从而降低人员进入作业区的时间，并形成可审查的任务证据。</p>
+  <h4>1.2 业务范围</h4>
+  <p>业务域为封闭训练场非武装保障，覆盖任务申请、场地协调、放行、监督执行、异常处置、结果验收、维护和退役。任务限于检查预设设施点和转运惰性物资。拟议系统包括轮腿式地面平台、操作终端及其任务记录接口。场地门禁、场地保障、供电条件和训练记录归档服务由外部单位或设施提供。概念验证按单台平台、单场地、单任务配置展开。</p>
+  <h4>1.3 业务概况</h4>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="业务关系与交接">
+  <table>
+    <caption>业务关系与交接</caption>
+    <thead><tr><th scope="col">业务关系</th><th scope="col">交接内容</th><th scope="col">结果</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">任务发起方 → 场地管理与任务负责人</th><td>巡检点或交接点、运行时段、任务完成条件</td><td>确定场地与人员安排</td></tr>
+      <tr><th scope="row">任务负责人和安全监护 → 操作员</th><td>任务单、场地边界、放行决定和中止条件</td><td>形成可执行任务</td></tr>
+      <tr><th scope="row">操作员 ⇄ 平台</th><td>经确认的任务、监督控制指令、状态与事件反馈</td><td>完成任务，或转入安全处置</td></tr>
+      <tr><th scope="row">操作员、维护人员 → 验收与记录负责人</th><td>结果、事件记录、设备状态和故障处置记录</td><td>判定任务结果，决定设备下一步处置</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h4>1.4 定义</h4>
+  <dl>
+    <dt>受控作业区</dt><dd>在任务时段内按批准边界隔离并由安全监护管理进出的封闭区域。</dd>
+    <dt>人员暴露量（人·分钟）</dt><dd>同一任务计量窗口内，各参与人员在受控作业区内停留时长之和，含经批准的人工接管和回收。</dd>
+    <dt>任务完成</dt><dd>巡检达到任务单约定的检查点并交齐记录，或在授权地点完成惰性物资交接，并由任务负责人验收。</dd>
+    <dt>安全保持</dt><dd>平台停止任务运动并保持，异常状态和恢复限制对操作者可判定，后续动作须经人工授权。</dd>
+  </dl>
+  <h4>1.5 主要相关方</h4>
+  <p>任务发起方定义交付结果；任务负责人协调排期并验收；操作员监督平台；安全监护和场地管理方控制人员与场地准入，并可触发任务中止；物资交接人确认惰性物资的收发；维护人员确认设备可用或隔离；验收与记录负责人审核试验结果及留档。详见 <a href="#strs">StRS 相关方列表</a>。</p>
+</section>
+
+<section id="b2" aria-labelledby="b2-title">
+  <h3 id="b2-title">2. 参考文献</h3>
+  <ol>
+    <li>郭宝柱，《系统工程——基于国际标准过程的研究与实践》，第 4 章《概念定义》，§4.1.2 与表 4-1。采用章内区分运营概念和运行概念的方法，并据表 4-1 组织 BRS。</li>
+    <li>《复杂系统工程 2026》小组作业 2 课堂说明，作为选题、成果和交付形式的依据。</li>
+  </ol>
+</section>
+
+<section id="b3" aria-labelledby="b3-title">
+  <h3 id="b3-title">3. 业务管理需求</h3>
+  <h4>3.1 业务环境</h4>
+  <p>内部条件包括训练场可预约时段、受训人员数量、场地封控、充电和维修场所、记录审阅能力。外部条件包括天气和地表变化、场地周边活动对隔离的影响、外部设施可用性及场地管理、安全、数据和废弃物处置要求。具体场地制度、路线边界、地面条件和天气限制由场地管理与安全监护在验证前共同核定。</p>
+  <h4>3.2 使命、目的与目标</h4>
+  <p>使命是以可监督、可验收的方式完成封闭训练场的巡检和惰性物资转运。业务指标适用于本课程提出的概念验证，当前为建议验收目标，待现场条件和计量方案批准后执行。</p>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="业务需求及验收口径">
+  <table>
+    <caption>业务需求及验收口径</caption>
+    <thead><tr><th scope="col">编号</th><th scope="col">业务需求</th><th scope="col">验收口径与证据</th></tr></thead>
+    <tbody>
+      <tr id="br-01"><th scope="row">BR-01</th><td>降低受控作业区内的人员暴露，并确保未经授权入场为零。</td><td>按任务类型配对比较人工基线和平台方案。两组使用同路线、同任务量、同计时规则，从任务准备开始记录入场，到作业区恢复移交为止，计入异常处置与回收。平台方案配对平均人·分钟须低于人工基线，且验证期间未经授权入场事件数为零。证据为人员进出记录与任务单。</td></tr>
+      <tr id="br-02"><th scope="row">BR-02</th><td>常规巡检与转运任务的验证完成率合计达到 90% 以上。</td><td>预先排定 20 次常规任务，巡检和转运各 10 次。完成率为通过验收次数 ÷ 20，至少 18 次通过。准备失败计入分母，预先安排的异常触发试验另列；分别报告两类任务的结果。证据为预排清单和验收表。</td></tr>
+      <tr id="br-03"><th scope="row">BR-03</th><td>必测安全响应验证用例全部通过。</td><td>在批准且可控的条件下，逐项验证人工中止、失联、路线异常或低电量等批准用例。逐项核对停止保持、告警或状态记录、恢复授权与现场处置证据，以全部通过作为试点评审通过条件。</td></tr>
+      <tr id="br-04"><th scope="row">BR-04</th><td>验证任务记录完整率达到 100%，具备审查与复盘所需的可追溯性。</td><td>逐次核对台账、任务单、设备事件或准备失败记录及关闭结论。按状态核查任务编号、时间、角色、结果及异常处置是否齐全。每次登记任务均有相应证据。</td></tr>
+      <tr id="br-05"><th scope="row">BR-05</th><td>在试点启动前具备部署、保障和退役准备。</td><td>检查经相应负责人审阅的场地和岗位放行表、培训与配置清单、充电维护及故障隔离方案、设备退役和数据移交流程，逐项记录负责人及审阅结论。</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h4>3.3 业务模型</h4>
+  <p>由训练场保障组提供场地内服务，按任务单受理、通过受控场地交付、按记录验收。固定资源为单台平台及操作终端、人工保障、充电与维修条件。规模以场地可调度能力和人员资格为约束。比较方案时采用同任务量下的人员暴露、交付结果、现场安全和保障工时，成本按一次性投入与持续运行保障归集。</p>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="候选方案比较">
+  <table>
+    <caption>候选方案比较</caption>
+    <thead><tr><th scope="col">候选方案</th><th scope="col">业务收益</th><th scope="col">代价与适用条件</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">人工完成</th><td>现有角色与流程即可执行，便于作为比较基线</td><td>人员须在区内执行巡检或搬运，记录受现场一致性影响</td></tr>
+      <tr><th scope="row">轮式平台</th><td>有望满足已整备路线上的巡检与转运需求</td><td>适合路线条件稳定、可预先核准的场地，需验证边界地段适用性</td></tr>
+      <tr><th scope="row">人监督的轮腿式平台</th><td>有望覆盖经核准的平整与局部起伏路段，人员可在作业区外监督</td><td>需额外验证通过性、维护工时与人员培训需求，并处理失联和异常回收</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>课程选取轮腿式方案开展概念定义。现场若只有平整通道，复核轮式方案的成本和保障工时；试点是否继续依据 BR-01 至 BR-05 的证据决定。</p>
+  <h4>3.4 信息环境</h4>
+  <ul>
+    <li><strong>项目组合。</strong>本验证优先复用场地预约、人员资质、设备台账和试验记录。与其他训练安排冲突时，由场地管理重新排期，所有任务须满足同一现场放行规则。</li>
+    <li><strong>长期系统计划。</strong>合同或设备变更时保持任务编号、记录字段和导出格式的可衔接性。由任务记录管理方维护字段定义和访问配置。</li>
+    <li><strong>数据配置。</strong>以任务编号关联任务单、场地、人员角色、状态事件、验收和维护记录。原始试验数据存放于受控记录库，按角色授权查阅或导出。保留期限和删除流程由数据管理方依据场地制度确认。</li>
+  </ul>
+</section>
+
+<section id="b4" aria-labelledby="b4-title">
+  <h3 id="b4-title">4. 业务运行需求与运营概念（ConOps）</h3>
+  <p>训练场保障组通过任务调度、场地管控、平台服务、事件响应和记录归档共同交付任务。任务负责人拥有放行和关闭责任，操作员执行并持续监护，安全监护提供独立的现场判断。团队在每次任务关闭后用验收结果决定续用、返修或暂停试点。</p>
+  <figure>
+    <figcaption>图 1　组织级业务活动顺序</figcaption>
+    <ol class="process-flow">
+      <li>申请与放行（BP-01）</li>
+      <li>监督执行（BP-02）</li>
+      <li>异常时转入安全处置（BP-03）</li>
+      <li>验收、复盘与保障（BP-04）</li>
+    </ol>
+    <p>常规任务从监督执行直接进入验收；任务未获放行时也进入记录与关闭环节。异常处置结束后，经重新放行方可转回执行。</p>
+  </figure>
+  <h4>4.1 业务过程</h4>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="业务流程及适用规则">
+  <table>
+    <caption>业务流程及适用规则</caption>
+    <thead><tr><th scope="col">过程</th><th scope="col">触发、活动与结果</th><th scope="col">适用规则</th><th scope="col">初步场景</th></tr></thead>
+    <tbody>
+      <tr id="bp-01"><th scope="row">BP-01 申请与放行</th><td>任务申请提交后生成任务单；场地管理确认可用区段和时窗，操作员报告设备准备状态，安全监护确认隔离。任务负责人登记放行或驳回。</td><td>R-01、R-04</td><td>SC-01、SC-02</td></tr>
+      <tr id="bp-02"><th scope="row">BP-02 监督执行</th><td>操作员依据已放行任务启动平台，监督巡检点或物资交接点的进展，接收状态并记录结果。完成后转入验收，出现异常转入 BP-03。</td><td>R-01、R-02、R-04</td><td>SC-01、SC-02</td></tr>
+      <tr id="bp-03"><th scope="row">BP-03 安全处置</th><td>发现人员闯入风险、路线不可用、低电量、失联或其他越界条件时，安全优先。操作员在可用时下达中止，安全监护控制场地。当状态可确认后，由任务负责人决定终止、现场回收或重新放行。</td><td>R-02、R-03、R-04</td><td>SC-03、SC-04</td></tr>
+      <tr id="bp-04"><th scope="row">BP-04 验收、复盘与保障</th><td>验收方核对任务结果，登记通过、未完成或准备失败；维护人员完成检查，登记设备可用、隔离维修或进入退役流程。</td><td>R-03、R-04</td><td>SC-01 至 SC-05</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h4>4.2 业务运营策略与规则</h4>
+  <dl>
+    <dt>R-01　任务放行</dt><dd>任务单、场地隔离、设备状态、具资质人员和适用环境均经确认后，任务负责人方可放行。进入作业区须由安全监护按现场规则批准。</dd>
+    <dt>R-02　安全优先</dt><dd>安全中止优先于任务完成。现场发现风险即中止任务或保持安全状态，隔离风险区并通报。</dd>
+    <dt>R-03　复位与回收</dt><dd>恢复条件经人工确认并重新授权后方可继续。现场回收由安全监护按受控程序放行。设备故障待关闭后方可恢复可用状态。</dd>
+    <dt>R-04　记录闭环</dt><dd>从受理开始建立唯一任务编号，保存放行、结果、事件与关闭决定。任何结果均进入台账，任务负责人签认后归档。</dd>
+  </dl>
+  <h4>4.3 业务运行约束</h4>
+  <p>按批准的运行时窗、隔离边界、路线和天气条件开展。具备操作员与安全监护后才可执行，运行中保持人工监督，任务互不并发。惰性物资按获准重量与尺寸上限交接。现场条件变化、监护失效或设备超出批准包络时，按 R-02 停止任务。</p>
+  <h4>4.4 业务运行质量</h4>
+  <p>安全中止和人员管控优先于任务完成率。任务结果、人员暴露、未放行和异常处置均记录在案，以 BR-01 至 BR-04 的同一计量规则评价效能和风险，并将准备、交接与回收时间用于复盘运行效率。</p>
+  <h4>4.5 业务结构</h4>
+  <p>任务协调岗位于场外控制区，负责排期和放行；操作员在监督区使用终端；安全监护负责隔离边界与入场许可；物资交接人组织交接地点核验；维护岗使用隔离维修区和充电场所；验收与记录岗位使用受控记录库。各岗位使用同一任务编号交接，试点前应确认每个岗位的授权和替补人员。</p>
+</section>
+
+<section id="b5" aria-labelledby="b5-title">
+  <h3 id="b5-title">5. 提案系统初步运行概念</h3>
+  <h4>5.1 初步运行概念</h4>
+  <p>平台支持操作员按批准路线执行检查或物资转运，反馈位置、进度、运行状态和事件。在人员中止、失联或状态不满足运行条件时进入安全保持，供后续处置判断。主要状态为待命、自检、受监督执行、安全保持和维护隔离。操作员、现场安全监护、物资交接人和维护人员均按授权参与，运行依赖已核准的训练场、操作与通信条件、充电维护设施及记录归档环境。完整的系统交互与状态转换见 <a href="#strs">StRS 的 OpsCon</a>。</p>
+  <h4>5.2 初步运行场景</h4>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="初步运行场景">
+  <table>
+    <caption>初步运行场景</caption>
+    <thead><tr><th scope="col">场景</th><th scope="col">角色与平台交互</th><th scope="col">关联过程</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">SC-01 场地巡检</th><td>操作员监督平台到达已批准的巡检点并收集记录，任务负责人核对检查清单。</td><td>BP-01、BP-02、BP-04</td></tr>
+      <tr><th scope="row">SC-02 惰性物资转运</th><td>人员确认装载及交接条件，平台在监督下到达交接点，交接人确认签收。</td><td>BP-01、BP-02、BP-04</td></tr>
+      <tr><th scope="row">SC-03 通信失联</th><td>平台进入安全保持，操作员与安全监护确认状态并按授权处置。</td><td>BP-03、BP-04</td></tr>
+      <tr><th scope="row">SC-04 障碍或低电量</th><td>平台暂停任务并报告异常，现场确认后选择终止、受控回收或重新放行。</td><td>BP-03、BP-04</td></tr>
+      <tr><th scope="row">SC-05 维护与退役</th><td>维护人员隔离设备，记录维护和复检，或交接设备、数据和处置凭证。</td><td>BP-04</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="b6" aria-labelledby="b6-title">
+  <h3 id="b6-title">6. 其他初步生存周期概念</h3>
+  <dl>
+    <dt>采办</dt><dd>优先评估可用于受控教学验证的平台与可获得的保障资源；采办方审查设备、培训、维护和数据交接条件。</dd>
+    <dt>部署</dt><dd>完成场地勘察、边界和岗位分配、设备状态检查、人员培训、记录字段确认，再组织放行演练。</dd>
+    <dt>支持</dt><dd>确定状态检查、充电、故障隔离、备件及维修安排；定期复核设备配置、故障记录和人员资格。</dd>
+    <dt>弃置</dt><dd>停止任务并退网，移交需保留的记录；按审批处理设备上的任务数据、电池和其他部件，登记处置凭证。</dd>
+  </dl>
+</section>
+
+<section id="b7" aria-labelledby="b7-title">
+  <h3 id="b7-title">7. 项目约束</h3>
+  <p>课程交付节点为 2026 年 11 月 18 日 12:00，交付物采用 HTML。后续验证依次完成文件评审、场地与设备确认、受控验证和证据复核，各阶段经审查后进入下一阶段。预算由相关负责人在启动试点前确认；费用估算覆盖设备或租赁、场地、培训、人员、充电维护和退役。场地可用窗口、人员排班、预算上限、运行包络及验收方案均为试点放行前确认项。</p>
+</section>
+
+<section id="b8" aria-labelledby="b8-title">
+  <h3 id="b8-title">8. 附录</h3>
+  <h4>8.1 缩写与缩略语</h4>
+  <dl>
+    <dt>BRS</dt><dd>Business Requirements Specification，业务需求规格说明。</dd>
+    <dt>StRS</dt><dd>Stakeholder Requirements Specification，相关方需求规格说明。</dd>
+    <dt>ConOps</dt><dd>Concept of Operations，运营概念。</dd>
+    <dt>OpsCon</dt><dd>Operational Concept，运行概念。</dd>
+    <dt>BR、BP、R、SC</dt><dd>本文采用的业务需求、业务过程、业务规则与运行场景编号前缀。</dd>
+  </dl>
+</section>
+      </section>
+      <section id="strs" class="document" aria-labelledby="strs-title">
+        <h2 id="strs-title" class="doc-heading">相关方需求规格说明 <span>StRS</span></h2>
+<section id="s1" aria-labelledby="s1-title">
+  <h3 id="s1-title">1. 简介</h3>
+  <h4>1.1 相关方目的</h4>
+  <p>将场地管理、任务执行、安全监督、资料管理与维护保障各方的期望转化为可确认的需求，规定平台投入试用时应表现出的行为，以及相关方判定任务完成和准许运行的依据。</p>
+  <h4>1.2 相关方范围</h4>
+  <p>关注系统（SoI）包括轮腿式移动载体、随车状态与巡检记录能力、惰性物资承载接口、配套操作终端以及任务记录导出能力。场地审批与隔离、训练场通信环境、组织档案库、供电与维修设施均由外部相关方提供。正常演示按一台平台、一条核准路线、一名操作员和一名安全员配置，活动限定在封闭训练场的非武装巡检和惰性物资转运。</p>
+  <h4>1.3 概况</h4>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="系统边界与外部交互">
+  <table>
+    <caption>系统边界与外部交互</caption>
+    <thead><tr><th scope="col">边界对象</th><th scope="col">输入给平台或终端</th><th scope="col">平台或终端的输出</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">组织任务台账 / 操作员</th><td>任务号、批准区域及路线、任务类型、检查点或交接点、人工授权</td><td>准备状态、任务进度、检查点记录或到站记录、结果及异常</td></tr>
+      <tr><th scope="row">安全员 / 场地系统</th><td>场地放行状态、人工停机请求、清场及复核结论</td><td>运动与停止状态、告警、停机及恢复事件</td></tr>
+      <tr><th scope="row">惰性物资交接人</th><td>物资编号、装载确认、到站接收确认</td><td>稳定停驻状态、到站任务号和交接记录</td></tr>
+      <tr><th scope="row">维护保障 / 资料管理员</th><td>维护授权、放行记录、导出请求</td><td>设备标识、故障及状态记录、可归档任务记录</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h4>1.4 定义</h4>
+  <dl>
+    <dt>核准运行包</dt><dd>一次试用经批准的任务编号、时段、区域、路线、检查点或交接点及装载条件。更改后须复核。</dd>
+    <dt>安全停驻</dt><dd>平台终止运动并保持稳定停止，当前状态可确认。停止后维持运动锁定，直到恢复条件经人工确认。</dd>
+    <dt>人员暴露</dt><dd>人员在本次任务预先划定的运行区内停留的总人·分钟，含为该任务入区的装卸、核查及处置人员。</dd>
+    <dt>惰性物资</dt><dd>验收中用于模拟物资转运的无危险配重或训练用品。</dd>
+  </dl>
+  <h4 id="stakeholders">1.5 相关方列表</h4>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="相关方、原始需要与确认职责">
+  <table>
+    <caption>相关方、原始需要与确认职责</caption>
+    <thead><tr><th scope="col">编号 / 相关方</th><th scope="col">需要与关注点</th><th scope="col">确认事项</th><th scope="col">导出需求</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">SH-01 任务主管</th><td>缩短运行区内的人工作业时间，保持任务成果可复核。</td><td>批准任务基线、对照方案及任务完成定义。</td><td>ST-01、03、04、05、09</td></tr>
+      <tr><th scope="row">SH-02 操作员</th><td>清楚知道平台状态，遇到异常能停止并可控恢复。</td><td>确认操作流程、界面信息及试运行可用性。</td><td>ST-02、03、05、06、07、08</td></tr>
+      <tr><th scope="row">SH-03 安全员</th><td>场地条件不满足时阻止启动，出现异常时及时停止。</td><td>确认停机判据、场地清场及重新放行，拥有暂停权。</td><td>ST-01、02、06、07、08、11</td></tr>
+      <tr><th scope="row">SH-04 物资交接人</th><td>到站后可安全验收物资，交接结果可追溯。</td><td>确认训练物资编号、交接点及收讫记录。</td><td>ST-04</td></tr>
+      <tr><th scope="row">SH-05 维护保障人员</th><td>故障可追查，维修期间不会误启动，放行可审查。</td><td>确认维修隔离、恢复验证与退役交接。</td><td>ST-08、11、12、13</td></tr>
+      <tr><th scope="row">SH-06 场地与资料管理员</th><td>可控制任务区域和记录访问，能追溯审批与数据归档。</td><td>确认场地许可、访问名单、保留期限与退役数据处置。</td><td>ST-01、09、10、13</td></tr>
+      <tr><th scope="row">SH-07 采办与验收方</th><td>按同一条件比较候选方案，获得与每项条款对应的证据。</td><td>确认试验条件、交付清单及放行评审结论。</td><td>ST-03、04、09、11、12、13、14、15</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="s2" aria-labelledby="s2-title">
+  <h3 id="s2-title">2. 参考</h3>
+  <p>郭宝柱《系统工程：基于国际标准过程的研究与实践》第 4 章《概念定义》，第 13–30 页，重点参照 4.2 节及第 30 页表 4-5。作业范围依据“小组作业 2”课堂投影片，组织级输入见本页 <a href="#brs">BRS</a>。表 4-5 所列标准可查阅 <a href="https://www.iso.org/standard/72089.html">ISO/IEC/IEEE 29148:2018 官方目录</a>。</p>
+</section>
+
+<section id="s3" aria-labelledby="s3-title">
+  <h3 id="s3-title">3. 业务管理需求</h3>
+  <h4>3.1 业务环境</h4>
+  <p>试用依赖场地隔离、训练班组排班、可用的操作区和保障区。演示前由场地管理员确认路线、时段与人员边界，由安全员确认环境满足本轮核准条件。通信、场地或供电条件改变时重新核准。</p>
+  <h4>3.2 使命、目的与目标</h4>
+  <p>平台承担可重复的巡检和转运环节，帮助班组降低人员入区暴露并留下可核验的任务成果。试运行以 BR-01 至 BR-05 作为评审准则，安全停机项为放行门槛。</p>
+  <h4>3.3 业务模型</h4>
+  <p>场地管理员提供核准窗口，任务主管排定任务，操作员和安全员共同实施，接收人确认实物交接，资料管理员归集记录，维护保障人员完成跨场次周转。异常停驻后由任务主管决定改期或另行组织，安全员核准现场处置条件。</p>
+  <h4>3.4 信息环境</h4>
+  <p>组织台账以任务号关联批次、批准记录与归档日志。操作终端提供本次任务执行信息，档案库承接授权导出资料。公开课程网页使用合成示例和规格内容，试验记录与人员、路线等受控数据按场地与资料管理员确认的权限及保留期限处理。</p>
+</section>
+
+<section id="s4" aria-labelledby="s4-title">
+  <h3 id="s4-title">4. 系统运行需求</h3>
+  <h4>4.1 系统过程</h4>
+  <ol>
+    <li><strong>准备与授权</strong>。操作员装入核准运行包，检查平台、通信状态和装载条件。平台进入待命，安全员确认清场，操作员发出启动指令。</li>
+    <li><strong>任务执行</strong>。平台沿核准路线执行巡检或转运，终端提供任务进度。巡检记录与检查点绑定，转运由交接人到站确认。</li>
+    <li><strong>异常处理</strong>。急停、失联、发现不可通行障碍、触发低能量门槛或接近核准边界时，平台按规则进入安全停驻。操作员报告异常，安全员决定是否具备恢复试用的现场条件。</li>
+    <li><strong>任务关闭</strong>。操作员提交完成、中止或启动失败结论。平台或终端生成任务记录，由资料管理员按任务号接收和核对。</li>
+  </ol>
+  <h4>4.2 系统运行策略与规则</h4>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="启动、停止与复位规则">
+  <table>
+    <caption>启动、停止与复位规则</caption>
+    <thead><tr><th scope="col">规则</th><th scope="col">触发条件</th><th scope="col">处置</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">OR-01 放行</th><td>待命状态下收到启动请求。</td><td>只有核准运行包、放行确认及任务前检查齐备时才允许运动。</td></tr>
+      <tr><th scope="row">OR-02 停止优先</th><td>急停、失联、边界风险、不可通行障碍或低能量。</td><td>撤销运动许可以进入安全停驻。通信不可用期间本地处置，恢复连接后补显事件。</td></tr>
+      <tr><th scope="row">OR-03 恢复</th><td>告警消除或通信恢复。</td><td>保持停驻。由安全员确认现场条件、操作员复位并重新发出启动指令。无法确认条件时中止。</td></tr>
+      <tr><th scope="row">OR-04 隔离</th><td>进入维护或退役环节。</td><td>禁止任务启动。维护完成并由保障人员及安全员签署放行后才能回到准备状态。</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h4>4.3 系统运行约束</h4>
+  <p>作业使用经过确认的干燥场地和标记路线。试验前冻结路线及核准边界、速度上限、停止安全余量、测试载荷、平台低能量门槛与场地通信条件，记录于验收方案。停止距离与稳定性须在本批计划采用的最高试验速度、最大试验载荷和最不利核准路段下事先验证，确认满足现场划定的余量后方可进入常规场次。</p>
+  <h4>4.4 系统运行模式与状态</h4>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="运行模式、状态及转移条件">
+  <table>
+    <caption>运行模式、状态及转移条件</caption>
+    <thead><tr><th scope="col">模式</th><th scope="col">可观察状态</th><th scope="col">转移条件</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">准备</th><td>检查中、待命</td><td>上电检查后进入待命，符合 OR-01 才进入任务执行。</td></tr>
+      <tr><th scope="row">任务执行</th><td>巡检中、转运中、到站等候</td><td>达到任务关闭条件后进入收尾。触发 OR-02 则进入安全停驻。</td></tr>
+      <tr><th scope="row">应急</th><td>安全停驻、等待复核</td><td>按 OR-03 回到待命或进入中止收尾。</td></tr>
+      <tr><th scope="row">收尾</th><td>完成、中止、启动失败</td><td>记录归档后可重开新任务。发现未关闭的故障则转入维护。</td></tr>
+      <tr><th scope="row">保障</th><td>维护隔离、退役</td><td>维修复验后按 OR-04 返回准备，退役交接后移出任务调度清单。</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="s5" aria-labelledby="s5-title">
+  <h3 id="s5-title">5. 用户需求</h3>
+  <p>下表由相关方需要、业务目标和场景推导。各项为本次试用评审的必需项，ST-01、06、07、08、11 属于安全放行项。“演示”关注流程和人员交互，“测试”在规定条件下记录实际结果，“检查”核对记录、界面或交付物，“分析”根据对照数据复核指标。</p>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="相关方需求与验收追踪矩阵">
+  <table>
+    <caption>相关方需求与验收追踪矩阵</caption>
+    <thead><tr><th scope="col">需求</th><th scope="col">要求</th><th scope="col">来源 / 场景</th><th scope="col">验收方法与通过条件</th></tr></thead>
+    <tbody>
+      <tr id="st-01"><th scope="row">ST-01<br>授权启动</th><td>平台应仅在核准运行包有效、检查通过且本次人工放行有效时接受启动。</td><td>SH-01、03、06<br>BR-01、03<br>SC-01、02</td><td>测试。完整输入时可启动。分别移除批准、检查或放行条件各测试一次，三例均阻止运动并给出原因。</td></tr>
+      <tr id="st-02"><th scope="row">ST-02<br>状态可见</th><td>操作终端应显示当前任务号、模式与状态、连接与能量状态以及待处理告警。</td><td>SH-02、03<br>BR-02、03<br>SC-01～04</td><td>演示。操作员在准备、执行、到站及异常状态逐项辨认显示，与见证记录一致。失联时明确标识遥测已中断。</td></tr>
+      <tr id="st-03"><th scope="row">ST-03<br>巡检成果</th><td>平台应为每个核准巡检点生成可归属到该任务的观察记录。</td><td>SH-01、02、07<br>BR-02<br>SC-01</td><td>检查。在巡检试次逐点核对批准清单，成功试次中每点均有任务号、检查点号、时间及可复核观察结果。</td></tr>
+      <tr id="st-04"><th scope="row">ST-04<br>转运交接</th><td>系统应在平台于核准交接点停稳后记录惰性物资的收讫确认。</td><td>SH-01、04、07<br>BR-02<br>SC-02</td><td>演示及检查。检查物资标识、到站位置、停稳状态与收讫记录。用未确认交接的用例验证任务保持待交接。</td></tr>
+      <tr id="st-05"><th scope="row">ST-05<br>对照统计</th><td>试用记录应支持以相同任务量、路线和计时规则比较人工基线与平台方案的人员暴露。</td><td>SH-01、02<br>BR-01<br>SC-01、02</td><td>分析。对同类型、完成同等交付要求的任务进行配对，从准备到场地恢复移交计入进出区、装卸、处置和回收，按类型比较人·分钟平均值。分别列出失败或中止场次的暴露及原因。两类任务均达到暴露下降，验证期间未经授权入区为零。</td></tr>
+      <tr id="st-06"><th scope="row">ST-06<br>人工停止</th><td>在核准运行条件内，平台收到有效急停请求后应在规定安全余量内安全停驻。</td><td>SH-02、03<br>BR-03<br>SC-03、04</td><td>测试。于冻结的载荷和速度条件下发出急停指令，记录触发点、停止点和稳定状态。全部急停用例均在划定余量内停稳。</td></tr>
+      <tr id="st-07"><th scope="row">ST-07<br>失联停驻</th><td>控制连接中断达到验收方案规定的判定条件时，平台应在规定安全余量内安全停驻。</td><td>SH-02、03<br>BR-03<br>SC-03</td><td>测试。在隔离场地注入连接中断，量测触发至停止并核对状态，确认平台在划定余量内停稳，事件可在连接恢复后查阅。</td></tr>
+      <tr id="st-08"><th scope="row">ST-08<br>恢复授权</th><td>因异常停驻的任务应保持运动锁定，直至满足 OR-03。</td><td>SH-02、03、05<br>BR-03<br>SC-03、04</td><td>测试。恢复通信、移除障碍或清除低能量告警后逐项尝试省略授权步骤，均不得运动。完整复核、复位后须再次明确启动。</td></tr>
+      <tr id="st-09"><th scope="row">ST-09<br>记录完整</th><td>每个试用任务均应产生可按任务号导出的结果记录。</td><td>SH-01、06、07<br>BR-04<br>SC-01～05</td><td>检查。核对常规与异常验证台账，每项均能匹配审批引用、起止时间或未启动说明、结果、异常事件或无异常标记，以及交接记录或不适用标记。</td></tr>
+      <tr id="st-10"><th scope="row">ST-10<br>资料权限</th><td>记录导出功能应仅向有授权的角色开放。</td><td>SH-06<br>BR-04<br>SC-01、02、05</td><td>测试。分别用授权与未授权账户尝试导出相同记录，前者取得指定任务记录，后者被拒绝且无记录内容返回。</td></tr>
+      <tr id="st-11"><th scope="row">ST-11<br>环境触发停驻</th><td>发生不可通行障碍、达到低能量门槛或触及核准区域的停机条件时，平台应安全停驻。</td><td>SH-03、05、07<br>BR-03<br>SC-04</td><td>测试。分别施加三个独立触发条件，核对各自事件，确认平台在划定余量内停稳且未越出核准边界。</td></tr>
+      <tr id="st-12"><th scope="row">ST-12<br>维护隔离</th><td>进入维护隔离状态后，平台应拒绝任务运动指令，直至通过放行复验。</td><td>SH-05、07<br>BR-05<br>SC-05</td><td>演示及检查。维护中、维护后未放行时均拒绝启动。完成退出清单并复验后，允许重新进入准备状态。</td></tr>
+      <tr id="st-13"><th scope="row">ST-13<br>退役交接</th><td>退出使用的设备应具有可审计的退役交接记录。</td><td>SH-05、06、07<br>BR-05<br>SC-05</td><td>检查。演练记录能核对资产号、数据归档或清除、账户撤销、能源部件交接和调度清单移除状态。</td></tr>
+      <tr id="st-14"><th scope="row">ST-14<br>混合地面通行</th><td>平台应能在验收方案规定的装载条件下完成包含平整路段和局部起伏路段的核准路线。</td><td>SH-01、07<br>BR-02<br>SC-01、02</td><td>测试。两类任务的验收路线均纳入经踏勘批准的代表性地面，查验全程连续完成、保持在核准区域内且无需人员进入运行区协助平台越障。</td></tr>
+      <tr id="st-15"><th scope="row">ST-15<br>部署交接</th><td>试用班组应在正式试用前完成部署交接清单的确认。</td><td>SH-03、05、07<br>BR-05<br>SC-01、02、05</td><td>检查。清单逐项包含场地放行、人员培训、终端授权、设备配置、保障及退役安排，并具备主管和安全员签认。</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="s6" aria-labelledby="s6-title">
+  <h3 id="s6-title">6. 详细生存周期概念</h3>
+  <h4 id="opscon">6.1 运行概念（OpsCon）</h4>
+  <p>操作员从场边终端装入核准任务，安全员在可观察位置确认准备和清场。平台接受人工启动后沿核准路线执行巡检或将惰性物资送至交接点，操作员持续监督，安全员保有停机与再放行权。核准路线可包含已验证的不同地面区段，平台在任一区段的运行都受同一停止和区域约束。安全停驻将任务转为待处置状态，保留任务进度和异常记录，供相关人员决定重新启动或中止。任务结束后班组用结果记录核认任务并回收设备。</p>
+  <h4>6.2 运行场景</h4>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="场景剖面与验收证据">
+  <table>
+    <caption>场景剖面与验收证据</caption>
+    <thead><tr><th scope="col">场景 / 业务过程</th><th scope="col">前置条件及触发</th><th scope="col">交互与结果</th><th scope="col">证据</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">SC-01 巡检<br>BP-01、02、04</th><td>核准巡检路线和检查点，安全员清场，操作员请求开始。</td><td>平台接受授权、依序到达核准检查点并记录观察结果，回到指定点停驻。漏点保持未完成，进档后安排补检。</td><td>审批记录、检查点对照单、人员暴露记录。</td></tr>
+      <tr><th scope="row">SC-02 惰性物资转运<br>BP-01、02、04</th><td>核准路线和载荷，装载确认后请求启动。</td><td>平台到达交接点并稳定停止，交接人核对标识并确认收讫。未收讫时保持待交接。</td><td>任务记录、到站状态、收讫记录、人员暴露记录。</td></tr>
+      <tr><th scope="row">SC-03 失联<br>BP-03、04</th><td>隔离验证场地内运行，注入连接中断。</td><td>平台安全停驻，连接恢复后呈现异常并保持锁定。复核通过可重新启动，条件不满足则关闭为中止。</td><td>中断、停止、重连与复位的时间记录，停止位置见证。</td></tr>
+      <tr><th scope="row">SC-04 环境或能量异常<br>BP-03、04</th><td>分别模拟不可通行障碍、低能量门槛、接近核准边界与人工急停。</td><td>平台安全停驻，终端提示可取得的异常信息。安全员复核环境后决定处置，持续低能量时中止并安排保障。</td><td>触发与停止位置、告警和恢复授权记录。</td></tr>
+      <tr><th scope="row">SC-05 维护与退役<br>BP-04</th><td>任务关闭后出现需复核故障，或主管批准设备退出使用。</td><td>维护员实施隔离、登记故障，验收方见证复验。退役演练中撤销权限并完成数据、部件与资产交接。</td><td>工单、隔离复验清单、退役交接清单。</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h4>6.3 采办概念</h4>
+  <p>优先利用现有教学样机或仿真资源，依据相同任务、场地和验收用例比较候选方案。交付检查覆盖平台与操作终端清单、使用说明、配置标识、维护说明和验收证据。由采办与验收方记录缺项及处理责任。</p>
+  <h4>6.4 部署概念</h4>
+  <p>先验证准备、急停、失联和隔离等流程，再在核准场地试运行。部署交接包括路线及检查点确认、岗前培训、终端授权、场地标识和试用批次登记，由任务主管与安全员签认。</p>
+  <h4>6.5 支持概念</h4>
+  <p>操作员执行每场检查，维护保障人员负责充电、故障记录、隔离与复验。配置或场地条件变化后，由验收方判定受影响条目并组织复验。证据不足时保持停用并登记原因。</p>
+  <h4>6.6 弃置概念</h4>
+  <p>任务主管关闭调度权限，保障人员移交资产和能源部件，资料管理员按登记期限归档或清除敏感记录，核验账户撤销并签署交接。课程阶段可用桌面推演审查该流程。</p>
+</section>
+
+<section id="s7" aria-labelledby="s7-title">
+  <h3 id="s7-title">7. 项目约束</h3>
+  <p>本轮交付为 BRS、StRS 与验证计划。课程提交节点为 2026 年 11 月 18 日 12:00，形式为 HTML 网页。样机、人员、场地及预算由组织批准后才进入实体试用。拟按“概念与指标评审 → 受控场景验证 → 试用放行评审”推进。冻结验收方案前由任务主管确认资源额度和时间窗口，由安全员确认运行边界、试验条件和停机门槛，由资料管理员确认记录治理要求。</p>
+</section>
+
+<section id="s8" aria-labelledby="s8-title">
+  <h3 id="s8-title">8. 附录</h3>
+  <h4>8.1 缩写与缩略语</h4>
+  <p>BRS 为业务需求规格说明，StRS 为相关方需求规格说明，ConOps 为组织运营概念，OpsCon 为系统运行概念，SoI 为关注系统。BR、ST 分别表示业务需求与相关方需求，SH 表示相关方，BP 表示业务过程，OR 表示系统运行规则，SC 表示运行场景。表中简写如“SH-01、03”指 SH-01 和 SH-03。</p>
+</section>
+      </section>
+      <section id="review" class="document" aria-labelledby="review-title">
+        <h2 id="review-title" class="doc-heading">需求追溯与评审</h2>
+<p class="callout">本页为课程概念定义成果。指标、场地条件及角色分工是拟定的验收基线，待小组和对应角色确认。当前依据课堂说明、参考章节和 AI 辅助分析编制，实体试验和相关方确认待开展。</p>
+<h3>业务需求到验收证据</h3>
+<div class="table-wrap" tabindex="0" role="region" aria-label="五项业务需求覆盖核对">
+  <table>
+  <caption>五项业务需求覆盖核对</caption>
+  <thead><tr><th scope="col">业务需求</th><th scope="col">下游条目</th><th scope="col">评审证据</th></tr></thead>
+  <tbody>
+    <tr><th scope="row"><a href="#br-01">BR-01</a> 人员暴露</th><td><a href="#st-01">ST-01</a>、<a href="#st-05">ST-05</a></td><td>同任务条件的人工基线及平台人·分钟，未授权入区事件计数。</td></tr>
+    <tr><th scope="row"><a href="#br-02">BR-02</a> 任务完成</th><td><a href="#st-02">ST-02</a>、<a href="#st-03">ST-03</a>、<a href="#st-04">ST-04</a>、<a href="#st-14">ST-14</a></td><td>预排 20 次常规任务。巡检和转运各 10 次，至少 18 次通过，分别报告两类结果。</td></tr>
+    <tr><th scope="row"><a href="#br-03">BR-03</a> 安全响应</th><td>ST-01、02、<a href="#st-06">ST-06</a>、<a href="#st-07">ST-07</a>、<a href="#st-08">ST-08</a>、<a href="#st-11">ST-11</a></td><td>启动拦截、人工急停、失联、障碍、低能量、边界和恢复授权的异常验证记录。</td></tr>
+    <tr><th scope="row"><a href="#br-04">BR-04</a> 过程留痕</th><td><a href="#st-09">ST-09</a>、<a href="#st-10">ST-10</a></td><td>任务台账与导出记录逐项对账，附角色访问测试。</td></tr>
+    <tr><th scope="row"><a href="#br-05">BR-05</a> 保障准备</th><td><a href="#st-12">ST-12</a>、<a href="#st-13">ST-13</a>、<a href="#st-15">ST-15</a></td><td>部署交接、维护隔离复验、退役演练及签认清单。</td></tr>
+  </tbody>
+</table>
+  </div>
+<h3>AI 辅助分析问答摘要</h3>
+<dl>
+  <dt>ConOps 和 OpsCon 分别需要确定哪些内容？</dt>
+  <dd>ConOps 确定班组如何受理任务、放行、监督、验收和保障。OpsCon 确定单台平台在这些业务活动中接收什么、呈现什么，以及异常时怎样退出运动与等待复核。</dd>
+  <dt>如何评价人员暴露和任务完成率？</dt>
+  <dd>用相同路线、任务量与计时规则记录人员进出区时间。常规任务的分母于测试前锁定，准备失败计入常规任务结果，计划注入故障的安全测试独立计分。</dd>
+  <dt>如何处理完成率与异常处置之间的冲突？</dt>
+  <dd>安全停驻优先。常规任务遇异常时，即使没有完成业务交付，也应按实际记录停驻结果。仅在现场复核、人工复位并再次下达启动指令后，平台才可恢复运动。</dd>
+</dl>
+<h3>小组评审待确认</h3>
+<ul>
+  <li><strong>任务主管与验收方</strong>确认两类任务的交付清单、基线配对方案、场次数及资源限额。</li>
+  <li><strong>场地管理员与安全员</strong>确认封闭区域、地面条件、载荷、低能量门槛、速度及停机安全余量，再冻结异常试验用例。</li>
+  <li><strong>资料管理员与保障人员</strong>确认访问授权、记录保留期限、维修隔离和退役交接责任。</li>
+</ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <span>复杂系统工程 · 小组作业 2</span>
+      <a href="#top">返回页首 ↑</a>
+    </div>
+  </footer>
+</body>
+</html>
