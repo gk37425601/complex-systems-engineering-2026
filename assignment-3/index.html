@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="复杂系统工程小组作业 3，轮腿式无人作战平台的系统需求、初始架构及 STPA 安全分析。">
+  <meta name="theme-color" content="#102e34">
+  <title>轮腿式无人作战平台 | 系统需求与初始架构 · 作业 3</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172d33;
+      --muted: #4b6369;
+      --accent: #006958;
+      --accent-dark: #035144;
+      --dark: #102e34;
+      --dark-soft: #184048;
+      --light: #f2f7f6;
+      --line: #d4e2df;
+      --block: #ffffff;
+      --container: 78rem;
+      font-family: Inter, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--light); color: var(--ink); }
+    html { scroll-padding-block-start: 1.25rem; }
+    a { color: var(--accent-dark); text-underline-offset: .18em; }
+    a:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
+      outline: .16rem solid #c56b0b;
+      outline-offset: .2rem;
+    }
+    .skip-link {
+      position: absolute;
+      z-index: 2;
+      inset: .8rem auto auto .8rem;
+      padding: .55rem .8rem;
+      background: #fff;
+      transform: translateY(-180%);
+    }
+    .skip-link:focus { transform: none; }
+    .container { width: min(var(--container), 100% - 3.5rem); margin-inline: auto; }
+    .masthead { background: var(--dark); color: #edf8f5; }
+    .masthead a { color: inherit; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .8rem 1.2rem;
+      padding-block: .95rem;
+      border-bottom: 1px solid #426268;
+    }
+    .home-link { display: inline-flex; gap: .55rem; align-items: center; font-weight: 700; text-decoration: none; }
+    .home-link::before { content: "←"; color: #8ad3bd; }
+    .topnav { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem 1.4rem; font-size: .89rem; }
+    .topnav a { text-decoration: none; }
+    .topnav a:hover, .home-link:hover { text-decoration: underline; }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(15rem, .85fr);
+      align-items: end;
+      gap: 2rem clamp(2rem, 6vw, 6rem);
+      padding-block: clamp(2.75rem, 7vw, 6.25rem) clamp(2.7rem, 6vw, 5.5rem);
+    }
+    .hero-label { margin: 0 0 1rem; color: #9ce0ca; font-size: .91rem; font-weight: 700; letter-spacing: .08em; }
+    h1 { margin: 0; font-size: clamp(2.35rem, 5.4vw, 4.35rem); letter-spacing: -.035em; line-height: 1.15; }
+    .hero-subtitle { margin: .95rem 0 0; color: #e9f6f3; font-size: clamp(1.12rem, 2.05vw, 1.6rem); }
+    .hero-scope { margin: 1.25rem 0 0; color: #bed9d7; font-size: .97rem; line-height: 1.65; }
+    .hero-docs {
+      border-top: 1px solid #57777b;
+      background: linear-gradient(115deg, transparent, #20464d55);
+    }
+    .hero-docs a {
+      display: grid;
+      grid-template-columns: 4.1rem minmax(0, 1fr) auto;
+      align-items: center;
+      gap: .8rem;
+      min-height: 3.8rem;
+      padding: .6rem .65rem .6rem .2rem;
+      border-bottom: 1px solid #57777b;
+      text-decoration: none;
+    }
+    .hero-docs a:hover { background: var(--dark-soft); }
+    .hero-docs strong { color: #9ce0ca; font-size: .92rem; letter-spacing: .05em; }
+    .hero-docs span { font-size: .9rem; }
+    .hero-docs span[aria-hidden] { color: #9ce0ca; }
+
+    .report-shell {
+      display: grid;
+      grid-template-columns: 12rem minmax(0, 1fr);
+      align-items: start;
+      gap: clamp(1.2rem, 3vw, 2.9rem);
+      padding-block: clamp(1.65rem, 4vw, 3.5rem) 4rem;
+    }
+    .outline {
+      position: sticky;
+      top: 1rem;
+      max-height: calc(100dvh - 2rem);
+      overflow-y: auto;
+      padding: .2rem .6rem .75rem .15rem;
+      color: var(--muted);
+      font-size: .87rem;
+      line-height: 1.5;
+      scrollbar-width: thin;
+    }
+    .outline summary { padding: .2rem 0 .55rem; color: var(--ink); font-size: 1rem; font-weight: 750; cursor: pointer; }
+    .outline p { margin: .65rem 0 .2rem; font-weight: 750; }
+    .outline ul { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--line); }
+    .outline li a { display: block; margin: .12rem 0; padding: .12rem .45rem; }
+    .outline a { color: inherit; text-decoration: none; }
+    .outline a:hover { color: var(--accent-dark); text-decoration: underline; }
+    .outline .review-link { display: inline-block; margin-top: .7rem; }
+
+    .document {
+      min-width: 0;
+      margin: 0 0 1.35rem;
+      padding: clamp(1.05rem, 3.1vw, 2.7rem);
+      border: 1px solid var(--line);
+      border-radius: .8rem;
+      background: var(--block);
+      font-size: 1rem;
+      line-height: 1.78;
+    }
+    .document:last-child { margin-bottom: 0; }
+    .doc-heading {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      column-gap: .7rem;
+      margin: 0;
+      padding-bottom: .8rem;
+      border-bottom: 2px solid #337864;
+      font-size: clamp(1.45rem, 2.75vw, 2.15rem);
+      letter-spacing: -.02em;
+      line-height: 1.35;
+    }
+    .doc-heading span { color: var(--accent); font-size: .72em; }
+    .document h3 { margin: 2.05rem 0 .65rem; color: var(--ink); font-size: clamp(1.19rem, 1.7vw, 1.42rem); line-height: 1.5; }
+    .document h4 { margin: 1.35rem 0 .46rem; color: var(--accent-dark); font-size: 1.06rem; line-height: 1.5; }
+    .document h5 { margin: 1.1rem 0 .4rem; font-size: 1rem; }
+    .document p { margin: .65rem 0; }
+    .document p:last-child { margin-bottom: 0; }
+    .document ul, .document ol { margin: .65rem 0 1rem; padding-inline-start: 1.38rem; }
+    .document li { padding-inline-start: .15rem; }
+    .document li + li { margin-top: .26rem; }
+    .document dl { margin: .65rem 0 1rem; }
+    .document dt { color: var(--accent-dark); font-weight: 720; }
+    .document dd { margin: 0 0 .6rem 0; }
+    .document :target { scroll-margin-block-start: .35rem; }
+    .document :is(h3,h4)[id]:target { color: var(--accent-dark); text-decoration: underline #8ac1ac .13rem; text-underline-offset: .25em; }
+    .document a { overflow-wrap: anywhere; }
+    .callout {
+      margin: 1rem 0;
+      padding: .65rem .85rem;
+      border-inline-start: .2rem solid #337864;
+      border-radius: 0 .25rem .25rem 0;
+      background: #edf6f3;
+      color: #24484a;
+    }
+    .document figure { margin: 1.15rem 0; }
+    .document figcaption { margin-top: .4rem; font-size: .89rem; color: var(--muted); }
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem .55rem;
+      align-items: center;
+      color: var(--accent-dark);
+    }
+    .flow > :is(span,li) {
+      padding: .3rem .58rem;
+      border-radius: .25rem;
+      background: #edf6f3;
+    }
+    .table-wrap {
+      max-width: 100%;
+      overflow-x: auto;
+      margin-block: .9rem 1.2rem;
+      scrollbar-width: thin;
+    }
+    .document table {
+      width: 100%;
+      margin-block: .9rem 1.2rem;
+      border-collapse: collapse;
+      font-size: .91rem;
+      line-height: 1.62;
+    }
+    .table-wrap table { margin: 0; }
+    .document caption { margin-bottom: .36rem; text-align: left; font-weight: 750; }
+    .document :is(th, td) {
+      padding: .55rem .68rem;
+      border: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+    .document thead th { background: #e5f1ee; color: #144d43; }
+    .document tbody tr:nth-child(even) { background: #f6faf9; }
+    .document tbody th[scope="row"], .document :is(td,th):first-child code { white-space: nowrap; }
+    .document code { color: #164f43; font-family: "IBM Plex Mono", Consolas, monospace; font-size: .91em; }
+    .footer { color: var(--muted); border-top: 1px solid var(--line); font-size: .88rem; }
+    .footer .container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .55rem 1rem; padding-block: 1.2rem; }
+
+    @media (max-width: 58rem) {
+      .container { width: calc(100% - 2.5rem); }
+      .report-shell { grid-template-columns: 10.4rem minmax(0, 1fr); gap: 1.1rem; }
+      .document :is(th,td) { padding: .52rem .5rem; }
+    }
+    @media (max-width: 44rem) {
+      .container { width: calc(100% - 1.5rem); }
+      .topbar { gap: .6rem 1rem; }
+      .topnav { gap: .3rem .8rem; }
+      .hero { grid-template-columns: minmax(0, 1fr); gap: 1.3rem; padding-block: 2.6rem 2.1rem; }
+      .hero h1 { font-size: clamp(1.98rem, 9.6vw, 2.9rem); text-wrap: balance; }
+      .hero-scope { margin-top: .75rem; }
+      .hero-docs a { min-height: 3rem; }
+      .report-shell { display: block; padding-bottom: 2rem; }
+      .outline { position: static; max-height: none; margin-bottom: 1rem; padding: .5rem .45rem; overflow-y: visible; }
+      .outline ul { display: flex; flex-wrap: wrap; border: 0; }
+      .outline li a { padding-inline: .35rem; }
+      .document { margin-bottom: .8rem; }
+      .document table { min-width: 33rem; }
+      .document > table, .document section > table {
+        display: block;
+        min-width: 0;
+        width: 100%;
+        overflow: auto;
+      }
+      .document > table :is(th,td), .document section > table :is(th,td) { min-width: 5rem; }
+    }
+    @media print {
+      @page { margin: 15mm; }
+      body, .masthead, .document { background: white; color: #111; }
+      .container { width: 100%; }
+      .topbar, .hero-docs, .outline, .footer, .skip-link { display: none; }
+      .hero, .report-shell { display: block; padding: 0; }
+      .hero { margin-bottom: 1.1rem; }
+      h1 { font-size: 2rem; }
+      .hero-label, .hero-subtitle, .hero-scope { color: #111; }
+      .document { padding: 0; border: 0; font-size: 10pt; }
+      .document + .document { break-before: page; }
+      .table-wrap { overflow: visible; }
+      .document table { display: table; min-width: 0; font-size: 8.7pt; }
+      .document :is(h2,h3,h4) { break-after: avoid; }
+      .document tr { break-inside: avoid; }
+      a { color: inherit; }
+    }
+
+    .course-links { display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; align-items: center; }
+    .assignment-link { font-size: .89rem; text-decoration: none; }
+    .assignment-link:hover { text-decoration: underline; }
+    .diagram {
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: .4rem;
+      background: #f4f8f7;
+    }
+    .document .diagram > figcaption {
+      margin: 0 0 .85rem;
+      color: var(--ink);
+      font-weight: 720;
+      font-size: .92rem;
+    }
+    .node {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: .3rem;
+      min-width: 0;
+      padding: .85rem 1rem;
+      border: 1px solid #b8d3cb;
+      border-radius: .3rem;
+      background: white;
+      color: #203d42;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .node strong { font-size: .98rem; }
+    .node :is(span, small) { color: var(--muted); font-size: .88rem; }
+    .node.accent { border-color: #367e68; background: #e2f1eb; }
+    .node.accent :is(span,small) { color: #355d53; }
+    .flow-label { align-self: center; padding: .45rem .15rem; color: #35645b; font-size: .84rem; text-align: center; line-height: 1.7; overflow-wrap: anywhere; }
+    .logical-grid { display: grid; grid-template-columns: minmax(0,1fr) 9rem minmax(0,1fr); gap: .65rem; }
+    .human-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+    .control-loop, .safety-loop { max-width: 39rem; margin-inline: auto; }
+    .control-loop > .node, .safety-loop > .node { min-height: 4.3rem; }
+    .feedback-strip { display: flex; flex-wrap: wrap; gap: .4rem .65rem; justify-content: center; margin-top: .85rem; font-size: .85rem; color: #355d53; }
+    .feedback-strip span { padding: .3rem .55rem; border: 1px solid #d0e1da; background: #e8f1ed; border-radius: .2rem; }
+    .document ol.process-flow { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: .55rem; margin: 0; padding: 0; list-style: none; }
+    .document .process-flow li {
+      position: relative;
+      padding: .65rem .55rem;
+      border: 1px solid #c4dbd3;
+      border-top: .2rem solid #4c8a75;
+      background: white;
+      font-size: .86rem;
+      line-height: 1.6;
+    }
+    .document .process-flow li + li { margin-top: 0; }
+    .process-flow strong, .process-flow span { display: block; }
+    .process-flow strong { color: #175143; margin-bottom: .35rem; }
+    .process-flow span { color: var(--muted); }
+    .process-flow li:not(:last-child)::after { content: "→"; position: absolute; z-index: 1; top: -.9rem; inset-inline-end: -.45rem; color: #367e68; font-size: 1.2rem; }
+    .branch-flow { margin-top: .75rem; padding: .6rem .7rem; background: #e8f1ed; color: #355d53; border-inline-start: .2rem solid #6b9e87; font-size: .9rem; }
+    .branch-flow strong, .branch-flow span { display: block; }
+    .document .table-wrap { border-radius: .2rem; }
+    .document .table-wrap:focus-visible { outline-offset: .15rem; }
+    .document .table-wrap table { min-width: 38rem; }
+    @media (max-width: 66rem) {
+      .hero { grid-template-columns: minmax(0,1fr); gap: 1.7rem; }
+      .hero-docs { max-width: 33rem; }
+      .document ol.process-flow { grid-template-columns: minmax(0,1fr); gap: .7rem; }
+      .process-flow li:not(:last-child)::after { content: "↓"; top: auto; bottom: -.9rem; inset-inline-end: 50%; }
+      .logical-grid { grid-template-columns: minmax(0,1fr); }
+      .logical-grid > .flow-label { padding: .1rem; }
+    }
+    @media (max-width: 44rem) {
+      .topbar { flex-wrap: wrap; }
+      .topnav { gap: .6rem 1.05rem; }
+      .hero h1 { font-size: clamp(1.75rem, 8.2vw, 2.7rem); }
+      .hero-subtitle { font-size: 1.25rem; }
+      .hero-docs { max-width: none; }
+      .hero-docs a { grid-template-columns: 4.3rem minmax(0,1fr) auto; }
+      .diagram { padding: .65rem; }
+      .node { padding: .7rem .55rem; }
+      .human-grid { grid-template-columns: minmax(0,1fr); }
+    }
+    @media print {
+      .hero-docs { display: none; }
+      .diagram { break-inside: auto; background: white; padding: .6rem; }
+      .node, .branch-flow, .feedback-strip span { background: white; }
+      .document .table-wrap table { min-width: 0; font-size: 8.6pt; }
+      .document ol.process-flow { grid-template-columns: repeat(5,minmax(0,1fr)); }
+      .process-flow li:not(:last-child)::after { content: "→"; top: -.9rem; bottom: auto; inset-inline-end: -.45rem; }
+      .logical-grid { grid-template-columns: minmax(0,1fr) 5.7rem minmax(0,1fr); }
+      .diagram, .diagram .node, .diagram :is(li, strong, span, small, div) { print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body id="top">
+  <a class="skip-link" href="#main-content">跳转到作业正文</a>
+  <header class="masthead">
+    <div class="container">
+      <div class="topbar">
+        <div class="course-links">
+          <a class="home-link" href="https://gk37425601.github.io/complex-systems-engineering-2026/">课程首页</a>
+          <a class="assignment-link" href="https://gk37425601.github.io/complex-systems-engineering-2026/assignment-2/">作业 2 · 概念定义</a>
+        </div>
+        <nav class="topnav" aria-label="作业文档">
+          <a href="#syrs">系统需求</a>
+          <a href="#architecture">初始架构</a>
+          <a href="#safety">STPA 分析</a>
+          <a href="#review">追溯与评审</a>
+        </nav>
+      </div>
+      <div class="hero">
+        <div>
+          <p class="hero-label">复杂系统工程 · 小组作业 3</p>
+          <h1>轮腿式无人作战平台</h1>
+          <p class="hero-subtitle">系统需求与初始架构</p>
+          <p class="hero-scope">延续作业 2 的封闭训练场巡检与惰性物资转运场景</p>
+        </div>
+        <nav class="hero-docs" aria-label="分析章节入口">
+          <a href="#syrs"><strong>SyRS</strong><span>系统级需求与验证</span><span aria-hidden="true">↓</span></a>
+          <a href="#architecture"><strong>架构</strong><span>功能分配与控制闭环</span><span aria-hidden="true">↓</span></a>
+          <a href="#safety"><strong>STPA</strong><span>危险分析与安全需求回写</span><span aria-hidden="true">↓</span></a>
+        </nav>
+      </div>
+    </div>
+  </header>
+  <main id="main-content" class="container report-shell" tabindex="-1">
+    <nav class="outline" aria-label="章节目录">
+      <details open>
+        <summary>章节目录</summary>
+        <p><a href="#syrs">系统需求规格说明</a></p>
+        <ul>
+          <li><a href="#syrs1">1. 简介</a></li>
+          <li><a href="#syrs2">2. 参考</a></li>
+          <li><a href="#syrs3">3. 系统需求</a></li>
+          <li><a href="#syrs4">4. 验证</a></li>
+          <li><a href="#syrs5">5. 附录</a></li>
+        </ul>
+        <p><a href="#architecture">初始架构</a></p>
+        <ul>
+          <li><a href="#arch1">1. 边界与功能流</a></li>
+          <li><a href="#arch2">2. 逻辑架构</a></li>
+          <li><a href="#arch3">3. 物理架构与选择</a></li>
+          <li><a href="#arch4">4. 控制结构与接口</a></li>
+        </ul>
+        <p><a href="#safety">STPA 安全分析</a></p>
+        <ul>
+          <li><a href="#safety1">1. 损失与危险状态</a></li>
+          <li><a href="#safety2">2. 不安全控制动作</a></li>
+          <li><a href="#safety3">3. 致因与安全需求</a></li>
+          <li><a href="#safety4">4. 安全架构回写</a></li>
+          <li><a href="#safety5">5. 验证与限制</a></li>
+        </ul>
+        <p><a class="review-link" href="#review">需求追溯与评审</a></p>
+      </details>
+    </nav>
+    <div>
+      <section id="syrs" class="document" aria-labelledby="syrs-title">
+        <h2 id="syrs-title" class="doc-heading">系统需求规格说明 <span>SyRS</span></h2>
+<section id="syrs1" aria-labelledby="syrs1-title">
+  <h3 id="syrs1-title">1. 简介</h3>
+  <h4>1.1 目的</h4>
+  <p>本系统需求规格说明书（SyRS）把作业 2 的相关方需求 ST-01～ST-15 转换为供应方可实现、可分配和可验证的系统条款，为逻辑架构、接口定义、集成和验收提供同一基线。SYS 表示系统需求，V 表示对应验证；安全分析产生的 SAF 需求及 SV 验证与本需求集共同构成评审输入。</p>
+  <h4>1.2 范围</h4>
+  <p>关注系统包括轮腿式移动平台、惰性物资承载接口、操作终端和记录导出能力。使用范围为人员持续监督的封闭、干燥训练场巡检及惰性物资转运，采用一台平台、一条核准路线、一名操作员及一名安全员。外部环境提供场地隔离、通信、供电、维护与组织档案库。本阶段输出规格和验证计划，数值均为拟议课程验证包络，需由场地、使用、保障及验收方评审冻结。</p>
+  <h4>1.3 概况</h4>
+  <h5>1.3.1 系统上下文</h5>
+  <p>任务主管提供任务与批准引用，操作员导入运行包并监督，安全员确认现场条件和处置授权，交接人确认物资收讫，维护人员管理设备状态，资料管理员接收经授权导出的证据。核准边界及运行条件作为输入约束，任务结果、状态、事件及维护资料作为输出。</p>
+  <h5>1.3.2 系统功能与逻辑分配</h5>
+  <p>基本功能为校验任务、巡检记录、转运交接、状态呈现、异常保持与记录归档。分配对象为 A1 操作终端、A2 任务管理、A3 感知与定位、A4 移动与载荷接口、A5 能源与健康、A6 记录。安全控制约束及独立仲裁 A7 见 <a href="#safety">安全分析</a>。这些对象定义职责与信息关系，物理实现由后续架构评审确定。</p>
+  <h5>1.3.3 用户特征</h5>
+  <p>操作员须完成任务、状态识别与异常恢复培训；安全员须能确认隔离、停驻及人工处置条件；交接人按停稳提示和任务号交接；维护和资料人员分别具备设备放行、受控记录处理权限。界面与交接材料使用中文，物理量使用国际单位制。</p>
+  <h4>1.4 定义</h4>
+  <dl>
+    <dt>核准运行包</dt><dd>与任务号绑定的批准引用、区域、路线、点位、时窗、任务类别、载荷和配置版本。</dd>
+    <dt>可接受任务结果</dt><dd>巡检点全部有可复核记录，或物资到站停稳且收讫确认完成，并由任务主管验收。</dd>
+    <dt>越界</dt><dd>平台投影外轮廓超出核准区域；外轮廓与核准边界之间的停止余量另由安全需求约束。</dd>
+    <dt>安全停驻</dt><dd>运动终止并保持稳定，任务运动许可被锁定，现场确认和重新授权后才能启动。</dd>
+  </dl>
+</section>
+
+<section id="syrs2" aria-labelledby="syrs2-title">
+  <h3 id="syrs2-title">2. 参考</h3>
+  <ol>
+    <li>课程《系统定义与分析》讲义，第 9、14～18 页，采用其系统需求定义、分析、管理及双向追溯要求。第 18 页引用教材第 5 章表 5-1 的 SyRS 范例题名，教材表格全文为后续核对项。</li>
+    <li>本小组作业 2 的 BRS 与 StRS，采用 ST-01～ST-15 和 SC-01～SC-05 作为需求来源。<a href="https://gk37425601.github.io/complex-systems-engineering-2026/assignment-2/#s5">作业 2 相关方需求矩阵</a></li>
+    <li>本稿按 ISO/IEC/IEEE 29148:2018 第 8.4 节的 SyRS 示例轮廓组织，保留系统需求、验证和附录，具体条款按本选题编写。标准名称和版本可查官方目录。<a href="https://www.iso.org/standard/72089.html">ISO/IEC/IEEE 29148:2018</a></li>
+  </ol>
+</section>
+
+<section id="syrs3" aria-labelledby="syrs3-title">
+  <h3 id="syrs3-title">3. 系统需求</h3>
+  <p>各条款均为本轮建议必需项。表中“来源”指作业 2 的相关方需求，“分配”指承担满足职责的逻辑对象；验证编号链接到第 4 节。速度、载荷、地面与环境等限值共同适用。所有安全触发、停止余量、失联判据和能源门槛统一引用 <a href="#safety">SAF 安全需求</a>。</p>
+
+  <section id="q31"><h4>3.1 功能需求</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>任务、成果与对照统计</caption><thead><tr><th scope="col">编号</th><th scope="col">系统应满足的条款</th><th scope="col">来源／分配／验证</th></tr></thead><tbody>
+      <tr id="sys-01"><th scope="row">SYS-01</th><td>导入运行包时应校验定义中的全部字段、路线与点位的区域归属及批准版本；任一缺失、不一致或版本失效均应拒绝启用并逐项指出原因。</td><td>ST-01<br>A1、A2<br><a href="#v-01">V-01</a></td></tr>
+      <tr id="sys-02"><th scope="row">SYS-02</th><td>巡检任务应为每个核准点位保存任务号、点位号、时间与可复核观察结果；缺少任一点记录时应保持未完成结论。</td><td>ST-03<br>A2、A3、A6<br><a href="#v-02">V-02</a></td></tr>
+      <tr id="sys-03"><th scope="row">SYS-03</th><td>转运任务应仅在核准交接点的停稳状态有效时接受收讫确认，关联任务号、物资号及交接时间；未确认收讫时应保持待交接状态。</td><td>ST-04<br>A1、A2、A3、A4、A6<br><a href="#v-03">V-03</a></td></tr>
+      <tr id="sys-04"><th scope="row">SYS-04</th><td>记录功能应支持人工基线与平台任务的同口径人员进出区登记及导出，包含人员代号、任务类型、路线、进出时间和任务结论，按各次区内停留分钟数之和计算人·分钟，保留中止与回收记录。</td><td>ST-05<br>A1、A6<br><a href="#v-04">V-04</a></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="q32"><h4>3.2 可用性需求</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>状态理解与人员交互</caption><thead><tr><th scope="col">编号</th><th scope="col">系统应满足的条款</th><th scope="col">来源／分配／验证</th></tr></thead><tbody>
+      <tr id="sys-05"><th scope="row">SYS-05</th><td>操作终端应在准备、执行、待交接和异常状态显示任务号、模式、状态、连接、能量、待处理告警及数据时间；告警须有文字原因与处置提示。遥测时效呈现遵循 SAF 条款。</td><td>ST-02<br>A1、A2、A5<br><a href="#v-05">V-05</a></td></tr>
+      <tr id="sys-06"><th scope="row">SYS-06</th><td>在培训材料覆盖的五种模拟状态下，三名受训操作员应各自在 15 s 内正确辨认任务号、当前状态和待处理告警，合计 15 次判读全部正确。</td><td>ST-02、ST-15<br>A1<br><a href="#v-06">V-06</a></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="q33"><h4>3.3 性能需求</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>课程验证性能包络</caption><thead><tr><th scope="col">编号</th><th scope="col">系统应满足的条款</th><th scope="col">来源／分配／验证</th></tr></thead><tbody>
+      <tr id="sys-07"><th scope="row">SYS-07</th><td>在核准载荷和地面条件下，运动指令与实际平移速度均应限制在 0～0.5 m/s，超限设定应被拒绝并记录。</td><td>ST-06、ST-14<br>A2、A4<br><a href="#v-07">V-07</a></td></tr>
+      <tr id="sys-08"><th scope="row">SYS-08</th><td>从经检查合格的充足能源状态启动后，应在核准路线、5 kg 惰性载荷及最长 30 min 的预定任务剖面内持续提供任务运动、监督与记录服务；安全触发时按 SAF 执行并将中止如实计入结果。</td><td>ST-02、ST-09、ST-14<br>A1、A2、A4、A5、A6<br><a href="#v-08">V-08</a></td></tr>
+      <tr id="sys-09"><th scope="row">SYS-09</th><td>在干燥路线、坡度绝对值≤5°、局部台阶高度≤50 mm 的包络内，应在空载和 5 kg 两档载荷下连续完成核准混合地面路线，全程越界次数为零，且无需人员入区推动或协助越障。</td><td>ST-11、ST-14<br>A3、A4<br><a href="#v-09">V-09</a></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="q34"><h4>3.4 接口需求</h4>
+    <h5>3.4.1 外部接口</h5>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>运行包与归档接口</caption><thead><tr><th scope="col">编号</th><th scope="col">系统应满足的条款</th><th scope="col">来源／分配／验证</th></tr></thead><tbody>
+      <tr id="sys-10"><th scope="row">SYS-10</th><td>任务输入和记录输出应提供版本化字段说明，覆盖标识、时间基准、坐标系、单位、必填性及结果枚举；导入不支持的版本或单位应拒绝并提示，导出内容须能按该说明独立解析。</td><td>ST-01、ST-09、ST-15<br>A1、A2、A6<br><a href="#v-10">V-10</a></td></tr>
+    </tbody></table></div>
+    <h5>3.4.2 内部接口</h5>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>逻辑对象间的信息契约</caption><thead><tr><th scope="col">编号</th><th scope="col">系统应满足的条款</th><th scope="col">来源／分配／验证</th></tr></thead><tbody>
+      <tr id="sys-11"><th scope="row">SYS-11</th><td>位置、运动状态、能源健康、任务命令及事件信息应携带来源、序号、时间、有效性和配置版本；接收方应识别重复、乱序及版本不匹配，拒绝其改变任务状态，并形成诊断记录。</td><td>ST-02、ST-08、ST-09<br>A1～A6<br><a href="#v-11">V-11</a></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="q35"><h4>3.5 运行需求</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>准备与任务关闭</caption><thead><tr><th scope="col">编号</th><th scope="col">系统应满足的条款</th><th scope="col">来源／分配／验证</th></tr></thead><tbody>
+      <tr id="sys-12"><th scope="row">SYS-12</th><td>每次任务启动前应呈现设备自检、运行包、装载、操作员确认及安全员现场放行的逐项状态；全部有效后才可提交本次启动请求。更换任务或修改运行包后应重新确认。</td><td>ST-01、ST-15<br>A1、A2、A5<br><a href="#v-12">V-12</a></td></tr>
+      <tr id="sys-13"><th scope="row">SYS-13</th><td>任务关闭应区分完成、中止和启动失败三类结果；准备失败也应占用唯一任务号并保存原因，关闭任务的成果与事件应可按号检索。</td><td>ST-03、ST-04、ST-09<br>A2、A6<br><a href="#v-13">V-13</a></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="q36"><h4>3.6 模式与状态需求</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>可审查的状态转移</caption><thead><tr><th scope="col">编号</th><th scope="col">系统应满足的条款</th><th scope="col">来源／分配／验证</th></tr></thead><tbody>
+      <tr id="sys-14"><th scope="row">SYS-14</th><td>系统应区分检查、待命、巡检、转运、待交接、安全停驻、收尾、维护隔离及退役状态，每次转移应保留前后状态、触发原因、时间与授权引用。</td><td>ST-02、ST-08、ST-12、ST-13<br>A1、A2、A6<br><a href="#v-14">V-14</a></td></tr>
+      <tr id="sys-15"><th scope="row">SYS-15</th><td>处于维护隔离或退役状态时应拒绝全部任务运动请求；维护退出须核对维修工单、复验及人员放行记录，退役设备应保持不可调度。</td><td>ST-12、ST-13<br>A1、A2、A4、A5<br><a href="#v-15">V-15</a></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="q37"><h4>3.7 物理特性需求</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>惰性载荷与标识</caption><thead><tr><th scope="col">编号</th><th scope="col">系统应满足的条款</th><th scope="col">来源／分配／验证</th></tr></thead><tbody>
+      <tr id="sys-16"><th scope="row">SYS-16</th><td>承载接口应标示允许惰性载荷≤5 kg 及核准装载区域；按装载说明放置 5 kg 配重并完成 SYS-09 路线后，载荷应留在核准区域内，设备及配重无脱落或损伤。</td><td>ST-04、ST-14、ST-15<br>A4<br><a href="#v-16">V-16</a></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="q38"><h4>3.8 环境条件需求</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>验证环境与准入条件</caption><thead><tr><th scope="col">编号</th><th scope="col">系统应满足的条款</th><th scope="col">来源／分配／验证</th></tr></thead><tbody>
+      <tr id="sys-17"><th scope="row">SYS-17</th><td>系统应在环境温度 5～35 ℃、无降水、干燥核准地面下满足本规格；运行包应记录现场温度及干燥确认，超出包络或条件缺失时应提示并拒绝启用该任务。</td><td>ST-01、ST-11、ST-14<br>A1、A2、A5<br><a href="#v-17">V-17</a></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="q39"><h4>3.9 安全性与保密需求</h4>
+    <p>运行安全条款由 ST-06、ST-07、ST-08、ST-11 导出，记录在 SAF 集合并通过 SV 验证。下列条款约束身份权限和审计。</p>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>角色权限与审计</caption><thead><tr><th scope="col">编号</th><th scope="col">系统应满足的条款</th><th scope="col">来源／分配／验证</th></tr></thead><tbody>
+      <tr id="sys-18"><th scope="row">SYS-18</th><td>系统应区分操作、安全放行、维护及资料导出权限，按账户授予动作权限；越权请求应被拒绝，记录请求角色、动作、时间与拒绝原因。</td><td>ST-01、ST-10、ST-12<br>A1、A2、A6<br><a href="#v-18">V-18</a></td></tr>
+      <tr id="sys-19"><th scope="row">SYS-19</th><td>普通操作与导出角色应不能改写已关闭任务的原始记录；更正应追加原值、更正值、理由和授权人，保持原始内容可查。</td><td>ST-09、ST-10<br>A1、A6<br><a href="#v-19">V-19</a></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="q310"><h4>3.10 信息管理需求</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>证据完整与异常恢复</caption><thead><tr><th scope="col">编号</th><th scope="col">系统应满足的条款</th><th scope="col">来源／分配／验证</th></tr></thead><tbody>
+      <tr id="sys-20"><th scope="row">SYS-20</th><td>每项登记任务应具有批准引用、配置版本、起止时间或未启动说明、结果、异常或无异常标记、交接或不适用标记；在 20 次常规验证中记录完整率应为 100%。</td><td>ST-09<br>A2、A6<br><a href="#v-20">V-20</a></td></tr>
+      <tr id="sys-21"><th scope="row">SYS-21</th><td>终端与平台连接中断期间，平台应保留本地事件；重连后按任务号及事件序号补齐，去除重复项并显式标识未取得的时间区间，补齐失败不得将记录标为完整。</td><td>ST-07、ST-09<br>A1、A2、A6<br><a href="#v-21">V-21</a></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="q311"><h4>3.11 政策与规则需求</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>配置治理</caption><thead><tr><th scope="col">编号</th><th scope="col">系统应满足的条款</th><th scope="col">来源／分配／验证</th></tr></thead><tbody>
+      <tr id="sys-22"><th scope="row">SYS-22</th><td>核准区域、路线、速度和载荷上限、角色权限及安全门槛应纳入版本化配置；变更应保留理由和批准引用，使原任务批准失效并在重新放行后启用。</td><td>ST-01、ST-08、ST-15<br>A1、A2、A5、A6<br><a href="#v-22">V-22</a></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="q312"><h4>3.12 生存周期保障需求</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>部署、维护与退役交付</caption><thead><tr><th scope="col">编号</th><th scope="col">系统应满足的条款</th><th scope="col">来源／分配／验证</th></tr></thead><tbody>
+      <tr id="sys-23"><th scope="row">SYS-23</th><td>系统交付应具有与资产号及配置版本关联的部署、维护复验和退役清单，分别覆盖人员培训与场地放行、故障关闭与放行、数据归档或清除及账户撤销与能源部件交接，逐项具备责任人与完成记录。</td><td>ST-12、ST-13、ST-15<br>A1、A2、A5、A6<br><a href="#v-23">V-23</a></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="q313"><h4>3.13 包装、搬运与运输需求</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>场次转移与到场检查</caption><thead><tr><th scope="col">编号</th><th scope="col">系统应满足的条款</th><th scope="col">来源／分配／验证</th></tr></thead><tbody>
+      <tr id="sys-24"><th scope="row">SYS-24</th><td>交付说明应明确搬运前能源隔离、载荷卸除、固定位置、搬运限制及到场检查项；完成一次按说明进行的场内搬运后，外观、固定接口与自检项目应全部合格，记录资产号和检查人。</td><td>ST-12、ST-15<br>A4、A5<br><a href="#v-24">V-24</a></td></tr>
+    </tbody></table></div>
+  </section>
+</section>
+
+<section id="syrs4" aria-labelledby="syrs4-title">
+  <h3 id="syrs4-title">4. 系统验证</h3>
+  <p>验证按第 3 节的十三类逐项对应。T 为测试，D 为演示，I 为检查，A 为分析。执行前冻结运行包、计量仪器及不确定度、配置版本、用例和责任人；有上限的指标须将测量不确定度计入判定。每项保存实际结果、证据引用与通过结论。以下为计划，验证状态均为待执行。</p>
+  <section id="v31"><h4>4.1 功能验证</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>V-01～V-04</caption><thead><tr><th scope="col">验证／需求</th><th scope="col">方法、输入与通过准则</th></tr></thead><tbody>
+      <tr id="v-01"><th scope="row">V-01／SYS-01</th><td>T。逐项注入字段缺失、区域不匹配和失效批准版本，均拒绝启用且原因正确；完整包能够进入准备。</td></tr>
+      <tr id="v-02"><th scope="row">V-02／SYS-02</th><td>T＋I。对照核准点清单核查巡检记录，成功用例逐点齐全；注入漏点后结论为未完成。</td></tr>
+      <tr id="v-03"><th scope="row">V-03／SYS-03</th><td>T。分别输入错站点、未停稳、缺收讫确认及全条件用例，前三者不能关闭为完成，全条件生成交接记录。</td></tr>
+      <tr id="v-04"><th scope="row">V-04／SYS-04</th><td>A＋I。用包含装卸、中止和回收的合成人员进出数据手工求和，与导出结果逐字段及逐任务核对一致。</td></tr>
+    </tbody></table></div>
+  </section>
+  <section id="v32"><h4>4.2 可用性验证</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>V-05～V-06</caption><thead><tr><th scope="col">验证／需求</th><th scope="col">方法、输入与通过准则</th></tr></thead><tbody>
+      <tr id="v-05"><th scope="row">V-05／SYS-05</th><td>D＋I。遍历准备、执行、待交接及异常状态，与参考状态逐字段核对，必需信息和文字告警均正确。</td></tr>
+      <tr id="v-06"><th scope="row">V-06／SYS-06</th><td>D。三名受训人员分别完成五次独立状态判读，每次计时≤15 s、答案正确，保存计时与观察表。</td></tr>
+    </tbody></table></div>
+  </section>
+  <section id="v33"><h4>4.3 性能验证</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>V-07～V-09</caption><thead><tr><th scope="col">验证／需求</th><th scope="col">方法、输入与通过准则</th></tr></thead><tbody>
+      <tr id="v-07"><th scope="row">V-07／SYS-07</th><td>T。空载与满载、核准最不利路段分别测量最大平移速度，含不确定度后≤0.5 m/s；注入超限设定均拒绝。</td></tr>
+      <tr id="v-08"><th scope="row">V-08／SYS-08</th><td>T。记录初始能源、5 kg 配重和 30 min 任务剖面，巡检或转运、状态和记录服务全程可用；中止按未通过登记。</td></tr>
+      <tr id="v-09"><th scope="row">V-09／SYS-09</th><td>T。踏勘量测坡度及台阶，空载与满载各运行一次代表性路线，完成全部区段，越界为零且无人入区辅助通行。</td></tr>
+    </tbody></table></div>
+  </section>
+  <section id="v34"><h4>4.4 接口验证</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>V-10～V-11</caption><thead><tr><th scope="col">验证／需求</th><th scope="col">方法、输入与通过准则</th></tr></thead><tbody>
+      <tr id="v-10"><th scope="row">V-10／SYS-10</th><td>T＋I。依据字段说明由独立解析器读取导出记录，逐字段一致；错误单位及不支持版本均拒绝导入。</td></tr>
+      <tr id="v-11"><th scope="row">V-11／SYS-11</th><td>T。在各类内部消息中分别注入重复、乱序、错版本，均产生诊断且未改变任务状态；正常消息可正确处理。</td></tr>
+    </tbody></table></div>
+  </section>
+  <section id="v35"><h4>4.5 运行验证</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>V-12～V-13</caption><thead><tr><th scope="col">验证／需求</th><th scope="col">方法、输入与通过准则</th></tr></thead><tbody>
+      <tr id="v-12"><th scope="row">V-12／SYS-12</th><td>T。逐项省略准备确认并更换任务包，均阻止启动请求提交；全部有效后可提交，并具有本次放行引用。</td></tr>
+      <tr id="v-13"><th scope="row">V-13／SYS-13</th><td>T＋I。分别演练完成、中止、准备失败，三个唯一任务号均有准确结论、原因及可检索证据。</td></tr>
+    </tbody></table></div>
+  </section>
+  <section id="v36"><h4>4.6 模式与状态验证</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>V-14～V-15</caption><thead><tr><th scope="col">验证／需求</th><th scope="col">方法、输入与通过准则</th></tr></thead><tbody>
+      <tr id="v-14"><th scope="row">V-14／SYS-14</th><td>T＋I。用状态转移用例覆盖九个状态，全部转移事件具备前后状态、原因、时间及授权引用。</td></tr>
+      <tr id="v-15"><th scope="row">V-15／SYS-15</th><td>T。维护中、复验未放行及退役时请求运动均被拒绝，维护记录齐备后可回到准备，退役设备不能分配任务。</td></tr>
+    </tbody></table></div>
+  </section>
+  <section id="v37"><h4>4.7 物理特性验证</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>V-16</caption><thead><tr><th scope="col">验证／需求</th><th scope="col">方法、输入与通过准则</th></tr></thead><tbody>
+      <tr id="v-16"><th scope="row">V-16／SYS-16</th><td>I＋T。称量配重、核查载荷标识及装载区域，完成混合地面路线后检查无越出装载区域、脱落和损伤。</td></tr>
+    </tbody></table></div>
+  </section>
+  <section id="v38"><h4>4.8 环境验证</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>V-17</caption><thead><tr><th scope="col">验证／需求</th><th scope="col">方法、输入与通过准则</th></tr></thead><tbody>
+      <tr id="v-17"><th scope="row">V-17／SYS-17</th><td>T＋A。在干燥条件的 5 ℃、35 ℃端点执行 SYS-07～SYS-09 代表性工况，检查任务、状态、记录和安全功能，按对应判据通过并分析中间温区适用性；包络外温度或缺干燥确认均拒绝启用。</td></tr>
+    </tbody></table></div>
+  </section>
+  <section id="v39"><h4>4.9 安全性与保密验证</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>V-18～V-19</caption><thead><tr><th scope="col">验证／需求</th><th scope="col">方法、输入与通过准则</th></tr></thead><tbody>
+      <tr id="v-18"><th scope="row">V-18／SYS-18</th><td>T。按角色—动作矩阵遍历允许及拒绝用例，结果均符合矩阵；拒绝导出时无记录内容返回，审计字段齐全。</td></tr>
+      <tr id="v-19"><th scope="row">V-19／SYS-19</th><td>T＋I。普通角色改写关闭记录被拒绝；授权更正后原值仍可查，更正链字段齐全。运行安全另执行 SV 集合。</td></tr>
+    </tbody></table></div>
+  </section>
+  <section id="v310"><h4>4.10 信息管理验证</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>V-20～V-21</caption><thead><tr><th scope="col">验证／需求</th><th scope="col">方法、输入与通过准则</th></tr></thead><tbody>
+      <tr id="v-20"><th scope="row">V-20／SYS-20</th><td>I。核对预排 20 次常规任务台账，巡检、转运各 10 次，含准备失败，每次均有必需字段及正确不适用标记，完整率 100%。</td></tr>
+      <tr id="v-21"><th scope="row">V-21／SYS-21</th><td>T。注入断连、重传与重复事件，重连后记录无重复且与本地记录一致；模拟缺失不可恢复时显式标记缺口与不完整。</td></tr>
+    </tbody></table></div>
+  </section>
+  <section id="v311"><h4>4.11 政策与规则验证</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>V-22</caption><thead><tr><th scope="col">验证／需求</th><th scope="col">方法、输入与通过准则</th></tr></thead><tbody>
+      <tr id="v-22"><th scope="row">V-22／SYS-22</th><td>T＋I。逐类修改受控配置，原批准均失效、变更记录齐全，重新批准后启用新版本且历史任务仍引用原版本。</td></tr>
+    </tbody></table></div>
+  </section>
+  <section id="v312"><h4>4.12 生存周期保障验证</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>V-23</caption><thead><tr><th scope="col">验证／需求</th><th scope="col">方法、输入与通过准则</th></tr></thead><tbody>
+      <tr id="v-23"><th scope="row">V-23／SYS-23</th><td>D＋I。演练一次部署、维护复验及退役流程，逐项核对资产、配置、责任人和完成记录，全部清单闭环。</td></tr>
+    </tbody></table></div>
+  </section>
+  <section id="v313"><h4>4.13 包装、搬运与运输验证</h4>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="系统需求与验证表"><table><caption>V-24</caption><thead><tr><th scope="col">验证／需求</th><th scope="col">方法、输入与通过准则</th></tr></thead><tbody>
+      <tr id="v-24"><th scope="row">V-24／SYS-24</th><td>D＋I。按交付说明完成一次场内搬运，检查能源隔离、卸载与固定过程，并见证到场外观、接口和全部自检项合格。</td></tr>
+    </tbody></table></div>
+  </section>
+  <p>系统验证提供逐条符合性证据；试用效果仍按作业 2 的 BR-01～BR-05 确认。常规任务预排 20 次、两类各 10 次、至少 18 次完成，准备失败计入分母，预排安全触发用例单列。需求或配置变更后，应识别受影响的验证并复验，保留版本关系。</p>
+</section>
+
+<section id="syrs5" aria-labelledby="syrs5-title">
+  <h3 id="syrs5-title">5. 附录</h3>
+  <h4>5.1 假设、待确认项与依据</h4>
+  <p>0.5 m/s、≤5 kg、≤5°、≤50 mm、5～35 ℃和≤30 min 是为可控教学验证提出的包络。三名受训人员、15 s 判读和验证次数均为本稿拟定准则。实物能力、场地几何与停止余量、计量方法、能源初始状态、任务剖面及接口字段版本由评审冻结。路线通行能力与停止约束须联合检查，任何不满足条件的用例均保留实际结果与原因。</p>
+  <h4>5.2 缩写</h4>
+  <p>SyRS 为系统需求规格说明，StRS 为相关方需求规格说明，ST 为相关方需求编号，SYS 为系统需求编号，SAF 为安全需求编号，V 与 SV 分别为系统验证和安全验证编号，A 为逻辑架构对象编号。T、D、I、A 在验证方法栏分别表示测试、演示、检查、分析。</p>
+</section>
+
+      </section>
+      <section id="architecture" class="document" aria-labelledby="architecture-title">
+        <h2 id="architecture-title" class="doc-heading">初始架构</h2>
+<section id="arch1" aria-labelledby="arch1-title">
+  <h3 id="arch1-title">1. 架构边界与功能流</h3>
+  <p>初始架构 A0 以作业 2 的 ST-01 至 ST-15 为输入，将平台分解为操作终端、任务管理、环境信息、运动与载荷、能源健康及记录六类职责。运行范围延续封闭训练场内的非武装巡检与惰性物资转运。经核准的路线与场地条件由人提供，平台在人工监督下完成任务，现场授权、收讫、维护及退役交接由相应岗位承担。</p>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="系统边界与外部接口">
+    <table>
+      <caption>系统边界与外部实体</caption>
+      <thead><tr><th>边界或实体</th><th>输入 / 控制</th><th>输出 / 反馈</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">系统内部</th><td>A1 至 A6 的软硬件及配置，车载能源、平台侧通信和记录能力</td><td>可执行的任务、可辨识的状态、巡检成果及转运交接记录</td></tr>
+        <tr><th scope="row">主管 / 场地管理方</th><td>任务批准、核准路线、场地开放与关闭、人员进入规则</td><td>执行结果、异常报告、人员暴露与任务完成统计</td></tr>
+        <tr><th scope="row">操作员 / 安全员</th><td>本次放行、启动、停止、异常复核和恢复授权</td><td>模式、实际运动状态、状态新鲜度、告警与锁定原因</td></tr>
+        <tr><th scope="row">装卸 / 接收人员</th><td>惰性物资标识、装载确认、到站收讫</td><td>停稳与待交接状态、任务交接凭据</td></tr>
+        <tr><th scope="row">维护 / 资产人员</th><td>维护隔离与复验、配置交接、退役指令</td><td>故障与工单记录、配置版本、资产与数据交接状态</td></tr>
+        <tr><th scope="row">运行环境 / 保障设施</th><td>地面、障碍、人员活动、通信条件、充电与回收保障</td><td>对移动、观测、能源消耗及现场处置的实际影响</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <figure class="diagram">
+    <figcaption>任务级功能流，正常完成与异常处理均形成任务记录</figcaption>
+    <ol class="process-flow">
+      <li><strong>F-01 接收与核对任务</strong><span>核对任务号、审批、核准路线、检查点或交接点。</span></li>
+      <li><strong>F-02 准备与人工放行</strong><span>检查状态、载荷与场地，确认本次授权。</span></li>
+      <li><strong>F-03 受监督任务执行</strong><span>按批准路线移动，采集观察记录或运送惰性物资。</span></li>
+      <li><strong>F-04 停稳与交付</strong><span>确认巡检成果，或在停稳后完成收讫。</span></li>
+      <li><strong>F-05 归档与保障移交</strong><span>记录结果，恢复场地，转入待命或维护。</span></li>
+    </ol>
+    <div class="branch-flow"><strong>执行期异常支路</strong><span>停止条件成立 → 发出停止请求 → 核实实际停稳 → 保持锁定 → 现场复核 → 本次恢复授权 → 再次明确启动或中止归档。</span></div>
+  </figure>
+  <p>F-03 期间持续接收环境、运动和能源状态。每次阶段切换及异常处理均向记录职责提交事件。由本章的命令路径、反馈与责任分配出发，<a href="#safety">STPA 分析</a>进一步检查缺失、错误、时序及持续时间方面的控制问题。</p>
+</section>
+
+<section id="arch2" aria-labelledby="arch2-title">
+  <h3 id="arch2-title">2. 逻辑架构与职责分配</h3>
+  <figure class="diagram" aria-labelledby="logical-caption">
+    <figcaption id="logical-caption">初始逻辑架构 A0，六类职责通过命令、状态与记录接口协作</figcaption>
+    <div class="logical-grid">
+      <div class="node" id="a1"><strong>A1 操作终端</strong><span>任务呈现、人工操作、状态与告警显示</span></div>
+      <div class="flow-label">授权 / 停止 / 恢复 →<br>← 任务状态 / 执行结果</div>
+      <div class="node accent" id="a2"><strong>A2 任务管理</strong><span>任务核对、执行编排、模式与异常状态管理</span></div>
+      <div class="node" id="a3"><strong>A3 感知与定位</strong><span>位置、路线关系、观察信息、有效性与时间</span></div>
+      <div class="flow-label">A3、A5 状态 → A2<br>A2 请求 → A4</div>
+      <div class="node" id="a4"><strong>A4 运动与惰性载荷接口</strong><span>轮腿运动、停止与保持、装载及交接状态</span></div>
+      <div class="node" id="a5"><strong>A5 能源与健康</strong><span>能量估计、故障状态、保障检查结果</span></div>
+      <div class="flow-label">A1 至 A5 事件 → A6<br>← 查询与归档结果</div>
+      <div class="node" id="a6"><strong>A6 记录与数据管理</strong><span>任务台账、时间线、权限、导出与归档</span></div>
+    </div>
+  </figure>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="逻辑单元与功能需求来源">
+    <table>
+      <caption>职责、功能及相关方需求来源</caption>
+      <thead><tr><th>逻辑单元</th><th>承担功能与交付</th><th>上游相关方需求</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">A1 操作终端</th><td>F-01、02、04、05 的人工交互；任务、模式、状态、告警、启动与恢复入口</td><td>ST-01、02、04、06、08、10、15</td></tr>
+        <tr><th scope="row">A2 任务管理</th><td>F-01 至 F-05 的流程编排；批准任务关联、路线与检查点管理、异常停驻及交付判定</td><td>ST-01、03、04、07、08、11、12、14</td></tr>
+        <tr><th scope="row">A3 感知与定位</th><td>F-03 的巡检观察、核准路线关系和环境状态；附带时间戳与有效性</td><td>ST-03、11、14</td></tr>
+        <tr><th scope="row">A4 运动与惰性载荷接口</th><td>F-03、04 的移动、停止与保持反馈、到站、装载和交接状态</td><td>ST-04、06、07、11、12、14</td></tr>
+        <tr><th scope="row">A5 能源与健康</th><td>F-02、03、05 的能源及健康信息、部署和维护检查数据</td><td>ST-02、11、12、13、15</td></tr>
+        <tr><th scope="row">A6 记录与数据管理</th><td>全流程的任务记录、观察与收讫关联、人员暴露统计输入、授权导出、维护和退役凭据</td><td>ST-03、04、05、09、10、12、13、15</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>一个功能可由多个单元协同完成，表中分配表示责任与信息需求。运行许可的独立性、停止优先级及失效响应进入安全分析，派生结果在后续安全改进架构中分配给新增的 A7 及其接口。</p>
+</section>
+
+<section id="arch3" aria-labelledby="arch3-title">
+  <h3 id="arch3-title">3. 候选物理架构与方案选择</h3>
+  <p>下表给出逻辑职责的一种候选物理承载方式，作为接口和验证计划的输入。具体型号、计算资源、通信介质与运动机构参数在详细设计和试验后确定。</p>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="逻辑单元到候选物理组成的分配">
+    <table>
+      <caption>逻辑职责到候选物理组成的分配</caption>
+      <thead><tr><th>候选物理组成</th><th>承载逻辑单元</th><th>边界接口与验证重点</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">操作站与人工控制装置</th><td>A1</td><td>人员身份与任务授权；遥测显示、停止操作和失效提示。核对界面状态与实际状态的一致性。</td></tr>
+        <tr><th scope="row">车载任务计算与平台通信</th><td>A2；A6 的任务事件采集</td><td>任务请求、命令有效性、模式切换、连接状态。覆盖延迟、重放、进程停滞和恢复情形。</td></tr>
+        <tr><th scope="row">环境信息与位置采集组件</th><td>A3</td><td>观测、位置、有效性、时间与核准路线引用。覆盖冻结、超时和信息不一致。</td></tr>
+        <tr><th scope="row">轮腿底盘及惰性载荷承载接口</th><td>A4</td><td>运动请求、实际运动、停止保持、载荷与交接状态。覆盖核准地面、载荷和停止效果。</td></tr>
+        <tr><th scope="row">能源组件与健康监测</th><td>A5</td><td>能量估计、供电与故障反馈、维护隔离。覆盖门槛、低能量及停驻保持能力。</td></tr>
+        <tr><th scope="row">本地事件存储与授权归档端</th><td>A6</td><td>按任务号关联事件、权限与导出。核对通信中断后的记录连续性和退役交接。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="候选运行架构方案比较">
+    <table>
+      <caption>方案决策 AD-01，经批准路线的人工监督运行</caption>
+      <thead><tr><th>方案</th><th>满足目标的方式</th><th>主要代价与约束</th><th>决策</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">持续人工遥操作</th><td>由操作员持续控制移动，便于早期试验观察和人工介入</td><td>持续占用操作员，任务表现依赖通信和人工负荷；需额外核对重复任务的交付一致性</td><td>可用于受控调试及对照评估</td></tr>
+        <tr><th scope="row">批准路线任务执行，人工监督</th><td>人核准任务与边界，系统编排重复移动、观察和到站流程，人工确认启停与交接</td><td>需要核准路线、可靠状态反馈、异常锁定及明确恢复职责</td><td><strong>选为本次概念基线</strong></td></tr>
+        <tr><th scope="row">开放环境自由任务规划</th><td>系统自行处理更多未知环境和任务变化</td><td>扩大环境、场景与验证覆盖范围，超出本次封闭场地的运行包络</td><td>留作后续范围变更时重新评估</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>AD-01 采用基于范围和验证可行性的定性比较。选定方案支持 ST-01 的授权、ST-03 与 ST-04 的成果交付、ST-08 的恢复控制以及 ST-14 的混合地面通行。人员暴露下降与任务完成率仍按作业 2 的配对统计和验证试次评估。</p>
+</section>
+
+<section id="arch4" aria-labelledby="arch4-title">
+  <h3 id="arch4-title">4. 初始控制结构与接口</h3>
+  <figure class="diagram" id="control-structure" aria-labelledby="control-caption">
+    <figcaption id="control-caption">STPA 输入控制结构 A0，向下给出控制，向上提供状态与实际执行反馈</figcaption>
+    <div class="control-loop">
+      <div class="node"><strong>主管 / 场地管理方</strong><span>批准任务、核准路线与现场规则</span></div>
+      <div class="flow-label">任务与运行条件 ↓　↑ 结果与异常报告</div>
+      <div class="human-grid">
+        <div class="node"><strong>操作员 / 安全员</strong><span>放行、监督、停止与恢复复核</span></div>
+        <div class="node"><strong>维护 / 装卸接收人员</strong><span>隔离、维护放行、装载及收讫确认</span></div>
+      </div>
+      <div class="flow-label">人员决定 / CA-05 维护放行 ↓　↑ 任务状态、锁定与交接状态</div>
+      <div class="node"><strong>A1 操作终端</strong><span>将人工决定关联到任务，呈现系统反馈</span></div>
+      <div class="flow-label">CA-01 运行许可 / CA-04 恢复授权 ↓　↑ 执行状态、异常原因</div>
+      <div class="node accent"><strong>A2 任务管理</strong><span>任务编排与运行状态管理</span></div>
+      <div class="flow-label">CA-02 任务运动请求 ↓　↑ 实际运动、停止与载荷反馈</div>
+      <div class="node"><strong>A4 运动与惰性载荷接口</strong><span>A1 / A2 直接提供 CA-03 停止与锁定请求，实际执行及状态返回 A1 / A2</span></div>
+      <div class="flow-label">移动与载荷交付 ↓　↑ 实际位置、障碍及载荷变化</div>
+      <div class="node"><strong>受控过程与环境</strong><span>平台运动、地面与边界、人员活动、惰性载荷</span></div>
+      <div class="feedback-strip"><span>A3 感知与定位 → A2 / A1</span><span>A5 能源与健康 → A2 / A1</span><span>A1 至 A5 的事件 → A6 记录</span></div>
+    </div>
+  </figure>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="初始控制动作及反馈">
+    <table>
+      <caption>控制动作与反馈，编号与 STPA 表一致</caption>
+      <thead><tr><th>控制动作</th><th>提供方 → 接收方</th><th>期望受控效果</th><th>需要的反馈</th></tr></thead>
+      <tbody>
+        <tr id="ca-01"><th scope="row">CA-01 运行许可</th><td>操作员经 A1 → A2</td><td>启动时建立、运行期保持。以本次任务的场地、设备与装载检查结果作为许可依据</td><td>当前任务号、检查结果、场地放行、许可接受或拒绝原因、实际执行状态</td></tr>
+        <tr id="ca-02"><th scope="row">CA-02 任务运动请求</th><td>A2 → A4</td><td>平台沿核准路线执行当前任务阶段的运动</td><td>A3 位置与有效性、A4 实际运动与载荷、A5 能源健康、当前模式</td></tr>
+        <tr id="ca-03"><th scope="row">CA-03 停止与锁定请求</th><td>操作员经 A1 / A2 → A4</td><td>持续要求停止并保持锁定，直至完成异常处置与本次恢复授权</td><td>停止接受、实际运动、停稳与保持状态、锁定原因及告警</td></tr>
+        <tr id="ca-04"><th scope="row">CA-04 恢复授权</th><td>操作员经 A1 → A2</td><td>完成本次异常复核后回到可重新启动的状态</td><td>本次异常序号、现场复核、故障处理结果、停驻与恢复状态</td></tr>
+        <tr id="ca-05"><th scope="row">CA-05 维护放行</th><td>维护人员 → A1</td><td>本次维护复验后解除相应维护限制并办理运行交接</td><td>当前工单、隔离状态、人员和工具退出确认、复验结论</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>CA-01、CA-02、CA-03 为需要持续生效的控制动作。CA-04、CA-05 为绑定本次异常或工单的离散授权，按是否提供、内容和时序分析。</p>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="闭环反馈与可观测信息">
+    <table>
+      <caption>反馈路径与可观测信息</caption>
+      <thead><tr><th>反馈路径</th><th>反馈内容</th><th>控制决策用途</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">FB-01 A2 → A1 → 人员</th><td>任务号、模式、阶段、当前异常和锁定原因、消息时间</td><td>确认操作对象与实际任务一致，判断是否需要停止、处置或重新授权</td></tr>
+        <tr><th scope="row">FB-02 A4 → A2 / A1</th><td>实际运动、停止和保持、载荷及交接状态</td><td>核对请求是否执行，判断停稳与交接条件是否成立</td></tr>
+        <tr><th scope="row">FB-03 A3 → A2 / A1</th><td>位置、边界与路线关系、观察信息、有效性与采样时间</td><td>判断路线、巡检成果及当前环境信息是否可用</td></tr>
+        <tr><th scope="row">FB-04 A5 → A2 / A1</th><td>能量估计、故障与健康状态、检查时间</td><td>判断任务准备、继续执行和保障处理的条件</td></tr>
+        <tr><th scope="row">FB-05 现场人员 → A1</th><td>清场、装载、收讫、维护和复验确认</td><td>将系统外的现场事实反馈给相关运行状态</td></tr>
+        <tr><th scope="row">FB-06 A6 → 授权人员</th><td>按任务号关联的请求、反馈、结果、异常和交接记录</td><td>支持复核、人员暴露统计、验收及部署与退役交接</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>初始架构为 STPA 提供可检查的控制边界和反馈路径。每条控制动作的上下文、时序及持续时间在<a href="#safety2">不安全控制动作分析</a>中展开，新增安全职责与接口在<a href="#safety4">安全架构回写</a>中明确。</p>
+</section>
+
+      </section>
+      <section id="safety" class="document" aria-labelledby="safety-title">
+        <h2 id="safety-title" class="doc-heading">系统安全分析 <span>STPA</span></h2>
+<section id="safety1">
+<h3>1. 分析目的、损失与危险状态</h3>
+<p>以初始架构 A0 为输入，分析平台在封闭训练场巡检、惰性物资转运、停止、恢复及维护交接中的控制风险。分析边界包含操作员、安全员、维护人员及受控场地，关注控制指令与反馈的不一致。识别的场景用于导出约束，并回写为架构 A0-S 的安全职责与接口。</p>
+<div class="table-wrap"><table>
+<caption>不可接受损失 L、系统危险 H 与高层安全约束 SC</caption>
+<thead><tr><th>危险状态</th><th>可能损失</th><th>高层安全约束</th></tr></thead><tbody>
+<tr><th>H-01 平台在人员可能接近的危险范围内运动或未保持安全间距</th><td>L-01 人员受伤；L-02 平台或设施损坏</td><td>SC-01 只有运行许可及现场条件有效时才允许运动，停止请求应具有最高优先级。</td></tr>
+<tr><th>H-02 平台越出核准区域或停止余量不足</th><td>L-01 人员受伤；L-02 财物损坏；L-03 场地任务中断</td><td>SC-02 在失联、定位失效或接近边界时，应在保护余量内停止。</td></tr>
+<tr><th>H-03 平台在支撑或能源条件不足时继续移动、倾覆或滑移</th><td>L-01 人员受伤；L-02 设备和载荷损坏</td><td>SC-03 运行包络、载荷和能量条件不足时应阻止启动或安全停驻，停驻后保持稳定。</td></tr>
+<tr><th>H-04 实际运动许可与人员所理解的任务、隔离或恢复状态不一致</th><td>L-01 人员受伤；L-03 任务中断；L-04 关键记录丢失或失真</td><td>SC-04 状态及反馈须可辨识，维护、复位和重新启动须按授权顺序执行并留痕。</td></tr>
+</tbody></table></div>
+<p>危险表示系统处于可能导致损失的状态。失联、反馈延迟、指令重放等因素放在后续致因场景中分析，便于区分状态与原因。</p>
+</section>
+
+<section id="safety2">
+<h3>2. 控制动作与不安全控制动作（UCA）</h3>
+<p>依据<a href="#control-structure">初始控制结构</a>，逐项检查“不提供、错误提供、时序错误、持续过久或过早结束”四类控制问题。每格给出控制动作、上下文与导致的危险。编号用于后续追溯。</p>
+<div class="table-wrap"><table>
+<caption>五个控制动作的四类 UCA 检查</caption>
+<thead><tr><th>控制动作</th><th>需要时未提供</th><th>提供后导致危险</th><th>过早、过晚或次序错误</th><th>持续时间不合适</th></tr></thead><tbody>
+<tr><th>CA-01 运行许可<br>操作员 / A1 → A2</th><td>未识别危险上下文。启动前缺少许可使平台保持待命，任务延迟记录为业务影响。</td><td>UCA-02 场地未清场或任务包已失效时仍发出启动许可。H-01、04</td><td>UCA-03 在载荷确认或状态检查之前放行。H-03、04</td><td>UCA-04 上轮许可跨任务持续有效，新的路线未复核即运动。H-02、04</td></tr>
+<tr><th>CA-02 任务运动请求<br>A2 → A4</th><td>UCA-05 阶段切换需要新的受限速度运动请求时未提供，A4 继续旧请求。H-02、03</td><td>UCA-06 在定位无效、路线封闭或载荷未就绪时提供运动请求。H-01、02、03</td><td>UCA-07 使用上一任务的延迟运动请求，覆盖当前停驻状态。H-01、04</td><td>UCA-08 单次请求无有效期，通信中断后仍持续执行。H-01、02</td></tr>
+<tr><th>CA-03 停止请求<br>操作员 / A1 / A2 → A4</th><td>UCA-09 人员接近、边界余量不足或失联时未提供停止请求。H-01、02</td><td>UCA-10 在允许坡面发出停止请求时未同时要求稳定保持，形成滑移。H-03</td><td>UCA-11 停止请求迟于剩余安全距离所允许的时刻。H-01、02</td><td>UCA-12 停止尚未完成就撤销锁定，残留运动请求重新生效。H-01、04</td></tr>
+<tr><th>CA-04 恢复授权<br>操作员 / A1 → A2</th><td>未识别危险上下文。缺少恢复授权时保持锁定停驻，保障处置进入业务流程。</td><td>UCA-14 未清场、故障未关闭或旧授权重用时授权恢复。H-01、03</td><td>UCA-15 通信恢复后先运动，再补做人工复核。H-01、04</td><td>不适用。恢复授权为一次性离散动作，旧授权重用归入错误提供场景。</td></tr>
+<tr><th>CA-05 维护放行<br>维护人员 → A1</th><td>未识别危险上下文。缺少维护放行时保持隔离，设备不可调度。</td><td>UCA-18 人员或工具仍在作业位置，或沿用旧故障放行时发出维护完成放行。H-01、03</td><td>UCA-19 复验之前解除隔离。H-03、04</td><td>不适用。维护放行为离散动作，旧放行重用归入错误提供场景。</td></tr>
+</tbody></table></div>
+<p>CA-01、02、03 作为运行许可、运动请求及停止锁定的持续信号分析。CA-04、05 为离散动作，持续时间一栏不适用。20 个组合中识别出 15 项 UCA，五个排除项保留判断依据。编号对应原矩阵位置。维护隔离和运动锁定作为新增安全动作写入 A0-S 架构。</p>
+</section>
+
+<section id="safety3">
+<h3>3. 致因场景与派生安全需求</h3>
+<p>以下数值组成拟定的低速教学验证包络，须在部署前由停止距离和稳定性试验确认。平台最高试验速度为 0.5 m/s，载荷不超过 5 kg，核准路段坡度不超过 5°。停止触发线至外边界至少留 1.2 m，其中分配停止距离 0.8 m、位置误差 0.2 m 和附加余量 0.2 m。该分配只用于经确认的干燥核准路线。</p>
+<div class="table-wrap"><table>
+<caption>致因场景 → 安全要求 → 架构责任 → 验证</caption>
+<thead><tr><th>致因场景 / UCA</th><th>派生要求</th><th>分配与验证</th></tr></thead><tbody>
+<tr><td>CS-01 A2 进程停滞或通信中断，旧运动请求保留，未更新速度约束。UCA-05、08、09、11</td><td id="saf-01"><strong>SAF-01 指令超时</strong><br>A7 应分别监测 A1 控制链心跳及 A2 运动请求的新鲜度，任一项自最后有效更新起满 0.5 s 即撤销 A7→A4 运动许可并触发锁定停驻。</td><td>A1、A2、A7、A4<br>SV-01 分别注入控制链丢包和任务进程挂起，即使另一链路持续正常更新，也须在失效链路的 0.5 s 上限内撤销许可。源 ST-07、ST-08；SC-01、02。</td></tr>
+<tr><td>CS-02 停止命令到达但被普通命令覆盖，或执行器未停车。UCA-09～12</td><td id="saf-02"><strong>SAF-02 停止与保持</strong><br>任一已定义停止条件成立时，平台应从条件成立位置起在 0.8 m 内停止并锁定，在 5° 核准坡面保持 60 s 的位移不超过 0.05 m。新鲜度超时用例从最后有效更新位置计量，距离预算包含检测延时。</td><td>A7、A4、A5<br>SV-02 最高速度、最大载荷、最不利核准路段分别测试急停、失联、越界预警、障碍、低能量及许可丢失，均核对距离和保持。停驻及控制电源丢失也须覆盖保持试验。源 ST-06、07、11；SC-01～03。</td></tr>
+<tr><td>CS-03 定位冻结，任务控制器误判仍在边界内。UCA-06、07、11</td><td id="saf-03"><strong>SAF-03 边界与有效定位</strong><br>当定位信息超过 0.5 s 未更新、定位有效性失败、平台外轮廓到达边界停止触发线或不可通行障碍进入距外轮廓 1.2 m 的停止触发区时，平台应撤销运动许可。</td><td>A3、A7<br>SV-03 注入冻结、失效、障碍和边界接近，确认禁止或停止运动；正常定位误差须经测量不超过 0.2 m。源 ST-01、11、14；SC-02。</td></tr>
+<tr><td>CS-04 界面仍显示旧“正常”，操作员错误地放行或复位。UCA-02、03、04、14、15</td><td id="saf-04"><strong>SAF-04 反馈新鲜度</strong><br>A1 对超过 1 s 未收到的新鲜遥测，应显示“状态失效”，禁用启动和复位入口。</td><td>A1、A2、A7<br>SV-04 注入遥测延迟并记录界面变化，检查失效期间的操作被拒绝。遥测恢复保持锁定。源 ST-02、08；SC-04。</td></tr>
+<tr><td>CS-05 网络恢复时重放旧启动或恢复指令，绕过现场复核。UCA-04、07、12、14、15</td><td id="saf-05"><strong>SAF-05 一次恢复</strong><br>异常停驻后，系统应仅接受绑定当前任务及异常序号的清场确认、操作员复位和再次启动的有序授权。</td><td>A1、A2、A7、A6<br>SV-05 逐项缺失、乱序、跨任务、重放测试均拒绝运动，完整有效序列才回到执行状态。源 ST-01、08、09；SC-04。</td></tr>
+<tr><td>CS-06 维护状态只存在于工单，运行链仍接受运动请求。UCA-18、19</td><td id="saf-06"><strong>SAF-06 维护隔离</strong><br>维护锁定时 A7 应持续禁止运动许可，直至当前工单复验完成且维护方与安全员确认退出。</td><td>A1、A7、A4、A6<br>SV-06 在维护中、旧放行重放和复验未完成时发送运动请求，均应拒绝；核查本地隔离状态。源 ST-12、15；SC-01、04。</td></tr>
+<tr><td>CS-07 能量不足仍启动，或停驻后失去保持能力。UCA-03、06、10、14</td><td id="saf-07"><strong>SAF-07 能源与装载门槛</strong><br>系统应在估计电量不高于 25% 或装载确认失效时阻止启动，并在运行电量不高于 20% 或装载状态变为无效时触发锁定停驻。</td><td>A5、A4、A7<br>SV-07 在 25%、20% 门槛两侧及边界值注入状态，在装载确认撤销时检查结果。结合 SV-02 证明仍可安全保持。源 ST-04、11、14；SC-03。</td></tr>
+<tr><td>CS-08 安全判定与普通任务同进程失效，或接口报告“已停”而平台仍运动。UCA-09、11、12</td><td id="saf-08"><strong>SAF-08 安全许可故障响应</strong><br>A7 安全许可链失效、A4 停止反馈缺失或停止反馈与运动反馈矛盾时，平台应撤销运动许可、保持锁定并向可用终端报告故障。</td><td>A7、A4、A5、A1<br>SV-08 分别注入 A2 挂起、安全许可中断、反馈缺失和矛盾，验证本地停止、锁定及恢复通信后的故障呈现，并按 SV-02 核查停止效果。源 ST-02、06、08；SC-01、04。</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="safety4">
+<h3>4. 从初始架构 A0 回写安全架构 A0-S</h3>
+<p>新增本地安全监督与许可仲裁单元 A7。A2 提供任务运动意图，A7 根据当前任务授权、A3 有效性、A4 运动与装载状态、A5 能源健康状态及人工停止请求形成运动许可。A4 仅在任务请求和当前安全许可同时有效时执行运动。任一安全停止条件撤销许可，停止锁定跨通信恢复持续有效。</p>
+<figure class="diagram">
+<figcaption>安全控制闭环 A0-S</figcaption>
+<div class="safety-loop">
+  <div class="node">操作员 / 安全员 / 维护人员<br><small>现场复核、急停、隔离与放行</small></div>
+  <div class="flow-label">授权与停止 ↓　↑ 状态、锁定原因</div>
+  <div class="node">A1 操作终端 → A2 任务管理<br><small>提供绑定任务与异常序号的请求</small></div>
+  <div class="flow-label">运动意图 / 状态 ↓　↑ 仲裁结果</div>
+  <div class="node accent">A7 本地安全监督与许可仲裁<br><small>授权核查、超时、边界、停驻与复位锁定</small></div>
+  <div class="flow-label">安全许可 / 停止 ↓　↑ 实际运动与保持反馈</div>
+  <div class="node">A4 运动与载荷接口<br><small>A3 定位有效性、A5 能源健康 → A7；事件 → A6</small></div>
+</div>
+</figure>
+<div class="table-wrap"><table>
+<caption>新增或改变的安全接口</caption>
+<thead><tr><th>接口</th><th>提供方 → 接收方</th><th>内容与失效行为</th></tr></thead><tbody>
+<tr><th>SI-01 安全许可</th><td>A7 → A4</td><td>任务号、许可更新、锁定状态。该链路自身缺失、无效或满 0.5 s 未更新时，A4 停止并保持，普通任务命令不能覆盖。A1 和 A2 的新鲜度由 A7 另行检查。</td></tr>
+<tr><th>SI-02 状态反馈</th><td>A3 / A4 / A5 → A7</td><td>时间与有效性、运动与保持状态、定位边界、能量和装载状态。超时或矛盾撤销许可。</td></tr>
+<tr><th>SI-03 人工停止与隔离</th><td>本地停止入口 / 维护隔离 → A7 / A4</td><td>在任务软件和远程通信不可用时仍可撤销许可。失电时的稳定保持单独验证。</td></tr>
+<tr><th>SI-04 事件与恢复</th><td>A7 ⇄ A1 / A2；A7 → A6</td><td>当前异常序号、锁定原因、复位与再启动序列。先持久化本地事件，连接恢复后呈现和归档。</td></tr>
+</tbody></table></div>
+<p>A7 的实现候选为独立于任务进程的本地监督器和可验证的运动许可通道。共享供电、传感器与执行器的失效仍需在详细设计中分析，当前提出的职责隔离须通过注入测试证明。急停引发的减速、支撑保持和能源隔离顺序由后续物理设计验证，课程架构只规定可观察结果。</p>
+</section>
+
+<section id="safety5">
+<h3>5. 安全验证与分析边界</h3>
+<p>八项 SV 测试须全部通过，任一项失败则登记原因、修订相关需求或架构，再复验受影响链路。常规任务完成率沿用作业 2 的 20 次口径，计划注入异常的验证单独登记。每次注入关联 UCA、致因场景、SAF 条目、架构版本、配置、测试条件与观察结果。</p>
+<p>本轮形成的是课程范围内的初步 STPA。路线附着、载荷稳定、传感器有效性、失电保持和人工处置能力仍需实体证据。任何试验值超出当前包络时，应重新分析停止距离、危险状态及受影响安全约束。</p>
+</section>
+
+      </section>
+      <section id="review" class="document" aria-labelledby="review-title">
+        <h2 id="review-title" class="doc-heading">需求追溯与评审</h2>
+<p class="callout">本成果延续作业 2 的业务边界，以封闭训练场内、人工监督下的非武装巡检与惰性物资转运为运行场景。本文参数为课程概念设计拟定值，试验、实测结果及相关方签认待开展。</p>
+<h3>从上次作业到本次交付</h3>
+<div class="table-wrap"><table>
+<caption>业务目标、系统要求与安全分析的关联</caption>
+<thead><tr><th>上游业务目标</th><th>本轮深化</th><th>核验依据</th></tr></thead><tbody>
+<tr><th>BR-01 降低人员暴露</th><td>按批准任务运行、阻止无效许可与非授权恢复，保留人员入离区数据接口。</td><td>继续按相同任务量、路线及计时规则比较人·分钟，计入装卸、异常及回收。</td></tr>
+<tr><th>BR-02 常规任务完成率 ≥90%</th><td>巡检点记录、物资交接、混合地面通过性和任务状态转换形成技术验收条款。</td><td>预排 20 次常规任务，巡检和转运各 10 次，至少 18 次通过。准备失败计入分母，分别报告两类结果。</td></tr>
+<tr><th>BR-03 必测安全响应全部通过</th><td>危险、控制动作、UCA 和致因场景导出 8 项 SAF 需求，增加 A7 监督与许可仲裁职责。</td><td>SV-01 至 SV-08 全部通过。故障注入与常规任务分别登记，停止距离从条件成立位置开始计量。</td></tr>
+<tr><th>BR-04 任务记录完整率 100%</th><td>统一任务号、事件及配置关联，明确导出权限、异常记录和反馈时效。</td><td>台账逐条对账，包括准备失败和异常场次，检查权限与导出结果。</td></tr>
+<tr><th>BR-05 部署、保障与退役准备</th><td>维护隔离、配置变更复验、部署交接和运输要求形成检查项。</td><td>岗位和配置清单、维护放行、运输检查及退役交接。</td></tr>
+</tbody></table></div>
+<h3>需求与架构的一致性</h3>
+<p>SyRS 的每项 SYS 需求均列出上游 ST 来源、架构责任和验证编号。安全章节以“损失 → 危险 → 控制动作 → UCA → 致因场景 → SAF → SV”形成分析链。初始架构 A0 用于暴露职责与反馈缺口，安全改进版 A0-S 增加 A7 及四项安全接口，后续实施以 A0-S 为候选基线。</p>
+<h3>AI 辅助分析问答摘要</h3>
+<dl>
+<dt>如何把“便于操作”和“能在混合地面运行”变成系统需求？</dt>
+<dd>规定界面应给出的状态和可辨识结果，以及干燥核准路线、载荷、坡度、台阶和运行时间等试验条件。将每项陈述连到验证动作与通过标准，再由小组确认参数可行性。</dd>
+<dt>任务软件能发出停止指令，为什么还要增加安全监督职责？</dt>
+<dd>STPA 发现任务软件停滞、通信恢复重放和反馈失效可能使停止指令缺失或失效。因此提出本地许可仲裁、超时撤销、状态反馈和恢复锁定，并用故障注入验证这些职责。</dd>
+<dt>怎样避免把预期指标写成已经验证的性能？</dt>
+<dd>记录指标的拟定状态、数值依据、适用包络和验证计划。课程阶段提供需求与分析证据，试验结果在获得实测记录后填入验收报告。</dd>
+</dl>
+<h3>参考依据与编制说明</h3>
+<ol class="sources">
+<li>张玉新，《5-系统工程开发过程2-复杂系统工程2026》，第 9–18 页用于系统需求定义，第 20–29 页用于架构定义，第 109–124 页用于 STPA 方法，第 144 页用于本次作业要求。课件第 18 页指向第 5 章表 5-1，所附课件提供该表名称，本文结构据标准 8.4 的 SyRS 范例组织。</li>
+<li>ISO/IEC/IEEE 29148:2018，§8.4 与 §9.5，作为系统需求规格书的目录与内容参考。<a href="https://www.iso.org/standard/72089.html">ISO 官方标准目录</a></li>
+<li>Nancy G. Leveson、John P. Thomas，<i>STPA Handbook</i>，2018，第 2 章。用于四步分析、控制反馈闭环及 UCA 四类检查。<a href="https://www.mit.stamp-institute.com/get_file.php?name=STPA_handbook.pdf">MIT 发布的 STPA 手册</a></li>
+<li>本课题作业 2 的 BRS 与 StRS，作为 BR-01 至 BR-05、ST-01 至 ST-15 的上游需求基线。<a href="https://gk37425601.github.io/complex-systems-engineering-2026/assignment-2/">查看作业 2</a></li>
+</ol>
+<p>小组评审应确认运行包络和停止距离预算、界面与授权流程、载荷稳定性、数据保留期限及验收资源。需求或配置更改时更新版本号与原因，检查上游需求、架构分配、安全场景和验证计划的受影响项。</p>
+
+      </section>
+    </div>
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <span>复杂系统工程 · 小组作业 3</span>
+      <a href="#top">返回页首 ↑</a>
+    </div>
+  </footer>
+</body>
+</html>
