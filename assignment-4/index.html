@@ -1,585 +1,606 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="复杂系统工程小组作业 4，轮腿式无人作战平台的场景分层、运行设计条件、典型运行场景与风险分析。">
-  <meta name="theme-color" content="#102e34">
-  <title>轮腿式无人作战平台 · 场景分层与运行设计条件</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --ink: #172d33;
-      --muted: #4b6369;
-      --accent: #006958;
-      --accent-dark: #035144;
-      --dark: #102e34;
-      --line: #d4e2df;
-      --light: #f2f7f6;
-      --container: 78rem;
-      font-family: Inter, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", system-ui, sans-serif;
-      font-size: 16px;
-    }
-    * { box-sizing: border-box; }
-    body { margin: 0; background: var(--light); color: var(--ink); font-size: 1rem; }
-    html { scroll-padding-block-start: 1.25rem; }
-    a { color: var(--accent-dark); text-underline-offset: .18em; }
-    a:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
-      outline: .16rem solid #c56b0b;
-      outline-offset: .2rem;
-    }
-    .skip-link {
-      position: absolute;
-      z-index: 2;
-      inset: .8rem auto auto .8rem;
-      padding: .55rem .8rem;
-      background: #fff;
-      transform: translateY(-180%);
-    }
-    .skip-link:focus { transform: none; }
-    .container { width: min(var(--container), 100% - 3.5rem); margin-inline: auto; }
-    .masthead { background: var(--dark); color: #edf8f5; }
-    .masthead a { color: inherit; }
-    .topbar {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: .8rem 1.2rem;
-      padding-block: .95rem;
-      border-bottom: 1px solid #426268;
-    }
-    .course-links { display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; align-items: center; }
-    .home-link { font-weight: 700; text-decoration: none; }
-    .assignment-link { font-size: .91rem; text-decoration: none; }
-    .topnav { display: flex; flex-wrap: wrap; gap: .65rem 1.25rem; font-size: .91rem; }
-    .topnav a { text-decoration: none; }
-    .topbar a:hover { text-decoration: underline; }
-    .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.6fr) minmax(15rem, .85fr);
-      align-items: end;
-      gap: 2rem clamp(2rem, 6vw, 6rem);
-      padding-block: clamp(2.75rem, 7vw, 6.25rem) clamp(2.7rem, 6vw, 5.5rem);
-    }
-    .hero-label { margin: 0 0 1rem; color: #9ce0ca; font-size: .94rem; font-weight: 700; letter-spacing: .07em; }
-    h1 { margin: 0; font-size: clamp(2.35rem, 5.4vw, 4.35rem); letter-spacing: -.035em; line-height: 1.15; }
-    .hero-subtitle { margin: .95rem 0 0; color: #e9f6f3; font-size: clamp(1.12rem, 2.05vw, 1.6rem); }
-    .hero-scope { margin: 1.25rem 0 0; color: #bed9d7; font-size: 1rem; line-height: 1.65; }
-    .hero-docs { border-top: 1px solid #57777b; }
-    .hero-docs a {
-      display: grid;
-      grid-template-columns: 4.5rem minmax(0, 1fr);
-      align-items: center;
-      gap: .9rem;
-      min-height: 3.8rem;
-      padding: .65rem .65rem .65rem .2rem;
-      border-bottom: 1px solid #57777b;
-      text-decoration: none;
-    }
-    .hero-docs a:hover { background: #184048; text-decoration: underline; }
-    .hero-docs strong { color: #9ce0ca; font-size: .94rem; }
-    .hero-docs span { font-size: .92rem; }
-    .report-shell {
-      display: grid;
-      grid-template-columns: 12rem minmax(0, 1fr);
-      align-items: start;
-      gap: clamp(1.2rem, 3vw, 2.9rem);
-      padding-block: clamp(1.65rem, 4vw, 3.5rem) 4rem;
-    }
-    .outline {
-      position: sticky;
-      top: 1rem;
-      max-height: calc(100dvh - 2rem);
-      overflow-y: auto;
-      padding: .2rem .6rem .75rem .15rem;
-      color: var(--muted);
-      font-size: .89rem;
-      line-height: 1.5;
-      scrollbar-width: thin;
-    }
-    .outline summary { padding: .2rem 0 .55rem; color: var(--ink); font-size: 1rem; font-weight: 750; cursor: pointer; }
-    .outline p { margin: .65rem 0 .2rem; font-weight: 750; }
-    .outline ul { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--line); }
-    .outline li a { display: block; margin: .12rem 0; padding: .15rem .45rem; }
-    .outline a { color: inherit; text-decoration: none; }
-    .outline a:hover { color: var(--accent-dark); text-decoration: underline; }
-    .outline .review-link { display: inline-block; margin-top: .7rem; }
-    .document {
-      min-width: 0;
-      margin: 0 0 1.35rem;
-      padding: clamp(1.05rem, 3.1vw, 2.7rem);
-      border: 1px solid var(--line);
-      border-radius: .8rem;
-      background: white;
-      font-size: 1rem;
-      line-height: 1.78;
-    }
-    .document:last-child { margin-bottom: 0; }
-    .doc-heading {
-      margin: 0;
-      padding-bottom: .8rem;
-      border-bottom: 2px solid #337864;
-      font-size: clamp(1.45rem, 2.75vw, 2.15rem);
-      letter-spacing: -.02em;
-      line-height: 1.4;
-    }
-    .doc-heading span { color: var(--accent); font-size: .72em; }
-    .document h3 { margin: 2.05rem 0 .65rem; color: var(--ink); font-size: clamp(1.19rem, 1.7vw, 1.42rem); line-height: 1.5; }
-    .document h4 { margin: 1.35rem 0 .46rem; color: var(--accent-dark); font-size: 1.06rem; line-height: 1.5; }
-    .document h5 { margin: 1.1rem 0 .4rem; font-size: 1rem; }
-    .document p { margin: .65rem 0; }
-    .document p:last-child { margin-bottom: 0; }
-    .document ul, .document ol { margin: .65rem 0 1rem; padding-inline-start: 1.38rem; }
-    .document li { padding-inline-start: .15rem; }
-    .document li + li { margin-top: .26rem; }
-    .document dl { margin: .65rem 0 1rem; }
-    .document dt { color: var(--accent-dark); font-weight: 720; }
-    .document dd { margin: 0 0 .6rem 0; }
-    .document [id] { scroll-margin-block-start: .65rem; }
-    .document :is(h3,h4)[id]:target { color: var(--accent-dark); text-decoration: underline #8ac1ac .13rem; text-underline-offset: .25em; }
-    .document a { overflow-wrap: anywhere; }
-    .document code { color: #164f43; font-family: "IBM Plex Mono", Consolas, monospace; font-size: .94em; }
-    .callout, .condition-rule {
-      margin: 1rem 0;
-      padding: .65rem .85rem;
-      border-inline-start: .2rem solid #337864;
-      border-radius: 0 .25rem .25rem 0;
-      background: #edf6f3;
-      color: #24484a;
-    }
-    .table-wrap {
-      max-width: 100%;
-      overflow-x: auto;
-      margin-block: .9rem 1.2rem;
-      border-radius: .2rem;
-      scrollbar-width: thin;
-      overscroll-behavior-inline: contain;
-    }
-    .table-wrap:focus-visible { outline-offset: .15rem; }
-    .document table { width: 100%; border-collapse: collapse; font-size: 1rem; line-height: 1.65; }
-    .table-wrap table { min-width: 38rem; }
-    .document caption { margin-bottom: .36rem; text-align: left; font-weight: 750; }
-    .document :is(th, td) {
-      padding: .6rem .68rem;
-      border: 1px solid var(--line);
-      vertical-align: top;
-      text-align: left;
-      overflow-wrap: anywhere;
-    }
-    .document thead th { background: #e5f1ee; color: #144d43; }
-    .document tbody tr:nth-child(even) { background: #f6faf9; }
-    .document tbody th[scope="row"] { font-weight: 720; }
-    .document figure { margin: 1.15rem 0; }
-    .document figcaption { margin: 0 0 .8rem; font-size: 1rem; color: var(--ink); font-weight: 720; }
-    .diagram { padding: 1rem; border: 1px solid var(--line); border-radius: .4rem; background: #f4f8f7; }
-    .node {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: .3rem;
-      min-width: 0;
-      padding: .85rem 1rem;
-      border: 1px solid #b8d3cb;
-      border-radius: .3rem;
-      background: white;
-      color: #203d42;
-      text-align: center;
-      line-height: 1.65;
-    }
-    .node strong { font-size: 1rem; }
-    .node :is(span,small) { color: var(--muted); font-size: 1rem; }
-    .node.accent { border-color: #367e68; background: #e2f1eb; }
-    .flow-label { padding: .45rem .15rem; color: #35645b; font-size: 1rem; text-align: center; overflow-wrap: anywhere; }
-    .flow { display: flex; flex-wrap: wrap; gap: .4rem .55rem; align-items: center; color: var(--accent-dark); }
-    .flow > :is(span,li) { padding: .3rem .58rem; border-radius: .25rem; background: #edf6f3; }
-    .document ol.route-map, .document ol.process-flow {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: .6rem;
-      margin: 1rem 0;
-      padding: 0;
-      list-style: none;
-    }
-    .document .route-map li, .document .process-flow li {
-      position: relative;
-      min-width: 0;
-      margin: 0;
-      padding: .75rem .6rem;
-      border: 1px solid #c4dbd3;
-      border-top: .2rem solid #4c8a75;
-      background: white;
-      font-size: 1rem;
-      line-height: 1.6;
-    }
-    .route-map strong, .route-map span, .process-flow strong, .process-flow span { display: block; }
-    .route-map strong, .process-flow strong { margin-bottom: .4rem; color: #175143; }
-    .route-map span, .process-flow span { color: var(--muted); }
-    .process-flow li:not(:last-child)::after {
-      content: "→";
-      position: absolute;
-      z-index: 1;
-      top: -.95rem;
-      inset-inline-end: -.46rem;
-      color: #367e68;
-      font-size: 1.2rem;
-    }
-    .branch-flow { margin-top: .75rem; padding: .6rem .7rem; background: #e8f1ed; color: #355d53; border-inline-start: .2rem solid #6b9e87; }
-    .branch-flow strong, .branch-flow span { display: block; }
-    .footer { color: var(--muted); border-top: 1px solid var(--line); font-size: .91rem; }
-    .footer .container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .55rem 1rem; padding-block: 1.2rem; }
-    @media (max-width: 66rem) {
-      .hero { grid-template-columns: minmax(0, 1fr); gap: 1.7rem; }
-      .hero-docs { max-width: 33rem; }
-      .document ol.route-map, .document ol.process-flow { grid-template-columns: minmax(0, 1fr); gap: .7rem; }
-      .document .route-map li { display: grid; grid-template-columns: 6.25rem minmax(0, 1fr); gap: .8rem; border-top: 1px solid #c4dbd3; border-inline-start: .2rem solid #4c8a75; }
-      .route-map strong { margin-bottom: 0; }
-      .process-flow li:not(:last-child)::after { content: "↓"; top: auto; bottom: -.95rem; inset-inline-end: 50%; }
-    }
-    @media (max-width: 58rem) {
-      .container { width: calc(100% - 2.5rem); }
-      .report-shell { grid-template-columns: 10.4rem minmax(0, 1fr); gap: 1.1rem; }
-      .document :is(th,td) { padding: .6rem .55rem; }
-    }
-    @media (max-width: 44rem) {
-      .container { width: calc(100% - 1.5rem); }
-      .topnav { gap: .6rem 1.05rem; }
-      .hero { gap: 1.3rem; padding-block: 2.6rem 2.1rem; }
-      .hero h1 { font-size: clamp(1.75rem, 8.2vw, 2.7rem); text-wrap: balance; }
-      .hero-subtitle { font-size: 1.25rem; }
-      .hero-scope { margin-top: .75rem; }
-      .hero-docs { max-width: none; }
-      .hero-docs a { min-height: 3.1rem; }
-      .report-shell { display: block; padding-bottom: 2rem; }
-      .outline { position: static; max-height: none; margin-bottom: 1rem; padding: .5rem .45rem; overflow-y: visible; }
-      .outline ul { display: flex; flex-wrap: wrap; border: 0; }
-      .outline li a { padding-inline: .35rem; }
-      .document { margin-bottom: .8rem; }
-      .diagram { padding: .65rem; }
-      .node { padding: .7rem .55rem; }
-      .document .route-map li { grid-template-columns: 5.4rem minmax(0,1fr); gap: .65rem; }
-    }
-    @media print {
-      @page { margin: 15mm; }
-      body, .masthead, .document { background: white; color: #111; }
-      .container { width: 100%; }
-      .topbar, .hero-docs, .outline, .footer, .skip-link { display: none; }
-      .hero, .report-shell { display: block; padding: 0; }
-      .hero { margin-bottom: 1.1rem; }
-      h1 { font-size: 2rem; }
-      .hero-label, .hero-subtitle, .hero-scope { color: #111; }
-      .document { padding: 0; border: 0; font-size: 10pt; }
-      .document + .document { break-before: page; }
-      .table-wrap { overflow: visible; }
-      .document .table-wrap table { min-width: 0; font-size: 8.7pt; }
-      .document :is(h2,h3,h4) { break-after: avoid; }
-      .document tr { break-inside: avoid; }
-      .diagram { background: white; padding: .6rem; }
-      .document ol.route-map, .document ol.process-flow { grid-template-columns: repeat(5,minmax(0,1fr)); }
-      .document .route-map li { display: block; border-top: .2rem solid #4c8a75; border-inline-start: 1px solid #c4dbd3; }
-      .route-map strong { margin-bottom: .4rem; }
-      .process-flow li:not(:last-child)::after { content: "→"; top: -.95rem; bottom: auto; inset-inline-end: -.46rem; }
-      .diagram :is(li,strong,span,small,div) { font-size: 9pt; }
-      a { color: inherit; }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="轮腿式平台的六层场景、运行设计条件、典型任务与风险分析。">
+<meta name="theme-color" content="#102e38">
+<title>场景与运行条件 · 作业4</title>
+<link rel="stylesheet" href="../assets/course.css">
 </head>
 <body id="top">
-  <a class="skip-link" href="#main-content">跳转到作业正文</a>
-  <header class="masthead">
-    <div class="container">
-      <div class="topbar">
-        <div class="course-links">
-          <a class="home-link" href="https://gk37425601.github.io/complex-systems-engineering-2026/">课程首页</a>
-          <a class="assignment-link" href="https://gk37425601.github.io/complex-systems-engineering-2026/assignment-3/">作业 3 · 系统需求与初始架构</a>
-        </div>
-        <nav class="topnav" aria-label="作业文档">
-          <a href="#domain">分层与运行条件</a>
-          <a href="#scenario">典型场景</a>
-          <a href="#risks">风险分析</a>
-          <a href="#review">追溯与评审</a>
-        </nav>
-      </div>
-      <div class="hero">
-        <div>
-          <p class="hero-label">复杂系统工程 · 小组作业 4</p>
-          <h1>轮腿式无人作战平台</h1>
-          <p class="hero-subtitle">场景分层与运行设计条件</p>
-          <p class="hero-scope">延续封闭训练场巡检与惰性物资转运场景</p>
-        </div>
-        <nav class="hero-docs" aria-label="分析章节入口">
-          <a href="#domain"><strong>运行条件</strong><span>环境分层与适用边界</span></a>
-          <a href="#scenario"><strong>典型场景</strong><span>路线、人员与任务过程</span></a>
-          <a href="#risks"><strong>风险分析</strong><span>异常情境与验证判据</span></a>
-        </nav>
-      </div>
-    </div>
-  </header>
-  <main id="main-content" class="container report-shell" tabindex="-1">
-    <nav class="outline" aria-label="章节目录">
-      <details open>
-        <summary>章节目录</summary>
-        <p><a href="#domain">场景分层与运行条件</a></p>
-        <ul>
-          <li><a href="#scope">1. 范围与依据</a></li>
-          <li><a href="#layers">2. 场景要素分层</a></li>
-          <li><a href="#conditions">3. 运行设计条件</a></li>
-          <li><a href="#abstraction">4. 场景抽象层级</a></li>
-        </ul>
-        <p><a href="#scenario">典型运行场景</a></p>
-        <ul>
-          <li><a href="#case-definition">1. 场景定义</a></li>
-          <li><a href="#case-layout">2. 场地与分层取值</a></li>
-          <li><a href="#case-sequence">3. 交互过程</a></li>
-          <li><a href="#case-variants">4. 场景变体</a></li>
-        </ul>
-        <p><a href="#risks">风险场景分析</a></p>
-        <ul>
-          <li><a href="#risk-method">1. 分析方法</a></li>
-          <li><a href="#risk-list">2. 风险场景</a></li>
-          <li><a href="#risk-verification">3. 验证与处置</a></li>
-        </ul>
-        <p><a class="review-link" href="#review">追溯与评审</a></p>
-      </details>
-    </nav>
-    <div>
-      <section id="domain" class="document" aria-labelledby="domain-title">
-        <h2 id="domain-title" class="doc-heading">场景分层与运行条件</h2>
-<section id="scope" aria-labelledby="scope-title">
-  <h3 id="scope-title">1. 范围与方法</h3>
-  <p>研究对象为轮腿式无人作战平台在封闭训练场内执行的非武装巡检与惰性物资转运。平台由操作员持续监督，安全员负责清场、暂停和恢复条件确认。场景包含任务开始前的放行、区内运行、到站交接及任务关闭；场地、通信、供电和人员组织共同构成使用背景。</p>
-  <p>本文参照 PEGASUS 六层场景框架，将道路几何、设施、临时变化、参与对象、环境和数字信息的分类改编为封闭训练场机器人的环境清单。层名、要素和取值由本组选题细化，形成对道路场景方法的课程适配。每一具体场景均同时指定六层信息。<a href="https://www.pegasusprojekt.de/en/pegasus-method">PEGASUS Method，第 4 部分与六层模型</a></p>
-  <p>六层用于归类环境要素，抽象层次用于逐步确定场景参数。下列数值沿用作业 3 的 SYS 与 SAF 基线，并补充本次场景设计假设，均为拟议验证条件，实际结果待试验取得。</p>
-</section>
-
-<section id="layers" aria-labelledby="layers-title">
-  <h3 id="layers-title">2. 六层场景要素</h3>
-  <div class="table-wrap" tabindex="0" role="region" aria-label="封闭训练场环境分层与要素清单"><table>
-    <caption>封闭训练场环境分层与要素清单</caption>
-    <thead><tr><th scope="col">层次</th><th scope="col">要素与描述变量</th><th scope="col">正常场景配置</th><th scope="col">需记录的变化</th></tr></thead>
-    <tbody>
-      <tr id="layer-1"><th scope="row">L1 地面与几何</th><td>路线拓扑、长度、宽度、转弯扫掠区、坡度、台阶、路面材质和干湿状态。</td><td>已踏勘的干燥硬质路线，坡度与台阶在核准包络内，起终点及装载点有明确坐标。</td><td>坑洼、湿滑、宽度收缩或通过性变化，注明位置与发现时间。</td></tr>
-      <tr id="layer-2"><th scope="row">L2 固定设施与规则</th><td>隔离边界、门禁、固定设备、停驻与交接区域、标识、人员准入和放行规则。</td><td>边界可辨识，交接点与控制区已核准，停驻区满足外轮廓及安全余量。</td><td>隔离设施失效、固定设施移位、门禁状态或场地规则改变。</td></tr>
-      <tr id="layer-3"><th scope="row">L3 临时变化</th><td>临时围挡、维修占道、堆放物、临时封闭区及其生效时段。</td><td>临时变化已纳入运行包并核准；剩余通道仍满足几何和停止条件。</td><td>新占道、围挡移动、未登记变化及其对路线的影响。</td></tr>
-      <tr id="layer-4"><th scope="row">L4 动态对象与交互</th><td>平台、人员、交接人、其他设备及可移动物体的位置、速度和活动权限。</td><td>单平台运行，运动区已清场；交接人按停驻锁定和受监督入区流程交接。</td><td>人员进入、物体移动、交接未完成或装载状态变化。</td></tr>
-      <tr id="layer-5"><th scope="row">L5 天气与光照</th><td>温度、降水、地表水、光照、雾遮挡、眩光及可观察性。</td><td>5～35 ℃、无降水、干燥、日间可视条件满足核准要求。</td><td>降雨、雾、强眩光、温度超限或监督与感知视野受阻。</td></tr>
-      <tr id="layer-6"><th scope="row">L6 数字信息</th><td>地图与边界版本、运行包、坐标基准、通信覆盖、定位、状态时间戳及消息有效性。</td><td>地图与现场一致，任务批准有效，控制、定位与反馈具备规定的新鲜度。</td><td>错版本、失联、定位冻结、延迟、乱序或无效状态。</td></tr>
-    </tbody>
-  </table></div>
-  <p>同一临时物体可按其在场景中的角色描述。例如，已登记围挡作为 L3 的场地变更，运行中移动的围挡同时作为 L4 的活动对象；记录两者的关联标识，保留变化过程。</p>
-</section>
-
-<section id="conditions" aria-labelledby="conditions-title">
-  <h3 id="conditions-title">3. 正常运行设计条件</h3>
-  <p>运行设计域（ODD）描述平台预期运行的外部条件。本文借鉴 ASAM OpenODD 用条件表达适用范围的方法，以 ODD-01～14 作为条件表索引，并标明外部环境、系统就绪和人员门槛的归属。正常运行要求三组条件同时成立，运行中持续复核。<a href="https://www.asam.net/standards/detail/openodd/">ASAM OpenODD 官方说明</a></p>
-  <p class="condition-rule"><strong>正常任务运动许可 = 外部环境域有效 ∧ 系统就绪有效 ∧ 人员与组织条件有效。</strong></p>
-  <p>正常任务包含运动、等待与交接停驻。等待和交接期间按状态保持运动锁定，人员退出并重新确认条件后才重新授予运动许可。</p>
-  <div class="table-wrap" tabindex="0" role="region" aria-label="外部环境设计域"><table>
-    <caption>外部环境设计域</caption>
-    <thead><tr><th scope="col">条件</th><th scope="col">允许范围与判定</th><th scope="col">核查证据／基线</th></tr></thead>
-    <tbody>
-      <tr id="odd-01"><th scope="row">ODD-01 地面包络<br>L1</th><td>封闭核准区域、干燥路线；坡度绝对值≤5°，局部台阶高度≤50 mm。路线及交接停驻面均须核准。</td><td>踏勘、坡度和高度量测。SYS-09、17。</td></tr>
-      <tr id="odd-02"><th scope="row">ODD-02 几何净距<br>L1、L2</th><td>通道净宽≥B<sub>p</sub>＋3.0 m。B<sub>p</sub> 为转弯、轮腿运动及载荷计入后的最大扫掠外廓宽，核准中心路径的外轮廓至两侧边界名义净距各≥1.5 m，转弯区逐段核查。</td><td>本次新增课程假设。核查扫掠包络并计入定位与量测不确定度后，边界及固定设施净距须严格&gt;1.2 m。</td></tr>
-      <tr id="odd-03"><th scope="row">ODD-03 设施与准入<br>L2</th><td>隔离、门禁、标识、控制区与交接区可用，现场区域和时段与批准一致。</td><td>场地放行单与现场巡查。ST-01、15。</td></tr>
-      <tr id="odd-04"><th scope="row">ODD-04 临时变更<br>L3</th><td>围挡、维修和占道均已登记并纳入当前运行包，剩余路线继续满足 ODD-01～03。</td><td>变更记录、地图复核与重新批准。SYS-01、22。</td></tr>
-      <tr id="odd-05"><th scope="row">ODD-05 活动对象<br>L4</th><td>运动时区内仅有本平台，人员与其他设备在隔离区外。受控交接入区按 ODD-14 执行。</td><td>安全员清场确认及持续监督。ST-01、04、11。</td></tr>
-      <tr id="odd-06"><th scope="row">ODD-06 天气光照<br>L5</th><td>5≤温度≤35 ℃，无降水及积水，日间能见度良好，无雾遮挡或强眩光。光照与能见度可用性判据须在试前量测冻结，未确认时不放行。</td><td>现场温度、地表和视野记录，待补光照／能见度判据。SYS-17。</td></tr>
-      <tr id="odd-07"><th scope="row">ODD-07 数字环境<br>L6</th><td>核准地图、边界、路线、坐标基准和时段一致；全路线具备已核查的控制通信覆盖，状态可按时间戳判断。</td><td>版本检查、覆盖检查与运行包批准。SYS-01、10、11、22。</td></tr>
-    </tbody>
-  </table></div>
-  <div class="table-wrap" tabindex="0" role="region" aria-label="系统就绪与运行能力条件"><table>
-    <caption>系统就绪与运行能力条件</caption>
-    <thead><tr><th scope="col">条件</th><th scope="col">启动及持续运行门槛</th><th scope="col">核查证据／基线</th></tr></thead>
-    <tbody>
-      <tr id="odd-08"><th scope="row">ODD-08 任务与装载</th><td>速度≤0.5 m/s，惰性载荷≤5 kg，任务剖面≤30 min；自检通过、装载确认和本次放行有效，配置与运行包一致。检查未完成、维护隔离或退役时禁止启动；待命仅在本次条件齐备后转为执行。</td><td>自检、称量、任务时长、模式与配置检查。SYS-01、07、08、12、14、15、16。</td></tr>
-      <tr id="odd-09"><th scope="row">ODD-09 能源</th><td>启动时估计电量须&gt;25%，运行时须&gt;20%。装载状态须持续有效。达到停止门槛即转入锁定停驻。</td><td>能源及装载状态记录。SAF-07；等于 25% 禁止启动，等于 20% 触发停止。</td></tr>
-      <tr id="odd-10"><th scope="row">ODD-10 控制与反馈时效</th><td>A1 控制链心跳、A2 运动请求及 A7→A4 安全许可的年龄均&lt;0.5 s；终端遥测年龄≤1 s，状态无失效或矛盾。</td><td>各链路独立时间戳与故障状态。SAF-01、04、08、SI-01；遥测失效停驻按 OP4-01。</td></tr>
-      <tr id="odd-11"><th scope="row">ODD-11 定位有效</th><td>定位年龄&lt;0.5 s、有效性通过、误差≤0.2 m；运动阶段，核准边界或不可通行障碍距平台外轮廓&gt;1.2 m。到达 1.2 m 触发区即停止。</td><td>定位量测、外轮廓几何及边界／障碍判据。SAF-03。年龄取严格小于值作为正常设计条件。</td></tr>
-      <tr id="odd-12"><th scope="row">ODD-12 停止与保持</th><td>停止能力须预先验证，从停止条件触发位置起≤0.8 m 停止；超时用例从最后有效更新或采样时的平台位置计量，含检测延时。在 5° 坡面保持 60 s 的位移≤0.05 m，安全锁定与本地停止能力有效。</td><td>最高 0.5 m/s、5 kg 及最不利核准路段验证。SAF-02、05、06、08；新增遥测超时停止见 OP4-01。</td></tr>
-    </tbody>
-  </table></div>
-  <div class="table-wrap" tabindex="0" role="region" aria-label="人员与组织运行门槛"><table>
-    <caption>人员与组织运行门槛</caption>
-    <thead><tr><th scope="col">条件</th><th scope="col">允许范围与职责</th><th scope="col">核查证据／基线</th></tr></thead>
-    <tbody>
-      <tr id="odd-13"><th scope="row">ODD-13 在岗与授权</th><td>受训操作员和安全员同时在岗，能够持续注意并履职，无影响操作的疲劳或不适，停止入口可达，角色权限与本次放行有效。任一人员离岗、注意受干扰或无法履职时暂停任务。维护锁定已按工单退出。</td><td>培训、排班、岗前确认、在岗互检与放行记录。ST-01、12、15，SYS-18、23。</td></tr>
-      <tr id="odd-14"><th scope="row">ODD-14 装卸与交接</th><td>平台停稳且运动锁定后，安全员批准并监督交接人入区，进行装载或收讫确认。正常交接后人员退出并清场复核，解除交接锁定；返回任务须重新准备、放行并明确启动。异常停驻另按当前异常序号复位。</td><td>交接、清场与新任务授权记录。ST-04、08，SYS-12、13；异常恢复遵循 SAF-05。</td></tr>
-    </tbody>
-  </table></div>
-  <p>1.2 m 停止触发余量沿用作业 3 的分配，即 0.8 m 停止距离、0.2 m 定位误差和 0.2 m 附加余量。B<sub>p</sub>＋3.0 m 通道及 1.5 m 名义净距为本次几何建议，需用实物扫掠包络与现场测量核准，所有距离均由平台外轮廓计量。</p>
-  <p>启动前任一条件未满足时不放行。执行中环境条件退出允许范围，或系统、人员门槛失效时，触发任务中止或安全停驻并保持锁定。异常条件恢复后，由安全员重新确认现场，操作员完成与当前任务及异常序号绑定的复位和再次启动，恢复执行时重新检查三组条件。任务关闭记录保留变化层次、触发时间、处置及重新授权，供后续场景风险分析与验证追溯。</p>
-</section>
-
-<section id="abstraction" aria-labelledby="abstraction-title">
-  <h3 id="abstraction-title">4. 场景表达的抽象层次</h3>
-  <div class="table-wrap" tabindex="0" role="region" aria-label="由任务意图到可复现场景参数"><table>
-    <caption>由任务意图到可复现场景参数</caption>
-    <thead><tr><th scope="col">表达层次</th><th scope="col">本选题表达</th><th scope="col">用途</th></tr></thead>
-    <tbody>
-      <tr><th scope="row">功能场景</th><td>人员监督平台沿核准路线运送惰性物资，到站锁定、交接并完成任务，再批准另一项空载返回任务。</td><td>说明参与者、任务意图和事件顺序。</td></tr>
-      <tr><th scope="row">逻辑场景</th><td>以速度 0～0.5 m/s、载荷 0～5 kg、坡度绝对值≤5°等条件定义参数范围及组合约束。</td><td>界定变体空间并形成边界用例。</td></tr>
-      <tr><th scope="row">具体场景</th><td>冻结路线、装载、速度、天气、初始能量和事件时序，例如本页 SC4-01 的建议参数。</td><td>生成可复现的演练或测试输入。</td></tr>
-    </tbody>
-  </table></div>
-</section>
-
-      </section>
-      <section id="scenario" class="document" aria-labelledby="scenario-title">
-        <h2 id="scenario-title" class="doc-heading">典型运行场景</h2>
-<section id="case-definition">
-<h3>1. 典型实例 SC4-01</h3>
-<p><strong>场景名称为核准混合地面路线上的惰性物资转运与空载返回。</strong>任务主管安排一台轮腿式平台，从装载点 A 将 5 kg 无危险配重送至交接点 B。操作员在场外持续监督，安全员控制人员进出，交接人只在平台锁定停稳后进入交接区。完成收讫、退出和重新放行后，平台沿原核准路线空载返回。</p>
-<p class="callout">以下路线、人员代号、数值和时间窗口构成可复现的教学场景实例。它们用于描述任务和编写试验用例，现场测量与任务执行记录待开展。</p>
-<div class="table-wrap" tabindex="0" role="region" aria-label="SC4-01 场景实例参数"><table>
-<caption>SC4-01 场景实例参数</caption>
-<thead><tr><th>项目</th><th>具体设定</th><th>成立依据与判据</th></tr></thead><tbody>
-<tr><th>任务与版本</th><td>场景实例号 SC4-01-C01，版本 1.0；关联交付任务 T4-DEL-01 与返回任务 T4-RET-01。运行包绑定路线、地图、角色及平台配置版本。</td><td>两项任务顺序执行，分别生成批准引用和结果，按任务号保存证据，并以场景实例号关联。</td></tr>
-<tr><th>任务成果</th><td>A→B 单程 60 m，交付一件标识为 CARGO-01 的 5 kg 惰性配重；B→A 空载返回，总路程 120 m。</td><td>交付任务在到站停稳、收讫和记录核认后关闭；返回任务在 A 停稳后单独关闭。场景记录汇集两项结论。</td></tr>
-<tr><th>运行环境</th><td>白天、20 ℃、无降水、干燥地面；路线已踏勘，移动期间通行区清空。</td><td>环境与场地放行记录有效，观察和定位信息可用。</td></tr>
-<tr><th>地形与设施</th><td>平整段、3° 坡段及一处 30 mm 局部台阶，沿途固定隔离设施、标记检查点和两端交接区。</td><td>坡度、台阶及扫掠包络净距均满足本页运行设计条件，固定设施不侵入触发区。</td></tr>
-<tr><th>平台设定</th><td>计划速度 0.4 m/s，能源初始值 80%，定位和健康检查通过，日志与安全许可链可用。</td><td>逐项满足启动门槛。80% 为场景输入，任务能源消耗由试验取得。</td></tr>
-<tr><th>人员配置</th><td>一名受训操作员 OP-01、一名安全员 SF-01、一名交接人 RC-01，RC-01 兼任装载；维护人员在保障区待命。</td><td>职责和权限有效，操作员与安全员在运动期间持续履职。物资交接按进出区许可实施。</td></tr>
-<tr><th>时间预算</th><td>准备与关闭计划约 16 min，其中首次启动至返回停稳的计划窗口约 11 min。</td><td>交付与返回各自满足 ≤30 min 的既有包络。时间窗口用于排程，验收记录实际时长。</td></tr>
-</tbody></table></div>
-</section>
-
-<section id="case-layout">
-<h3>2. 场地配置与六层要素实例化</h3>
-<figure class="diagram">
-<figcaption>按路线里程表达的教学场地配置</figcaption>
-<ol class="route-map">
-<li><strong>A · 0 m</strong><span>装载、检查与放行区</span></li>
-<li><strong>P1 · 20 m</strong><span>平整段结束，进入坡段</span></li>
-<li><strong>P2 · 30 m</strong><span>3° 坡段结束</span></li>
-<li><strong>P3 · 35 m</strong><span>30 mm 核准局部台阶</span></li>
-<li><strong>B · 60 m</strong><span>停稳、锁定与交接区</span></li>
-</ol>
-<p>去程 A → P1 → P2 → P3 → B，返程反向通过。平台最大扫掠宽度记为 B<sub>p</sub>，拟定通道净宽至少为 B<sub>p</sub>＋3.0 m，居中时两侧净余量各 1.5 m。扣除 0.2 m 定位误差后为 1.3 m，最终路线仍须以完整扫掠外轮廓和计量误差核验与固定设施的净距严格大于 1.2 m。交接区在人员进入前保持运动锁定。</p>
+<a class="skip-link" href="#main">跳至正文</a>
+<header class="site-header">
+<div class="container header-inner">
+<a class="brand" href="../">复杂系统工程</a>
+<nav class="site-nav" aria-label="作业导航">
+<a href="../">作业 1</a>
+<a href="../assignment-2/">作业 2</a>
+<a href="../assignment-3/">作业 3</a>
+<a href="../assignment-4/" aria-current="page">作业 4</a>
+</nav>
+</div>
+</header>
+<div class="container hero">
+<p class="eyebrow">小组作业4 · 场景定义</p>
+<h1>轮腿式无人作战平台</h1>
+<p class="lead">场景分层与运行设计条件</p>
+<p class="note">封闭训练场、人工监督、非武装巡检与惰性物资转运。参数为课程拟定值，实测与相关方签认待开展。</p>
+</div>
+<main class="container page-layout" id="main">
+<aside class="toc" aria-label="本页目录">
+<strong>本页目录</strong>
+<a href="#domain">场景分层</a>
+<a href="#conditions">运行条件</a>
+<a href="#scenario">典型实例</a>
+<a href="#risks">风险与验证</a>
+<a href="#review">依据与待确认项</a>
+</aside>
+<div class="report">
+<section class="card" id="domain">
+<h2>场景分层</h2>
+<p id="scope">采用面向训练场机器人的六层环境模型。每个场景给出六层取值，系统与人员状态作为额外的运行门槛。</p>
+<figure class="diagram" id="layers">
+<figcaption>六层环境结构</figcaption>
+<div class="structure">
+<div class="node">
+<strong>L1 地面与几何</strong>
+<small>路线、坡面、台阶、扫掠空间</small>
+</div>
+<div class="node">
+<strong>L2 固定设施与规则</strong>
+<small>边界、门禁、交接区、准入</small>
+</div>
+<div class="node">
+<strong>L3 临时变化</strong>
+<small>围挡、占道、场地封控</small>
+</div>
+<div class="node">
+<strong>L4 动态对象</strong>
+<small>人员、平台、移动物及交互</small>
+</div>
+<div class="node">
+<strong>L5 天气与光照</strong>
+<small>温度、降水、遮蔽、眩光</small>
+</div>
+<div class="node">
+<strong>L6 数字信息</strong>
+<small>地图、通信、定位、时间戳</small>
+</div>
+</div>
 </figure>
-<div class="table-wrap" tabindex="0" role="region" aria-label="SC4-01 的分层取值与时变关系"><table>
-<caption>SC4-01 的分层取值与时变关系</caption>
-<thead><tr><th>环境层</th><th>本实例取值</th><th>时间关系及接口</th></tr></thead><tbody>
-<tr><th>L1 地形与通行几何</th><td>60 m 核准通道、平整地面、3° 坡面、30 mm 台阶、两端停驻区。</td><td>运行前测绘冻结。A3 提供位置和有效性，A4 按核准包络通行。</td></tr>
-<tr><th>L2 固定设施与规则</th><td>隔离设施、A/B 站点标识、场地出入口、停机入口、固定禁入边界。</td><td>场地管理提供规则，安全员确认隔离，固定物位置与地图一致。</td></tr>
-<tr><th>L3 临时变化</th><td>作业窗口内场地封控，临时锥桶布置在通道触发区外。</td><td>放行前检查。运行中移动锥桶或新增障碍将任务转入异常处理。</td></tr>
-<tr><th>L4 动态对象</th><td>平台往返运动，交接人于 B 点锁定停稳后进入；其他人员留在隔离区外。</td><td>“平台停稳锁定 → 人员获准进入 → 收讫 → 人员退出 → 清场复核 → 重新启动”形成约束顺序。</td></tr>
-<tr><th>L5 天气与光照</th><td>20 ℃、白天、无降水，地表干燥，观察与定位信息有效。</td><td>持续关注环境变化。出现降水、明显遮蔽或信息失效即中止常规运行并组织停驻。</td></tr>
-<tr><th>L6 数字信息</th><td>地图及运行包版本匹配；控制心跳、任务请求和安全许可连续有效；任务日志可关联。</td><td>A1 至 A7 按各自职责提供授权、反馈、仲裁与记录，失联或时效超界触发既有安全规则。</td></tr>
-</tbody></table></div>
-</section>
-
-<section id="case-sequence">
-<h3>3. 从准备到关闭的交互过程</h3>
-<div class="table-wrap" tabindex="0" role="region" aria-label="名义过程、状态、人员动作与退出条件"><table>
-<caption>名义过程、状态、人员动作与退出条件</caption>
-<thead><tr><th>计划窗口 / 阶段</th><th>系统状态与动作</th><th>人员动作</th><th>本阶段完成及证据</th></tr></thead><tbody>
-<tr><th>0–3 min<br>准备与放行</th><td>检查 → 待命。A2 校验运行包，A3/A5 提交有效状态，A4 装载确认，A7 保持运动禁止直到获准。</td><td>装载人按说明固定配重后退出。安全员检查路线和隔离，操作员核对任务号、状态及角色授权。</td><td>放行、自检、载荷与清场均有效，能源 >25%，人工明确启动。保存检查与授权记录。</td></tr>
-<tr><th>3–7 min<br>装载去程</th><td>转运。以 0.4 m/s 的计划速度沿 A→B 行进，在有效许可下通过各核准区段。</td><td>操作员观察状态和实际运动，安全员监督隔离。途中人员保持在运动区外。</td><td>全程符合条件，抵达 B 的指定站点。记录位置、速度、能量与到站事件。</td></tr>
-<tr><th>7–10 min<br>到站与交接</th><td>待交接。A4 停稳并保持，A7 锁定运动；A2 等待物资收讫，核认后关闭交付任务。</td><td>安全员确认平台稳定并许可交接人进入，交接人核对 CARGO-01、卸载并确认收讫，随后退出。</td><td>实际停驻、交接及退出记录齐全。收讫只更新交付状态，返回运动另经任务准备、清场复核、交接锁定解除和明确启动。</td></tr>
-<tr><th>10–14 min<br>空载返回</th><td>待命 → 转运。载入返回任务，核对空载状态、有效环境和能源 >25% 后接受启动；沿 B→A 返回，持续遵守运行门槛。</td><td>安全员重新确认路线和隔离，操作员核对新任务号并明确启动，持续监督。</td><td>返回 A 停稳锁定，形成返回任务的位置、时间及实际能量记录。能源不足时保持停驻并安排保障。</td></tr>
-<tr><th>14–16 min<br>关闭与移交</th><td>收尾 → 待命或维护隔离。A6 关联批准、成果、异常及人员进出区记录。</td><td>任务主管核对交付与返回，操作员归档，维护人员检查设备，安全员移交场地。</td><td>任务完成结论经核认。发现缺项或中止则记录实际结论，并保留原因及处置证据。</td></tr>
-</tbody></table></div>
-<p>任一运动阶段触发急停、失联、定位无效、不可通行障碍、低能量或装载失效时，转入“安全停驻 → 锁定 → 现场复核”。恢复连接或移除障碍后继续保持锁定，现场复核和人工授权完成后才能再次启动。人员介入或回收时间计入作业 2 的人员暴露口径。</p>
-<p>以 0.4 m/s 匀速计算，单程 60 m 的纯行进时间为 150 s，往返为 300 s。排程额外留出加减速、状态核对及交接时间，实际时间由任务记录确认。60 m 距离与速度计算只用于检查时间预算的一致性。作业 2 的转运完成率仍以交付任务的收讫与核认为准，返回任务另列台账。</p>
-</section>
-
-<section id="case-variants">
-<h3>4. 场景变体与判定</h3>
-<div class="table-wrap" tabindex="0" role="region" aria-label="从同一典型场景派生的名义、边界和异常变体"><table>
-<caption>从同一典型场景派生的名义、边界和异常变体</caption>
-<thead><tr><th>变体</th><th>变化因素</th><th>预期状态及判据</th></tr></thead><tbody>
-<tr><th>C01 名义场景</th><td>按本实例的 20 ℃、0.4 m/s、3°、30 mm、5 kg 执行。</td><td>满足全部准入和过程条件，完成交付及返回，记录可复核。</td></tr>
-<tr><th>C02 包络边界</th><td>分别将温度设为 5 ℃ / 35 ℃、坡度设为 5°、台阶设为 50 mm 或速度设为 0.5 m/s。</td><td>单因素及经批准的最不利组合均需验证，满足停止与稳定要求后才纳入已确认包络。</td></tr>
-<tr><th>C03 环境超界</th><td>坡度 >5°、台阶 >50 mm、载荷 >5 kg 或地面湿滑。</td><td>准备时阻止放行。运行中发现变化时组织安全停驻、记录和重新评估。</td></tr>
-<tr><th>C04 数字信息异常</th><td>控制链心跳或 A2 请求更新间隔达到 0.5 s，或地图版本不匹配。</td><td>时效超界触发撤销许可，停距包含检测延时。版本失效在启用前拒绝，更新后需重新批准。</td></tr>
-<tr><th>C05 交接冲突</th><td>收讫已提交，但交接人仍在交接区或清场确认缺失。</td><td>保持待交接后的运动锁定，返回请求被拒绝，直至人员退出和重新放行。</td></tr>
-</tbody></table></div>
-<p>场景变体逐项关联本页风险场景和第三次作业验证条目。边界取值的选取依据为已有包络，新增环境因素和组合的覆盖随试验结果迭代。</p>
-</section>
-
-      </section>
-      <section id="risks" class="document" aria-labelledby="risks-title">
-        <h2 id="risks-title" class="doc-heading">风险场景分析</h2>
-<section id="risk-method">
-<h3>1. 分析对象与方法</h3>
-<p>以 SC4-01 为分析对象，在六层环境要素、系统状态及人员状态中改变一个因素或加入明确的相互作用，检查其是否导致第三次作业识别的 H-01 人员接近时的危险运动、H-02 越界或停止余量不足、H-03 稳定与能源条件不足、H-04 实际许可与人员理解不一致。</p>
-<p>每条风险场景记录条件、触发事件、危险演化、控制措施及验收证据。涉及人员伤害的场景列为先行验证对象，任务和数据问题同样保留追溯。发生频率和控制有效性由后续试验取得，当前记录分析后果与待验证措施。</p>
-</section>
-
-<section id="risk-list">
-<h3>2. 风险场景列表</h3>
-<div class="table-wrap" tabindex="0" role="region" aria-label="SC4-01 的十项风险场景及控制证据"><table>
-<caption>SC4-01 的十项风险场景及控制证据</caption>
-<thead><tr><th>风险 / 来源</th><th>条件、触发与危险演化</th><th>应有响应和后续处置</th><th>关联需求 / 验证</th></tr></thead><tbody>
-<tr id="rs4-01"><th>RS4-01 交接人尚未退出<br>L4＋人员状态</th><td>平台已收讫，交接人仍在 B 区，操作员误将收讫视为返回授权，形成 H-01、H-04，可能导致人员碰撞。</td><td>收讫和运动许可分别判定。交接区保持锁定，人员退出、清场复核及明确启动齐全后才返回。</td><td>SYS-03、12；SAF-05<br>F4-01，结合 V-03、SV-05</td></tr>
-<tr id="rs4-02"><th>RS4-02 人员从入口误入<br>L2＋L4</th><td>临时开门或隔离失效，人员进入正在移动的平台邻近区域，形成 H-01。人员继续靠近可能进一步缩短距离。</td><td>安全员先行维持场地隔离。发现侵入立即发出停止，保持运动锁定，组织人员退出。动态人员场景须单独验证识别及人工处置链路。</td><td>SAF-02、03、05；OP4-02<br>F4-02，结合 SV-02、03</td></tr>
-<tr id="rs4-03"><th>RS4-03 地形或临时设施改变<br>L1＋L3</th><td>核准 30 mm 台阶被临时物覆盖，或锥桶进入通道，旧路线仍被执行，形成 H-02、H-03，可能碰撞、越界或倾覆。</td><td>运行前踏勘和版本核对，运行中把未确认可通行区作为停止条件。重测几何、更新批准后重新放行。</td><td>SYS-09、22；SAF-02、03<br>F4-03，结合 V-09、22</td></tr>
-<tr id="rs4-04"><th>RS4-04 降水或遮蔽变化<br>L5＋L1 / L6</th><td>运行中降水、逆光或遮挡使地表条件、观察或定位信息失效，控制器沿旧包络继续执行，形成 H-02、H-03。</td><td>准备时确认干燥与信息有效。安全员发现环境变化撤销现场放行并要求停止；定位失效由本地安全链触发。重新确认地面和信息能力后才批准继续。</td><td>SYS-17；SAF-03；OP4-01<br>F4-04，结合 V-17、SV-03</td></tr>
-<tr id="rs4-05"><th>RS4-05 控制连接中断<br>L6＋系统状态</th><td>A1 控制心跳中断，而 A2 车载任务仍更新，旧运动意图持续，形成 H-01、H-02。</td><td>A7 分别监测 A1 与 A2 新鲜度，任一满 0.5 s 撤销许可。停止后锁定，通信恢复进入复核流程。</td><td>SAF-01、02、05<br>F4-05，结合 SV-01、02、05</td></tr>
-<tr id="rs4-06"><th>RS4-06 遥测冻结但心跳正常<br>L6＋人员状态</th><td>界面收到心跳却持续展示旧画面或旧状态，人员误以为平台仍正常并继续放行，形成 H-04，可能进一步导致 H-01。</td><td>按数据采样时间显示新鲜度。遥测超过 1 s 失效后取消启动和复位，并撤销当前运行许可、组织锁定停驻。该过程响应作为本次新增运行规则验证。</td><td>SAF-04、05；OP4-01<br>F4-06</td></tr>
-<tr id="rs4-07"><th>RS4-07 定位冻结或地图错版<br>L6＋L2</th><td>位置仍显示在通道内，实际路线或设施已变，平台外轮廓接近边界且余量不足，形成 H-02。</td><td>版本不匹配在启用前拒绝；定位无效、超时或达到边界触发线撤销许可，重新测绘和批准。</td><td>SYS-01、11、22；SAF-03<br>F4-07，结合 V-01、11、22、SV-03</td></tr>
-<tr id="rs4-08"><th>RS4-08 低能量或载荷变化<br>L4＋系统状态</th><td>返回前电量不满足启动门槛，或途中载荷松动导致装载状态失效，仍继续行驶，形成 H-03。</td><td>启动电量须 >25%，运行电量须 >20%。达到停止门槛或装载失效即停驻。由保障人员在隔离条件下处理。</td><td>SYS-16；SAF-02、07<br>F4-08，结合 V-16、SV-02、07</td></tr>
-<tr id="rs4-09"><th>RS4-09 停止反馈与实际运动矛盾<br>系统状态＋L1</th><td>终端显示已停，而平台仍缓慢运动或在坡面滑移，交接人据此入区，形成 H-01、H-03、H-04。</td><td>核对实际运动与保持反馈，矛盾时锁定并报告故障，人员保持在隔离区外。按坡面停驻要求复验后处理。</td><td>SAF-02、08<br>F4-09，结合 SV-02、08</td></tr>
-<tr id="rs4-10"><th>RS4-10 日志缺口被误认完整<br>L6＋资料管理</th><td>断连后结果看似完成，但异常、交接或入区记录缺失，可能形成 H-04，影响任务验收和人员暴露统计。</td><td>本地事件按任务号补传，无法恢复的缺口显式标记并保留实际结论。完整性核验通过后归档。</td><td>SYS-04、19、20、21<br>F4-10，结合 V-04、19、20、21</td></tr>
-</tbody></table></div>
-<p>1.2 m 触发区用于规定平台停止的设计预算。人员持续接近时还需场地隔离、入口管理、人工监督和专项验证共同承担风险控制。场景结果应记录人员位置变化和停止过程，作为边界评审依据。</p>
-</section>
-
-<section id="risk-verification">
-<h3>3. 新增运行规则与验证安排</h3>
-<div class="table-wrap" tabindex="0" role="region" aria-label="场景分析发现的运行规则补充"><table>
-<caption>场景分析发现的运行规则补充</caption>
-<thead><tr><th>规则</th><th>具体内容</th><th>责任与确认方式</th></tr></thead><tbody>
-<tr id="op4-01"><th>OP4-01 监督条件失效处理</th><td>遥测数据超过 1 s 未更新时，A1 应标识失效、禁用启动和复位、发出停止并撤销当前运行许可。安全员确认环境变化或无法继续监督时，也应撤销现场放行并发出停止。</td><td>A1/A2/A7 与安全员共同闭环。F4-06 保持心跳正常、冻结数据采样时间，核对许可撤销、锁定及实际停止。遥测冻结的 0.8 m 停距从最后有效数据对应的平台位置计量，包含新鲜度判定、传输和执行延时。人工环境撤销由 F4-04 演练，自停止请求发出位置计量，并另外记录环境变化至发出请求的人员响应时长。</td></tr>
-<tr id="op4-02"><th>OP4-02 交接与人员隔离</th><td>交接区人员入内前须确认平台实际停稳并锁定；区域内有人或清场确认缺失时不得启用运动许可。运行中发现人员侵入时撤销现场放行并停止。</td><td>操作员、安全员、交接人及 A7。F4-01 分别省略人员退出、清场与再次启动确认，均应拒绝返回。F4-02 在受控仿真或替代物条件下验证侵入触发与停驻。</td></tr>
-</tbody></table></div>
-<p>OP4-01 将第三次作业“遥测失效时禁用启动与复位”的要求扩展到正在运行的监督链路，OP4-02 将交接时的人员状态纳入放行判据。本轮将两项作为拟定补充，详细实现、人工响应时间和环境监测责任在试验前冻结。在 0.5 m/s 时，1 s 遥测失效判定已占用约 0.5 m 行程，剩余传输和制动预算须经试验确认；验证失败时修订数据时效门槛或核准速度。</p>
-<p>F4-01 至 F4-10 分别对应同号风险场景。每项覆盖名义、触发、停驻、恢复或中止四类观察点，保留场景版本、配置、触发时间、位置、人物状态、实际响应、日志及结论。归档阶段发现的 F4-10 可将停驻观察标为不适用并说明原因，仍须核验任务结果和归档判定。动力学与停止试验先以仿真或替代物验证条件，再在经批准的隔离场地实施，停止效果按实测判定。</p>
-<p>覆盖策略从单因素名义、门槛两侧及边界值开始，再检查已识别的耦合情况，包括“失联＋仍有任务更新”“遥测冻结＋心跳正常”“收讫＋人员未退出”“坡面＋停止反馈矛盾”。用例通过后更新受验证条件集合，任何失败均关联受影响的 SYS、SAF 或 OP4 规则并复验。</p>
-</section>
-
-      </section>
-      <section id="review" class="document" aria-labelledby="review-title">
-        <h2 id="review-title" class="doc-heading">追溯与评审</h2>
-<p class="callout">本作业按课堂图片要求，完成场景分层、要素梳理、正常运行条件和典型场景详述，并对典型实例补充风险分析。运行范围延续前次的封闭训练场、人工监督、非武装巡检与惰性物资转运。参数均为拟定验证条件，场地测绘、实体试验与相关方签认待开展。</p>
-<div class="table-wrap" tabindex="0" role="region" aria-label="作业要求与正文位置"><table>
-<caption>作业要求与正文位置</caption>
-<thead><tr><th>课堂要求</th><th>本次交付</th><th>检查入口</th></tr></thead><tbody>
-<tr><th>进行场景分层</th><td>六层环境模型，辅以功能、逻辑、具体场景的描述层次。</td><td><a href="#layers">场景分层</a>、<a href="#abstraction">描述粒度</a></td></tr>
-<tr><th>梳理各层要素</th><td>各层记录具体要素、范围、变化因素及其对运行的影响，典型实例给出具体设定。</td><td><a href="#layers">分层要素表</a>、<a href="#case-layout">实例取值</a></td></tr>
-<tr><th>设定正常运行设计条件</th><td>环境设计范围、系统就绪状态和人员状态形成同时成立的门槛，并明确退出及恢复逻辑。</td><td><a href="#conditions">运行条件表</a></td></tr>
-<tr><th>选取典型场景详细论述</th><td>SC4-01 使用两项顺序执行的转运与返回任务，覆盖路线、参数、状态、人员交互和关闭条件。</td><td><a href="#case-definition">典型实例</a>、<a href="#case-sequence">交互过程</a></td></tr>
-<tr><th>典型场景安全风险分析</th><td>十项风险场景、十项验证用例及两项补充运行规则，追溯到前次需求。</td><td><a href="#risk-list">风险场景列表</a>、<a href="#risk-verification">验证安排</a></td></tr>
-</tbody></table></div>
-<h3>与前次作业的衔接</h3>
-<p>本页采用作业 3 的 SYS 系统要求、SAF 安全要求与 A1 至 A7 架构职责作为输入。速度、载荷、地形、温度、时效、电量和停驻上限沿用既有拟定值。新增的通道净宽、日间场地限制、SC4-01 参数及 OP4 运行规则作为本次场景化假设，需在部署评审时确认。<a href="https://gk37425601.github.io/complex-systems-engineering-2026/assignment-3/">查看作业 3</a></p>
-<p>本文中 L1–L6 表示环境层，H-01–H-04 表示危险状态，SC4-01 表示本次典型场景，C01–C05 表示其变体，RS4 与 F4 分别表示风险场景与验证用例，OP4 表示本次补充运行规则。所有任务记录均需包含场景版本与任务编号，以支撑同一场景的复现和变更审查。</p>
-<h3>AI 辅助分析问答摘要</h3>
-<dl>
-<dt>环境分层后，怎样确定系统可以正常运行？</dt>
-<dd>给各层要素设置可检查的条件，再与平台状态和人员状态共同判断。启动前逐项确认，运动期间持续检查可监测信号，人员负责现场环境、隔离和交接状态的复核。</dd>
-<dt>为什么典型实例同时描述人员与系统状态？</dt>
-<dd>相同路线和天气下，平台是否停稳锁定、交接人是否退出，会改变运动许可是否有效。将这些关系写进时序，才能判断启动、交接、返回和恢复是否合法。</dd>
-<dt>风险场景如何用于验证？</dt>
-<dd>把触发条件、时刻、初始状态和预期响应固定为 F4 用例，保留实际停止距离、授权链与事件记录。用例结果用于确认条件范围，并回写受影响的系统、安全或运行规则。</dd>
-</dl>
-<h3>参考依据与适用说明</h3>
-<ol class="sources">
-<li>用户提供的“小组作业-4”课堂投影片照片，作为交付项与题目要求依据。</li>
-<li>PEGASUS 官方方法资料，用于借鉴六层环境要素组织方法。本页将道路场景模型裁剪为训练场地面机器人环境。<a href="https://www.pegasusprojekt.de/en/pegasus-method">PEGASUS 方法</a></li>
-<li>ASAM OpenODD 官方资料，用于借鉴以明确属性与边界表达运行设计范围的方法。本文还按作业要求单列系统与人员就绪条件。<a href="https://www.asam.net/standards/detail/openodd/">ASAM OpenODD</a></li>
-<li>本课题前次 BRS、StRS、SyRS 与 STPA 分析，作为任务完成口径、状态及安全门槛的延续依据。<a href="https://gk37425601.github.io/complex-systems-engineering-2026/assignment-2/">作业 2</a>、<a href="https://gk37425601.github.io/complex-systems-engineering-2026/assignment-3/">作业 3</a></li>
+<div class="table-wrap" tabindex="0" role="region" aria-label="封闭训练场环境分层与要素清单">
+<table>
+<caption>封闭训练场环境分层与要素清单</caption>
+<thead>
+<tr>
+<th scope="col">层次</th>
+<th scope="col">要素与描述变量</th>
+<th scope="col">正常场景配置</th>
+<th scope="col">需记录的变化</th>
+</tr>
+</thead>
+<tbody>
+<tr id="layer-1">
+<th scope="row">L1 地面与几何</th>
+<td>路线拓扑、长度、宽度、转弯扫掠区、坡度、台阶、路面材质和干湿状态。</td>
+<td>已踏勘的干燥硬质路线，坡度与台阶在核准包络内，起终点及装载点有明确坐标。</td>
+<td>坑洼、湿滑、宽度收缩或通过性变化，注明位置与发现时间。</td>
+</tr>
+<tr id="layer-2">
+<th scope="row">L2 固定设施与规则</th>
+<td>隔离边界、门禁、固定设备、停驻与交接区域、标识、人员准入和放行规则。</td>
+<td>边界可辨识，交接点与控制区已核准，停驻区满足外轮廓及安全余量。</td>
+<td>隔离设施失效、固定设施移位、门禁状态或场地规则改变。</td>
+</tr>
+<tr id="layer-3">
+<th scope="row">L3 临时变化</th>
+<td>临时围挡、维修占道、堆放物、临时封闭区及其生效时段。</td>
+<td>临时变化已纳入运行包并核准；剩余通道仍满足几何和停止条件。</td>
+<td>新占道、围挡移动、未登记变化及其对路线的影响。</td>
+</tr>
+<tr id="layer-4">
+<th scope="row">L4 动态对象与交互</th>
+<td>平台、人员、交接人、其他设备及可移动物体的位置、速度和活动权限。</td>
+<td>单平台运行，运动区已清场；交接人按停驻锁定和受监督入区流程交接。</td>
+<td>人员进入、物体移动、交接未完成或装载状态变化。</td>
+</tr>
+<tr id="layer-5">
+<th scope="row">L5 天气与光照</th>
+<td>温度、降水、地表水、光照、雾遮挡、眩光及可观察性。</td>
+<td>5～35 ℃、无降水、干燥、日间可视条件满足核准要求。</td>
+<td>降雨、雾、强眩光、温度超限或监督与感知视野受阻。</td>
+</tr>
+<tr id="layer-6">
+<th scope="row">L6 数字信息</th>
+<td>地图与边界版本、运行包、坐标基准、通信覆盖、定位、状态时间戳及消息有效性。</td>
+<td>地图与现场一致，任务批准有效，控制、定位与反馈具备规定的新鲜度。</td>
+<td>错版本、失联、定位冻结、延迟、乱序或无效状态。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure class="diagram" id="abstraction">
+<figcaption>从任务意图到可复现输入</figcaption>
+<ol class="flow">
+<li>
+<strong>功能场景</strong>
+<small>监督转运与到站交接</small>
+</li>
+<li>
+<strong>逻辑场景</strong>
+<small>定义速度、载荷、地面的范围</small>
+</li>
+<li>
+<strong>具体场景</strong>
+<small>冻结参数、版本与事件时序</small>
+</li>
 </ol>
-<p>后续评审应确认扫掠外轮廓、净距与计量误差、环境可观察条件、人员响应时间、遥测失效停止预算，以及各任务能源初始状态。每次场地、配置或人员职责改变后，更新场景版本并识别受影响的放行条件与验证用例。</p>
-
-      </section>
-    </div>
-  </main>
-  <footer class="footer">
-    <div class="container">
-      <span>复杂系统工程 · 小组作业 4</span>
-      <a href="#top">返回页首</a>
-    </div>
-  </footer>
+</figure>
+</section>
+<section class="card" id="conditions">
+<h2>正常运行设计条件</h2>
+<figure class="diagram">
+<figcaption>正常运动许可同时满足三组条件</figcaption>
+<div class="three-col">
+<div class="node">
+<strong>环境范围有效</strong>
+<small>ODD-01～07</small>
+</div>
+<div class="node">
+<strong>系统状态就绪</strong>
+<small>ODD-08～12</small>
+</div>
+<div class="node">
+<strong>人员能够履职</strong>
+<small>ODD-13～14</small>
+</div>
+</div>
+<p class="arrow-label">三组条件合取 → 本次运动许可 → 持续复核</p>
+<p class="branch">条件失效 → 停驻锁定 → 现场复核 → 有序授权 → 再次启动或中止</p>
+</figure>
+<div class="table-wrap" tabindex="0" role="region" aria-label="外部环境设计域">
+<table>
+<caption>外部环境设计域</caption>
+<thead>
+<tr>
+<th scope="col">条件</th>
+<th scope="col">允许范围与判定</th>
+<th scope="col">检查与追溯</th>
+</tr>
+</thead>
+<tbody>
+<tr id="odd-01">
+<th scope="row">ODD-01 地面包络<br>L1</th>
+<td>封闭核准区域、干燥路线；坡度绝对值≤5°，局部台阶高度≤50 mm。路线及交接停驻面均须核准。</td>
+<td>踏勘、坡度和高度量测。SYS-09、17。</td>
+</tr>
+<tr id="odd-02">
+<th scope="row">ODD-02 几何净距<br>L1、L2</th>
+<td>通道净宽≥B<sub>p</sub>＋3.0 m。B<sub>p</sub> 为转弯、轮腿运动及载荷计入后的最大扫掠外廓宽，核准中心路径的外轮廓至两侧边界名义净距各≥1.5 m，转弯区逐段核查。</td>
+<td>本次新增课程假设。核查扫掠包络并计入定位与量测不确定度后，边界及固定设施净距须严格&gt;1.2 m。</td>
+</tr>
+<tr id="odd-03">
+<th scope="row">ODD-03 设施与准入<br>L2</th>
+<td>隔离、门禁、标识、控制区与交接区可用，现场区域和时段与批准一致。</td>
+<td>场地放行单与现场巡查。ST-01、15。</td>
+</tr>
+<tr id="odd-04">
+<th scope="row">ODD-04 临时变更<br>L3</th>
+<td>围挡、维修和占道均已登记并纳入当前运行包，剩余路线继续满足 ODD-01～03。</td>
+<td>变更记录、地图复核与重新批准。SYS-01、22。</td>
+</tr>
+<tr id="odd-05">
+<th scope="row">ODD-05 活动对象<br>L4</th>
+<td>运动时区内仅有本平台，人员与其他设备在隔离区外。受控交接入区按 ODD-14 执行。</td>
+<td>安全员清场确认及持续监督。ST-01、04、11。</td>
+</tr>
+<tr id="odd-06">
+<th scope="row">ODD-06 天气光照<br>L5</th>
+<td>5≤温度≤35 ℃，无降水及积水，日间能见度良好，无雾遮挡或强眩光。光照与能见度可用性判据须在试前量测冻结，未确认时不放行。</td>
+<td>现场温度、地表和视野记录，待补光照／能见度判据。SYS-17。</td>
+</tr>
+<tr id="odd-07">
+<th scope="row">ODD-07 数字环境<br>L6</th>
+<td>核准地图、边界、路线、坐标基准和时段一致；全路线具备已核查的控制通信覆盖，状态可按时间戳判断。</td>
+<td>版本检查、覆盖检查与运行包批准。SYS-01、10、11、22。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap" tabindex="0" role="region" aria-label="系统就绪与运行能力条件">
+<table>
+<caption>系统就绪与运行能力条件</caption>
+<thead>
+<tr>
+<th scope="col">条件</th>
+<th scope="col">启动及持续运行门槛</th>
+<th scope="col">检查与追溯</th>
+</tr>
+</thead>
+<tbody>
+<tr id="odd-08">
+<th scope="row">ODD-08 任务与装载</th>
+<td>速度≤0.5 m/s，惰性载荷≤5 kg，任务剖面≤30 min；自检通过、装载确认和本次放行有效，配置与运行包一致。检查未完成、维护隔离或退役时禁止启动；待命仅在本次条件齐备后转为执行。</td>
+<td>自检、称量、任务时长、模式与配置检查。SYS-01、07、08、12、14、15、16。</td>
+</tr>
+<tr id="odd-09">
+<th scope="row">ODD-09 能源</th>
+<td>启动时估计电量须&gt;25%，运行时须&gt;20%。装载状态须持续有效。达到停止门槛即转入锁定停驻。</td>
+<td>能源及装载状态记录。SAF-07；等于 25% 禁止启动，等于 20% 触发停止。</td>
+</tr>
+<tr id="odd-10">
+<th scope="row">ODD-10 控制与反馈时效</th>
+<td>A1 控制链心跳、A2 运动请求及 A7→A4 安全许可的年龄均&lt;0.5 s；终端遥测年龄≤1 s，状态无失效或矛盾。</td>
+<td>各链路独立时间戳与故障状态。SAF-01、04、08、SI-01；遥测失效停驻按 OP4-01。</td>
+</tr>
+<tr id="odd-11">
+<th scope="row">ODD-11 定位有效</th>
+<td>定位年龄&lt;0.5 s、有效性通过、误差≤0.2 m；运动阶段，核准边界或不可通行障碍距平台外轮廓&gt;1.2 m。到达 1.2 m 触发区即停止。</td>
+<td>定位量测、外轮廓几何及边界／障碍判据。SAF-03。年龄取严格小于值作为正常设计条件。</td>
+</tr>
+<tr id="odd-12">
+<th scope="row">ODD-12 停止与保持</th>
+<td>停止能力须预先验证，从停止条件触发位置起≤0.8 m 停止；超时用例从最后有效更新或采样时的平台位置计量，含检测延时。在 5° 坡面保持 60 s 的位移≤0.05 m，安全锁定与本地停止能力有效。</td>
+<td>最高 0.5 m/s、5 kg 及最不利核准路段验证。SAF-02、05、06、08；新增遥测超时停止见 OP4-01。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap" tabindex="0" role="region" aria-label="人员与组织运行门槛">
+<table>
+<caption>人员与组织运行门槛</caption>
+<thead>
+<tr>
+<th scope="col">条件</th>
+<th scope="col">允许范围与职责</th>
+<th scope="col">检查与追溯</th>
+</tr>
+</thead>
+<tbody>
+<tr id="odd-13">
+<th scope="row">ODD-13 在岗与授权</th>
+<td>受训操作员和安全员同时在岗，能够持续注意并履职，无影响操作的疲劳或不适，停止入口可达，角色权限与本次放行有效。任一人员离岗、注意受干扰或无法履职时暂停任务。维护锁定已按工单退出。</td>
+<td>培训、排班、岗前确认、在岗互检与放行记录。ST-01、12、15，SYS-18、23。</td>
+</tr>
+<tr id="odd-14">
+<th scope="row">ODD-14 装卸与交接</th>
+<td>平台停稳且运动锁定后，安全员批准并监督交接人入区，进行装载或收讫确认。正常交接后人员退出并清场复核，解除交接锁定；返回任务须重新准备、放行并明确启动。异常停驻另按当前异常序号复位。</td>
+<td>交接、清场与新任务授权记录。ST-04、08，SYS-12、13；异常恢复遵循 SAF-05。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="note">ODD描述外部设计范围，表内另列系统与人员就绪条件。正常任务可包含锁定等待和交接，运动许可按当前阶段判断。</p>
+</section>
+<section class="card" id="scenario">
+<h2>典型转运场景</h2>
+<p id="case-definition">SC4-01采用两项顺序任务：向B交付5 kg惰性物资，在收讫及核认后关闭；再经新任务放行空载返回A。两项结果以场景实例号关联。</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="SC4-01 场景实例参数">
+<table>
+<caption>SC4-01 场景实例参数</caption>
+<thead>
+<tr>
+<th>项目</th>
+<th>具体设定</th>
+<th>成立依据与判据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>任务与版本</th>
+<td>场景实例号 SC4-01-C01，版本 1.0；关联交付任务 T4-DEL-01 与返回任务 T4-RET-01。运行包绑定路线、地图、角色及平台配置版本。</td>
+<td>两项任务顺序执行，分别生成批准引用和结果，按任务号保存证据，并以场景实例号关联。</td>
+</tr>
+<tr>
+<th>任务成果</th>
+<td>A→B 单程 60 m，交付一件标识为 CARGO-01 的 5 kg 惰性配重；B→A 空载返回，总路程 120 m。</td>
+<td>交付任务在到站停稳、收讫和记录核认后关闭；返回任务在 A 停稳后单独关闭。场景记录汇集两项结论。</td>
+</tr>
+<tr>
+<th>运行环境</th>
+<td>白天、20 ℃、无降水、干燥地面；路线已踏勘，移动期间通行区清空。</td>
+<td>环境与场地放行记录有效，观察和定位信息可用。</td>
+</tr>
+<tr>
+<th>地形与设施</th>
+<td>平整段、3° 坡段及一处 30 mm 局部台阶，沿途固定隔离设施、标记检查点和两端交接区。</td>
+<td>坡度、台阶及扫掠包络净距均满足本页运行设计条件，固定设施不侵入触发区。</td>
+</tr>
+<tr>
+<th>平台设定</th>
+<td>计划速度 0.4 m/s，能源初始值 80%，定位和健康检查通过，日志与安全许可链可用。</td>
+<td>逐项满足启动门槛。80% 为场景输入，任务能源消耗由试验取得。</td>
+</tr>
+<tr>
+<th>人员配置</th>
+<td>一名受训操作员 OP-01、一名安全员 SF-01、一名交接人 RC-01，RC-01 兼任装载；维护人员在保障区待命。</td>
+<td>职责和权限有效，操作员与安全员在运动期间持续履职。物资交接按进出区许可实施。</td>
+</tr>
+<tr>
+<th>时间预算</th>
+<td>准备与关闭计划约 16 min，其中首次启动至返回停稳的计划窗口约 11 min。</td>
+<td>交付与返回各自满足 ≤30 min 的既有包络。时间窗口用于排程，验收记录实际时长。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure class="diagram" id="case-layout">
+<figcaption>核准路线与检查点，返程沿原路反向通过</figcaption>
+<ol class="route-map">
+<li>
+<strong>A · 0 m</strong>
+<span>装载与放行</span>
+</li>
+<li>
+<strong>P1 · 20 m</strong>
+<span>进入3°坡段</span>
+</li>
+<li>
+<strong>P2 · 30 m</strong>
+<span>坡段结束</span>
+</li>
+<li>
+<strong>P3 · 35 m</strong>
+<span>30 mm台阶</span>
+</li>
+<li>
+<strong>B · 60 m</strong>
+<span>停稳与交接</span>
+</li>
+</ol>
+<p class="chapter-meta">净宽B<sub>p</sub>＋3.0 m，居中每侧1.5 m；扣除0.2 m定位误差后为1.3 m，仍须核验完整扫掠与计量不确定度。</p>
+</figure>
+<figure class="diagram" id="case-sequence">
+<figcaption>任务、系统状态与人员交互</figcaption>
+<ol class="flow">
+<li>
+<strong>准备放行</strong>
+<small>装载退出、自检、清场</small>
+</li>
+<li>
+<strong>装载去程</strong>
+<small>持续监督与有效许可</small>
+</li>
+<li>
+<strong>锁定交接</strong>
+<small>停稳、入区、收讫、退出</small>
+</li>
+<li>
+<strong>新任务返回</strong>
+<small>核条件、放行与明确启动</small>
+</li>
+<li>
+<strong>关闭移交</strong>
+<small>核认、归档、保障检查</small>
+</li>
+</ol>
+<p class="branch">执行异常 → 停驻锁定 → 现场复核 → 绑定本次异常的复位与再启动，或中止归档。</p>
+</figure>
+<details>
+<summary>展开计划时序与证据</summary>
+<div class="table-wrap" tabindex="0" role="region" aria-label="名义过程、状态、人员动作与退出条件">
+<table>
+<caption>名义过程、状态、人员动作与退出条件</caption>
+<thead>
+<tr>
+<th>计划窗口 / 阶段</th>
+<th>系统状态与动作</th>
+<th>人员动作</th>
+<th>本阶段完成及证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0–3 min<br>准备与放行</th>
+<td>检查 → 待命。A2 校验运行包，A3/A5 提交有效状态，A4 装载确认，A7 保持运动禁止直到获准。</td>
+<td>装载人按说明固定配重后退出。安全员检查路线和隔离，操作员核对任务号、状态及角色授权。</td>
+<td>放行、自检、载荷与清场均有效，能源 >25%，人工明确启动。保存检查与授权记录。</td>
+</tr>
+<tr>
+<th>3–7 min<br>装载去程</th>
+<td>转运。以 0.4 m/s 的计划速度沿 A→B 行进，在有效许可下通过各核准区段。</td>
+<td>操作员观察状态和实际运动，安全员监督隔离。途中人员保持在运动区外。</td>
+<td>全程符合条件，抵达 B 的指定站点。记录位置、速度、能量与到站事件。</td>
+</tr>
+<tr>
+<th>7–10 min<br>到站与交接</th>
+<td>待交接。A4 停稳并保持，A7 锁定运动；A2 等待物资收讫，核认后关闭交付任务。</td>
+<td>安全员确认平台稳定并许可交接人进入，交接人核对 CARGO-01、卸载并确认收讫，随后退出。</td>
+<td>实际停驻、交接及退出记录齐全。收讫只更新交付状态，返回运动另经任务准备、清场复核、交接锁定解除和明确启动。</td>
+</tr>
+<tr>
+<th>10–14 min<br>空载返回</th>
+<td>待命 → 转运。载入返回任务，核对空载状态、有效环境和能源 >25% 后接受启动；沿 B→A 返回，持续遵守运行门槛。</td>
+<td>安全员重新确认路线和隔离，操作员核对新任务号并明确启动，持续监督。</td>
+<td>返回 A 停稳锁定，形成返回任务的位置、时间及实际能量记录。能源不足时保持停驻并安排保障。</td>
+</tr>
+<tr>
+<th>14–16 min<br>关闭与移交</th>
+<td>收尾 → 待命或维护隔离。A6 关联批准、成果、异常及人员进出区记录。</td>
+<td>任务主管核对交付与返回，操作员归档，维护人员检查设备，安全员移交场地。</td>
+<td>任务完成结论经核认。发现缺项或中止则记录实际结论，并保留原因及处置证据。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>0.4 m/s匀速下单程60 m为150 s，往返300 s。排程另计加减速、核对与交接。作业2的交付完成率仍在B点收讫及核认时判断，返回另列台账，介入与回收计入人员暴露。</p>
+</details>
+<details id="case-variants">
+<summary>展开边界与异常变体</summary>
+<div class="table-wrap" tabindex="0" role="region" aria-label="从同一典型场景派生的名义、边界和异常变体">
+<table>
+<caption>从同一典型场景派生的名义、边界和异常变体</caption>
+<thead>
+<tr>
+<th>变体</th>
+<th>变化因素</th>
+<th>预期状态及判据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>C01 名义场景</th>
+<td>按本实例的 20 ℃、0.4 m/s、3°、30 mm、5 kg 执行。</td>
+<td>满足全部准入和过程条件，完成交付及返回，记录可复核。</td>
+</tr>
+<tr>
+<th>C02 包络边界</th>
+<td>分别将温度设为 5 ℃ / 35 ℃、坡度设为 5°、台阶设为 50 mm 或速度设为 0.5 m/s。</td>
+<td>单因素及经批准的最不利组合均需验证，满足停止与稳定要求后才纳入已确认包络。</td>
+</tr>
+<tr>
+<th>C03 环境超界</th>
+<td>坡度 >5°、台阶 >50 mm、载荷 >5 kg 或地面湿滑。</td>
+<td>准备时阻止放行。运行中发现变化时组织安全停驻、记录和重新评估。</td>
+</tr>
+<tr>
+<th>C04 数字信息异常</th>
+<td>控制链心跳或 A2 请求更新间隔达到 0.5 s，或地图版本不匹配。</td>
+<td>时效超界触发撤销许可，停距包含检测延时。版本失效在启用前拒绝，更新后需重新批准。</td>
+</tr>
+<tr>
+<th>C05 交接冲突</th>
+<td>收讫已提交，但交接人仍在交接区或清场确认缺失。</td>
+<td>保持待交接后的运动锁定，返回请求被拒绝，直至人员退出和重新放行。</td>
+</tr>
+</tbody>
+</table>
+</div>
+</details>
+</section>
+<section class="card" id="risks">
+<h2>风险场景与验证</h2>
+<p id="risk-method">改变SC4-01的环境、系统或人员条件，检查H-01危险运动、H-02越界、H-03稳定/能源不足、H-04许可与认知不一致。记录触发、后果、控制和证据，发生频率与措施有效性待试验取得。</p>
+<div id="risk-list">
+<div class="table-wrap" tabindex="0" role="region" aria-label="SC4-01 的十项风险场景及控制证据">
+<table>
+<caption>SC4-01 的十项风险场景及控制证据</caption>
+<thead>
+<tr>
+<th>风险 / 来源</th>
+<th>条件、触发与危险演化</th>
+<th>应有响应和后续处置</th>
+<th>关联需求 / 验证</th>
+</tr>
+</thead>
+<tbody>
+<tr id="rs4-01">
+<th>RS4-01 交接人尚未退出<br>L4＋人员状态</th>
+<td>平台已收讫，交接人仍在 B 区，操作员误将收讫视为返回授权，形成 H-01、H-04，可能导致人员碰撞。</td>
+<td>收讫和运动许可分别判定。交接区保持锁定，人员退出、清场复核及明确启动齐全后才返回。</td>
+<td>SYS-03、12；SAF-05<br>F4-01，结合 V-03、SV-05</td>
+</tr>
+<tr id="rs4-02">
+<th>RS4-02 人员从入口误入<br>L2＋L4</th>
+<td>临时开门或隔离失效，人员进入正在移动的平台邻近区域，形成 H-01。人员继续靠近可能进一步缩短距离。</td>
+<td>安全员先行维持场地隔离。发现侵入立即发出停止，保持运动锁定，组织人员退出。动态人员场景须单独验证识别及人工处置链路。</td>
+<td>SAF-02、03、05；OP4-02<br>F4-02，结合 SV-02、03</td>
+</tr>
+<tr id="rs4-03">
+<th>RS4-03 地形或临时设施改变<br>L1＋L3</th>
+<td>核准 30 mm 台阶被临时物覆盖，或锥桶进入通道，旧路线仍被执行，形成 H-02、H-03，可能碰撞、越界或倾覆。</td>
+<td>运行前踏勘和版本核对，运行中把未确认可通行区作为停止条件。重测几何、更新批准后重新放行。</td>
+<td>SYS-09、22；SAF-02、03<br>F4-03，结合 V-09、22</td>
+</tr>
+<tr id="rs4-04">
+<th>RS4-04 降水或遮蔽变化<br>L5＋L1 / L6</th>
+<td>运行中降水、逆光或遮挡使地表条件、观察或定位信息失效，控制器沿旧包络继续执行，形成 H-02、H-03。</td>
+<td>准备时确认干燥与信息有效。安全员发现环境变化撤销现场放行并要求停止；定位失效由本地安全链触发。重新确认地面和信息能力后才批准继续。</td>
+<td>SYS-17；SAF-03；OP4-01<br>F4-04，结合 V-17、SV-03</td>
+</tr>
+<tr id="rs4-05">
+<th>RS4-05 控制连接中断<br>L6＋系统状态</th>
+<td>A1 控制心跳中断，而 A2 车载任务仍更新，旧运动意图持续，形成 H-01、H-02。</td>
+<td>A7 分别监测 A1 与 A2 新鲜度，任一满 0.5 s 撤销许可。停止后锁定，通信恢复进入复核流程。</td>
+<td>SAF-01、02、05<br>F4-05，结合 SV-01、02、05</td>
+</tr>
+<tr id="rs4-06">
+<th>RS4-06 遥测冻结但心跳正常<br>L6＋人员状态</th>
+<td>界面收到心跳却持续展示旧画面或旧状态，人员误以为平台仍正常并继续放行，形成 H-04，可能进一步导致 H-01。</td>
+<td>按数据采样时间显示新鲜度。遥测超过 1 s 失效后取消启动和复位，并撤销当前运行许可、组织锁定停驻。该过程响应作为本次新增运行规则验证。</td>
+<td>SAF-04、05；OP4-01<br>F4-06</td>
+</tr>
+<tr id="rs4-07">
+<th>RS4-07 定位冻结或地图错版<br>L6＋L2</th>
+<td>位置仍显示在通道内，实际路线或设施已变，平台外轮廓接近边界且余量不足，形成 H-02。</td>
+<td>版本不匹配在启用前拒绝；定位无效、超时或达到边界触发线撤销许可，重新测绘和批准。</td>
+<td>SYS-01、11、22；SAF-03<br>F4-07，结合 V-01、11、22、SV-03</td>
+</tr>
+<tr id="rs4-08">
+<th>RS4-08 低能量或载荷变化<br>L4＋系统状态</th>
+<td>返回前电量不满足启动门槛，或途中载荷松动导致装载状态失效，仍继续行驶，形成 H-03。</td>
+<td>启动电量须 >25%，运行电量须 >20%。达到停止门槛或装载失效即停驻。由保障人员在隔离条件下处理。</td>
+<td>SYS-16；SAF-02、07<br>F4-08，结合 V-16、SV-02、07</td>
+</tr>
+<tr id="rs4-09">
+<th>RS4-09 停止反馈与实际运动矛盾<br>系统状态＋L1</th>
+<td>终端显示已停，而平台仍缓慢运动或在坡面滑移，交接人据此入区，形成 H-01、H-03、H-04。</td>
+<td>核对实际运动与保持反馈，矛盾时锁定并报告故障，人员保持在隔离区外。按坡面停驻要求复验后处理。</td>
+<td>SAF-02、08<br>F4-09，结合 SV-02、08</td>
+</tr>
+<tr id="rs4-10">
+<th>RS4-10 日志缺口被误认完整<br>L6＋资料管理</th>
+<td>断连后结果看似完成，但异常、交接或入区记录缺失，可能形成 H-04，影响任务验收和人员暴露统计。</td>
+<td>本地事件按任务号补传，无法恢复的缺口显式标记并保留实际结论。完整性核验通过后归档。</td>
+<td>SYS-04、19、20、21<br>F4-10，结合 V-04、19、20、21</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<h3 id="risk-verification">场景分析导出的补充规则</h3>
+<div class="table-wrap" tabindex="0" role="region" aria-label="场景分析发现的运行规则补充">
+<table>
+<caption>场景分析发现的运行规则补充</caption>
+<thead>
+<tr>
+<th>规则</th>
+<th>具体内容</th>
+<th>责任与确认方式</th>
+</tr>
+</thead>
+<tbody>
+<tr id="op4-01">
+<th>OP4-01 监督条件失效处理</th>
+<td>遥测数据超过 1 s 未更新时，A1 应标识失效、禁用启动和复位、发出停止并撤销当前运行许可。安全员确认环境变化或无法继续监督时，也应撤销现场放行并发出停止。</td>
+<td>A1/A2/A7 与安全员共同闭环。F4-06 保持心跳正常、冻结数据采样时间，核对许可撤销、锁定及实际停止。遥测冻结的 0.8 m 停距从最后有效数据对应的平台位置计量，包含新鲜度判定、传输和执行延时。人工环境撤销由 F4-04 演练，自停止请求发出位置计量，并另外记录环境变化至发出请求的人员响应时长。</td>
+</tr>
+<tr id="op4-02">
+<th>OP4-02 交接与人员隔离</th>
+<td>交接区人员入内前须确认平台实际停稳并锁定；区域内有人或清场确认缺失时不得启用运动许可。运行中发现人员侵入时撤销现场放行并停止。</td>
+<td>操作员、安全员、交接人及 A7。F4-01 分别省略人员退出、清场与再次启动确认，均应拒绝返回。F4-02 在受控仿真或替代物条件下验证侵入触发与停驻。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="note">0.5 m/s下，1 s遥测判定已占用约0.5 m，剩余传输和制动预算须实测。冻结停距从最后有效采样位置计量，包含检测延时。验证失败时修订时效门槛或速度。</p>
+<details>
+<summary>展开验证记录与组合覆盖</summary>
+<p>F4-01～10分别对应同号风险。保存场景/配置版本、触发时间与位置、人员状态、响应、日志和结论；检查名义、触发、停驻、恢复或中止。归档阶段的F4-10可说明停驻不适用。</p>
+<p>先检查单因素和门槛，再检查“失联＋任务更新”“冻结＋心跳正常”“收讫＋人员未退出”“坡面＋停止反馈矛盾”。失败关联SYS、SAF或OP4并复验。人员侵入采用受控仿真或替代物，1.2 m触发区与隔离、监督共同承担防护。</p>
+</details>
+</section>
+<section class="card" id="review">
+<h2>依据与待确认项</h2>
+<p>本页覆盖六层要素、环境设计范围、系统和人员状态、典型实例及十项风险场景。速度、载荷、地形、温度、电量与停驻上限沿用作业3；通道净宽、日间限制、实例值和OP4规则为本次拟定补充。</p>
+<p class="note">待确认扫掠外轮廓、净距与计量误差、光照/能见度判据、人员响应时间、遥测停止预算及能源初始状态。条件改变后更新场景版本，复核受影响用例。</p>
+<ul>
+<li>交付项依据课堂“小组作业-4”投影片。</li>
+<li>六层方法按训练场机器人作课程适配。<a href="https://www.pegasusprojekt.de/en/pegasus-method">PEGASUS方法</a>
+</li>
+<li>参考以属性与边界表达外部范围。<a href="https://www.asam.net/standards/detail/openodd/">ASAM OpenODD</a>
+</li>
+<li>业务与系统基线见<a href="../assignment-2/">作业2</a>、<a href="../assignment-3/">作业3</a>。</li>
+</ul>
+</section>
+</div>
+</main>
+<footer class="site-footer">
+<div class="container">
+<span>复杂系统工程 · 作业4</span>
+<a href="#top">返回页首</a>
+</div>
+</footer>
 </body>
 </html>
