@@ -8,6 +8,7 @@
 <title>场景与运行条件 · 作业4</title>
 <link rel="stylesheet" href="../assets/course.css">
 <script src="../assets/scenario-lab.js" defer></script>
+<script src="../assets/scenario-charts.js" defer></script>
 </head>
 <body id="top">
 <a class="skip-link" href="#main">跳至正文</a>
@@ -186,7 +187,13 @@
     <label for="lab-temp">温度 · ℃<input id="lab-temp" type="number" min="-10" max="50" step="1" value="20"></label>
     <label for="lab-battery">电量 · %<input id="lab-battery" type="number" min="0" max="100" step="1" value="80"></label>
   </div>
-  <div class="check-row">
+
+  <details class="boundary-view" open>
+    <summary>设计范围与当前值</summary>
+    <p class="chart-note">绿色带为设计范围，竖线为当前值。</p>
+    <div class="threshold-chart" id="operating-boundary-chart" hidden></div>
+  </details>
+<div class="check-row">
     <label><input id="lab-dry" type="checkbox" checked>地面干燥且核准</label>
     <label><input id="lab-people" type="checkbox" checked>人员退出并清场</label>
     <label><input id="lab-link" type="checkbox" checked>控制连接有效</label>
@@ -382,6 +389,9 @@
 </figure>
 <figure class="diagram" id="case-sequence">
 <figcaption>任务、系统状态与人员交互</figcaption>
+<p class="chart-note">计划窗口 · 分钟，点击阶段查看职责。</p>
+<div class="timeline-chart" id="task-timeline" hidden></div>
+<div class="selected-detail" id="timeline-detail" role="status" aria-live="polite" hidden></div>
 <ol class="flow">
 <li>
 <strong>准备放行</strong>

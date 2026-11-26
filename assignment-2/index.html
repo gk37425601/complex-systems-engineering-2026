@@ -457,6 +457,11 @@
 <section id="s5" aria-labelledby="s5-title">
 <h3 id="s5-title">5. 用户需求</h3>
 <p>各项为拟议必需条款，ST-01、06、07、08、11 为安全放行项。</p>
+<div class="chart-panel" aria-labelledby="stakeholder-chart-title">
+<h4 id="stakeholder-chart-title">相关方需求分布</h4>
+<p class="chart-note">关联需求数（项） · 同一需求可关联多方，点击条形筛选。</p>
+<div id="stakeholder-chart" class="bar-chart" role="group" aria-label="按相关方关联需求数筛选"></div>
+</div>
 <div class="interactive-panel" aria-labelledby="requirement-filter-title">
 <h4 id="requirement-filter-title">按相关方查看需求</h4>
 <div class="control-row">
@@ -695,18 +700,72 @@
   const filterStatus = document.getElementById('requirement-filter-status');
   const requirementsTable = document.getElementById('stakeholder-requirements');
   const requirementRows = Array.from(requirementsTable.tBodies[0].rows);
+  const stakeholderChart = document.getElementById('stakeholder-chart');
+  const requirements = requirementRows.map((row) => {
+    const sourceText = row.cells[2].textContent.split('BR-')[0];
+    return { row, stakeholders: sourceText.match(/\d{2}/g) || [] };
+  });
+
+  const stakeholderData = Array.from(stakeholderFilter.options)
+    .filter((option) => option.value !== 'all')
+    .map((option) => ({
+      id: option.value,
+      label: option.textContent,
+      count: requirements.filter((requirement) => requirement.stakeholders.includes(option.value)).length,
+    }));
+  const maximumCount = Math.max(...stakeholderData.map((stakeholder) => stakeholder.count));
+
+  const stakeholderBarButtons = stakeholderData.map((stakeholder) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'bar-row';
+    button.dataset.stakeholder = stakeholder.id;
+    button.setAttribute('aria-label', `${stakeholder.label}，关联 ${stakeholder.count} 项需求，筛选该相关方`);
+    button.setAttribute('aria-controls', requirementsTable.id);
+    button.setAttribute('aria-pressed', 'false');
+
+    const label = document.createElement('span');
+    label.className = 'bar-label';
+    label.textContent = stakeholder.label;
+
+    const track = document.createElement('span');
+    track.className = 'bar-track';
+    track.setAttribute('aria-hidden', 'true');
+
+    const fill = document.createElement('span');
+    fill.className = 'bar-fill';
+    fill.style.setProperty('--bar-size', `${stakeholder.count / maximumCount * 100}%`);
+    track.append(fill);
+
+    const value = document.createElement('span');
+    value.className = 'bar-value';
+    value.textContent = stakeholder.count;
+    value.setAttribute('aria-hidden', 'true');
+
+    button.append(label, track, value);
+    button.addEventListener('click', () => {
+      stakeholderFilter.value = stakeholder.id;
+      applyStakeholderFilter();
+    });
+    stakeholderChart.append(button);
+    return button;
+  });
 
   function applyStakeholderFilter() {
     const selectedStakeholder = stakeholderFilter.value;
     let visibleCount = 0;
 
-    requirementRows.forEach((row) => {
-      const sourceText = row.cells[2].textContent.split('BR-')[0];
-      const stakeholderNumbers = sourceText.match(/\d{2}/g) || [];
-      const matches = selectedStakeholder === 'all' || stakeholderNumbers.includes(selectedStakeholder);
+    requirements.forEach(({ row, stakeholders }) => {
+      const matches = selectedStakeholder === 'all' || stakeholders.includes(selectedStakeholder);
 
       row.hidden = !matches;
       if (matches) visibleCount += 1;
+    });
+
+    stakeholderBarButtons.forEach((button) => {
+      const selected = button.dataset.stakeholder === selectedStakeholder;
+      button.classList.toggle('is-active', selected);
+      button.setAttribute('aria-pressed', String(selected));
     });
 
     const selectedLabel = stakeholderFilter.selectedOptions[0].textContent;

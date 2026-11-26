@@ -83,6 +83,11 @@
 <section id="syrs3" aria-labelledby="syrs3-title">
 <h3 id="syrs3-title">3. 系统需求</h3>
 <p>每行对应系统条款、ST 来源、逻辑分配和验证判据，速度、载荷及环境限值共同适用。安全门槛见 <a href="#safety3">SAF 条款</a>。</p>
+<figure id="requirement-category-chart" class="chart-panel" hidden>
+  <figcaption id="requirement-category-chart-title">系统需求分布</figcaption>
+  <p class="chart-note">单位为条目数。点击类别筛选下表，再次点击恢复全部并清空关键词。</p>
+  <div id="requirement-category-bars" class="bar-chart" role="group" aria-label="按需求类别筛选"></div>
+</figure>
 <form id="requirement-filters" class="interactive-panel" role="search" aria-label="筛选系统需求" hidden>
   <div class="control-row">
     <label for="requirement-category">需求类别
@@ -733,6 +738,16 @@
 <p class="arrow-label">A1 授权 → A2 编排 → A4 执行　｜　A3 / A5 状态 → A2 / A1　｜　A1～A5 事件 → A6</p>
 </figure>
 </section>
+<figure id="allocation-chart" class="chart-panel" hidden>
+  <figcaption>架构单元与需求分配</figcaption>
+  <div class="segmented" role="group" aria-label="选择需求分配范围">
+    <button type="button" data-allocation-scope="sys" aria-pressed="true" aria-controls="allocation-bars">系统需求</button>
+    <button type="button" data-allocation-scope="saf" aria-pressed="false" aria-controls="allocation-bars">安全需求</button>
+  </div>
+  <p id="allocation-chart-status" class="chart-note" role="status" aria-live="polite" aria-atomic="true"></p>
+  <div id="allocation-bars" class="bar-chart" role="list" aria-label="各单元关联条目数"></div>
+  <p class="chart-note">数据取自本页 SYS / SAF 的分配字段。同一需求可分配多个单元，条目总数以完整基线计，不随上方筛选改变。</p>
+</figure>
 <section id="arch3" aria-labelledby="arch3-title">
 <h3 id="arch3-title">3. 物理分配与方案选择</h3>
 <p>选择“批准路线执行 + 人工监督”，人员暴露与完成率沿用作业 2 口径。</p>
@@ -1221,6 +1236,7 @@
     status.textContent = matches
       ? "显示 " + matches + " / " + total + " 项需求，覆盖 " + visibleGroups + " 类"
       : "没有匹配条款，请调整类别或关键词。";
+    form.dispatchEvent(new Event("requirements-filtered"));
   }
 
   function resetFilters() {
@@ -1257,5 +1273,6 @@
   revealLinkedRequirement(window.location.hash);
 })();
 </script>
+<script src="../assets/requirements-charts.js"></script>
 </body>
 </html>
