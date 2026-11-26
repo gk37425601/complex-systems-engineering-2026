@@ -31,38 +31,84 @@
     <a href="#tests">需求与验证</a>
   </aside>
   <div class="report">
-    <section class="card" id="brief">
+    <section class="card" id="brief" data-tone="teal">
       <h2>任务边界</h2>
       <div class="three-col">
         <div class="node"><strong>检查对象</strong><p>许可区域内 A、B 两处通道点位。</p></div>
         <div class="node"><strong>人员职责</strong><p>指挥员批准范围与恢复，救援班组复核成果。</p></div>
         <div class="node"><strong>交付成果</strong><p>通行报告、证据索引及未覆盖点位与原因。</p></div>
       </div>
-      <p class="note">路线、覆盖数和播放过程均为教学推演。实物测试与班组确认待开展。</p>
+      <p class="note">本页为课堂推演，路线、覆盖数与播放过程为示例。</p>
     </section>
 
-    <section class="card" id="levels">
+    <section class="card" id="levels" data-tone="blue">
       <h2>六层架构</h2>
-      <p>向下分配任务与约束，向上汇总状态与证据。第 4 层为本次分析对象。</p>
-      <figure class="diagram">
-        <figcaption>任务到模块的分解关系</figcaption>
-        <ol class="flow">
-          <li><strong>1 · 任务</strong><small>检查 A、B，形成可复核通行报告。</small></li>
-          <li><strong>2 · 体系</strong><small>指挥台分配任务，观测站独立记录，巡检车执行，班组复核。</small></li>
-          <li><strong>3 · 整机</strong><small>低速轮式车集成底盘、电池、计算单元、相机与测距传感器。</small></li>
-          <li><strong>4 · 具身智能巡检系统</strong><small>依据新观测判断通行，在许可区内巡检或停驻并留证。</small></li>
-          <li><strong>5 · 子系统</strong><small>感知定位、语义记录、路线规划、运动控制、安全监督、人机与数据。</small></li>
-          <li><strong>6 · 模块</strong><small>采集、定位融合、栅格更新、路线检查、底盘接口、急停与日志回放。</small></li>
+      <p>选择层级查看职责与接口。第 4 层为本次分析对象。</p>
+      <figure class="diagram interactive-panel">
+        <figcaption>向下分配任务与约束，向上汇总状态与证据</figcaption>
+        <ol class="flow segmented" id="architecture-layers" aria-label="选择架构层级">
+          <li><button type="button" data-layer="mission" aria-pressed="false" aria-controls="layer-mission" disabled><strong>1 · 任务</strong><small>成果与边界</small></button></li>
+          <li><button type="button" data-layer="system-of-systems" aria-pressed="false" aria-controls="layer-system-of-systems" disabled><strong>2 · 体系</strong><small>跨系统协作</small></button></li>
+          <li><button type="button" data-layer="vehicle" aria-pressed="false" aria-controls="layer-vehicle" disabled><strong>3 · 整机</strong><small>平台集成</small></button></li>
+          <li><button type="button" data-layer="system" aria-pressed="true" aria-controls="layer-system" class="is-active" disabled><strong>4 · 系统</strong><small>分析对象</small></button></li>
+          <li><button type="button" data-layer="subsystem" aria-pressed="false" aria-controls="layer-subsystem" disabled><strong>5 · 子系统</strong><small>功能协同</small></button></li>
+          <li><button type="button" data-layer="module" aria-pressed="false" aria-controls="layer-module" disabled><strong>6 · 模块</strong><small>功能实现</small></button></li>
         </ol>
-        <p class="arrow-label">模块观测与事件 → 子系统状态 → 系统结论 → 整机报告 → 班组复核</p>
+        <div class="sr-only" id="layer-status" role="status"></div>
+        <div id="architecture-details">
+          <article id="layer-mission" data-layer-panel="mission" aria-labelledby="layer-mission-title">
+            <h3 id="layer-mission-title">任务 · 定义检查成果</h3>
+            <div class="three-col">
+              <div class="node"><strong>边界</strong><small>A、B 点与许可巡检区。</small></div>
+              <div class="node"><strong>职责</strong><small>形成可复核通行报告，说明未覆盖点位。</small></div>
+              <div class="node"><strong>接口</strong><small>向体系交付点位、区域与验收要求。</small></div>
+            </div>
+          </article>
+          <article id="layer-system-of-systems" data-layer-panel="system-of-systems" aria-labelledby="layer-system-of-systems-title">
+            <h3 id="layer-system-of-systems-title">体系 · 协调执行与复核</h3>
+            <div class="three-col">
+              <div class="node"><strong>边界</strong><small>指挥台、巡检车、固定观测站与救援班组。</small></div>
+              <div class="node"><strong>职责</strong><small>分派任务、独立观测、执行巡检和复核成果。</small></div>
+              <div class="node"><strong>接口</strong><small>下达范围与停止条件，接收报告和证据索引。</small></div>
+            </div>
+          </article>
+          <article id="layer-vehicle" data-layer-panel="vehicle" aria-labelledby="layer-vehicle-title">
+            <h3 id="layer-vehicle-title">整机 · 集成移动与观测能力</h3>
+            <div class="three-col">
+              <div class="node"><strong>边界</strong><small>低速轮式车的底盘、电池、计算单元与传感器。</small></div>
+              <div class="node"><strong>职责</strong><small>承载巡检系统，移动中采集图像与测距信息。</small></div>
+              <div class="node"><strong>接口</strong><small>向系统提供车体状态、传感数据及底盘控制接口。</small></div>
+            </div>
+          </article>
+          <article id="layer-system" data-layer-panel="system" aria-labelledby="layer-system-title">
+            <h3 id="layer-system-title">系统 · 具身智能巡检系统</h3>
+            <div class="three-col">
+              <div class="node"><strong>边界</strong><small>从现场观测、通行判断到受监督行动与报告。</small></div>
+              <div class="node"><strong>职责</strong><small>在许可区内巡检或停驻，保留判断与行动证据。</small></div>
+              <div class="node"><strong>接口</strong><small>向子系统分配功能，向整机与人员返回状态和成果。</small></div>
+            </div>
+          </article>
+          <article id="layer-subsystem" data-layer-panel="subsystem" aria-labelledby="layer-subsystem-title">
+            <h3 id="layer-subsystem-title">子系统 · 分担感知与行动职责</h3>
+            <div class="three-col">
+              <div class="node"><strong>边界</strong><small>感知定位、语义记录、规划、控制、安全及人机数据管理。</small></div>
+              <div class="node"><strong>职责</strong><small>处理通行判断、路线、运动和安全监督。</small></div>
+              <div class="node"><strong>接口</strong><small>交换带时间与有效性的位姿、地图、指令和事件。</small></div>
+            </div>
+          </article>
+          <article id="layer-module" data-layer-panel="module" aria-labelledby="layer-module-title">
+            <h3 id="layer-module-title">模块 · 承接具体功能</h3>
+            <div class="three-col">
+              <div class="node"><strong>边界</strong><small>采集、定位融合、栅格更新、路线检查、底盘、急停和回放。</small></div>
+              <div class="node"><strong>职责</strong><small>实现子系统分配的处理、执行与记录功能。</small></div>
+              <div class="node"><strong>接口</strong><small>向上回传带时间戳的观测、停驻事件与证据。</small></div>
+            </div>
+          </article>
+        </div>
       </figure>
-      <details>
-        <summary>查看 B 点可达性需求的追溯链</summary>
-        <p>任务提出“报告 B 点是否可达”，指挥台下达点位和许可范围，路线规划子系统检查通行区域。结论携带地图版本和事件索引返回班组。</p>
-      </details>
     </section>
 
-    <section class="card" id="scenario">
+    <section class="card" id="scenario" data-tone="purple">
       <h2>场景推演</h2>
       <p>切换同一任务的四种工况，观察路线、停驻与预期覆盖结果。</p>
       <fieldset id="scenario-controls" hidden>
@@ -179,7 +225,7 @@
       </details>
     </section>
 
-    <section class="card" id="interfaces">
+    <section class="card" id="interfaces" data-tone="blue">
       <h2>感知行动闭环与接口</h2>
       <p>车体移动改变视角与遮挡，新观测修正下一步行动。</p>
       <figure class="diagram">
@@ -213,10 +259,10 @@
           </tbody>
         </table>
       </div>
-      <p class="note">位姿、地图与事件统一使用场景坐标系，携带时间戳及地图版本。数据陈旧、定位无效、通信中断或急停时进入停驻；证据不足造成的未覆盖须写入报告。</p>
+      <p class="note">位姿、地图与事件共用场景坐标系，标明时间戳、版本及有效性。</p>
     </section>
 
-    <section class="card" id="tests">
+    <section class="card" id="tests" data-tone="amber">
       <h2>需求与验证</h2>
       <p>每项需求关联责任子系统、仿真用例与通过证据。</p>
       <div class="table-wrap" tabindex="0" role="region" aria-labelledby="matrix-caption">
@@ -241,12 +287,33 @@
         <p><strong>验证</strong>复用同一任务配置与地图，逐项改变故障条件，保留版本、事件顺序和通过判定。</p>
         <p><strong>确认</strong>由扮演救援班组的同学仅凭报告判断 A、B 检查情况，并回溯一条证据，依据误解和缺项改进报告。</p>
       </details>
-      <p class="chapter-meta">需求编号及验证矩阵参考 NASA《系统工程手册》附录 D、E。<a href="https://www.nasa.gov/reference/system-engineering-handbook-appendix/">NASA 方法参考</a></p>
     </section>
   </div>
 </main>
 <footer class="site-footer"><div class="container"><p>复杂系统工程 2026 · 课程仿真与概念分析</p><a href="#top">返回顶部</a></div></footer>
 <script>
+const architectureButtons = document.querySelectorAll('#architecture-layers button');
+const architecturePanels = document.querySelectorAll('[data-layer-panel]');
+const architectureStatus = document.getElementById('layer-status');
+
+function selectArchitectureLayer(layer) {
+  for (const button of architectureButtons) {
+    const selected = button.dataset.layer === layer;
+    button.classList.toggle('is-active', selected);
+    button.setAttribute('aria-pressed', String(selected));
+    if (selected) architectureStatus.textContent = '已选择' + button.textContent.trim();
+  }
+  for (const panel of architecturePanels) {
+    panel.hidden = panel.dataset.layerPanel !== layer;
+  }
+}
+
+for (const button of architectureButtons) {
+  button.disabled = false;
+  button.addEventListener('click', () => selectArchitectureLayer(button.dataset.layer));
+}
+selectArchitectureLayer('system');
+
 const scenarioControls = document.getElementById('scenario-controls');
 const scenarioCases = document.querySelectorAll('[data-case]');
 const scenarioRoutes = document.querySelectorAll('[data-route]');

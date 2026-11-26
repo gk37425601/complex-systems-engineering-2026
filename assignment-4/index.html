@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#102e38">
 <title>场景与运行条件 · 作业4</title>
 <link rel="stylesheet" href="../assets/course.css">
+<script src="../assets/scenario-lab.js" defer></script>
 </head>
 <body id="top">
 <a class="skip-link" href="#main">跳至正文</a>
@@ -25,7 +26,7 @@
 <p class="eyebrow">小组作业4 · 场景定义</p>
 <h1>轮腿式无人作战平台</h1>
 <p class="lead">场景分层与运行设计条件</p>
-<p class="note">封闭训练场、人工监督、非武装巡检与惰性物资转运。参数为课程拟定值，实测与相关方签认待开展。</p>
+<p class="note">封闭训练场、人工监督、非武装转运。参数为课程拟定值。</p>
 </div>
 <main class="container page-layout" id="main">
 <aside class="toc" aria-label="本页目录">
@@ -34,12 +35,12 @@
 <a href="#conditions">运行条件</a>
 <a href="#scenario">典型实例</a>
 <a href="#risks">风险与验证</a>
-<a href="#review">依据与待确认项</a>
+
 </aside>
 <div class="report">
-<section class="card" id="domain">
+<section class="card" id="domain" data-tone="blue">
 <h2>场景分层</h2>
-<p id="scope">采用面向训练场机器人的六层环境模型。每个场景给出六层取值，系统与人员状态作为额外的运行门槛。</p>
+<p id="scope">六层描述环境，系统与人员状态共同决定运动许可。具体场景固定参数、版本与时序。</p>
 <figure class="diagram" id="layers">
 <figcaption>六层环境结构</figcaption>
 <div class="structure">
@@ -69,7 +70,7 @@
 </div>
 </div>
 </figure>
-<div class="table-wrap" tabindex="0" role="region" aria-label="封闭训练场环境分层与要素清单">
+<details><summary>查看六层要素清单</summary><div class="table-wrap" tabindex="0" role="region" aria-label="封闭训练场环境分层与要素清单">
 <table>
 <caption>封闭训练场环境分层与要素清单</caption>
 <thead>
@@ -120,7 +121,7 @@
 </tbody>
 </table>
 </div>
-<figure class="diagram" id="abstraction">
+</details><figure class="diagram" id="abstraction">
 <figcaption>从任务意图到可复现输入</figcaption>
 <ol class="flow">
 <li>
@@ -138,7 +139,7 @@
 </ol>
 </figure>
 </section>
-<section class="card" id="conditions">
+<section class="card" id="conditions" data-tone="teal">
 <h2>正常运行设计条件</h2>
 <figure class="diagram">
 <figcaption>正常运动许可同时满足三组条件</figcaption>
@@ -159,7 +160,43 @@
 <p class="arrow-label">三组条件合取 → 本次运动许可 → 持续复核</p>
 <p class="branch">条件失效 → 停驻锁定 → 现场复核 → 有序授权 → 再次启动或中止</p>
 </figure>
-<div class="table-wrap" tabindex="0" role="region" aria-label="外部环境设计域">
+<div class="interactive-panel" id="scenario-lab" hidden>
+  <h3>运行条件体验</h3>
+  <div class="control-row">
+    <label for="lab-phase">判断阶段
+      <select id="lab-phase"><option value="start">准备启动</option>
+<option value="run">正在运行</option></select>
+    </label>
+  </div>
+  <div class="segmented" aria-label="场景预设">
+    <button type="button" data-preset="normal">正常转运</button>
+    <button type="button" data-preset="battery">低电量</button>
+    <button type="button" data-preset="people">人员未退出</button>
+    <button type="button" data-preset="link">控制失联</button>
+  </div>
+  <div class="field-grid">
+    <label for="lab-speed">速度 · m/s<input id="lab-speed" type="number" min="0" max="1" step="0.01" value="0.4"></label>
+    <label for="lab-load">惰性载荷 · kg<input id="lab-load" type="number" min="0" max="10" step="0.5" value="5"></label>
+    <label for="lab-temp">温度 · ℃<input id="lab-temp" type="number" min="-10" max="50" step="1" value="20"></label>
+    <label for="lab-battery">电量 · %<input id="lab-battery" type="number" min="0" max="100" step="1" value="80"></label>
+  </div>
+  <div class="check-row">
+    <label><input id="lab-dry" type="checkbox" checked>地面干燥且核准</label>
+    <label><input id="lab-people" type="checkbox" checked>人员退出并清场</label>
+    <label><input id="lab-link" type="checkbox" checked>控制连接有效</label>
+  </div>
+  <div class="lab-result" id="lab-result" data-status="pass" role="status" aria-live="polite">
+    <strong id="lab-heading">示例启动条件满足</strong><ul id="lab-reasons"></ul>
+  </div>
+  <p class="filter-status">其余条件沿用 SC4-01：3°坡段、30 mm台阶，自检、定位和安全链有效。本面板演示条件判断。</p>
+</div>
+<div class="segmented" role="tablist" aria-label="运行条件分组" hidden>
+<button type="button" role="tab" id="condition-environment-tab" data-condition-tab="environment" aria-controls="condition-environment-panel">环境范围 · 7项</button>
+<button type="button" role="tab" id="condition-system-tab" data-condition-tab="system" aria-controls="condition-system-panel">系统状态 · 5项</button>
+<button type="button" role="tab" id="condition-people-tab" data-condition-tab="people" aria-controls="condition-people-panel">人员状态 · 2项</button>
+</div>
+<div id="condition-panels">
+<div class="table-wrap" tabindex="0" role="tabpanel" aria-label="外部环境设计域" id="condition-environment-panel" data-condition-panel="environment" aria-labelledby="condition-environment-tab">
 <table>
 <caption>外部环境设计域</caption>
 <thead>
@@ -208,7 +245,7 @@
 </tbody>
 </table>
 </div>
-<div class="table-wrap" tabindex="0" role="region" aria-label="系统就绪与运行能力条件">
+<div class="table-wrap" tabindex="0" role="tabpanel" aria-label="系统就绪与运行能力条件" id="condition-system-panel" data-condition-panel="system" aria-labelledby="condition-system-tab">
 <table>
 <caption>系统就绪与运行能力条件</caption>
 <thead>
@@ -247,7 +284,7 @@
 </tbody>
 </table>
 </div>
-<div class="table-wrap" tabindex="0" role="region" aria-label="人员与组织运行门槛">
+<div class="table-wrap" tabindex="0" role="tabpanel" aria-label="人员与组织运行门槛" id="condition-people-panel" data-condition-panel="people" aria-labelledby="condition-people-tab">
 <table>
 <caption>人员与组织运行门槛</caption>
 <thead>
@@ -271,9 +308,10 @@
 </tbody>
 </table>
 </div>
+</div>
 <p class="note">ODD描述外部设计范围，表内另列系统与人员就绪条件。正常任务可包含锁定等待和交接，运动许可按当前阶段判断。</p>
 </section>
-<section class="card" id="scenario">
+<section class="card" id="scenario" data-tone="purple">
 <h2>典型转运场景</h2>
 <p id="case-definition">SC4-01采用两项顺序任务：向B交付5 kg惰性物资，在收讫及核认后关闭；再经新任务放行空载返回A。两项结果以场景实例号关联。</p>
 <div class="table-wrap" tabindex="0" role="region" aria-label="SC4-01 场景实例参数">
@@ -288,39 +326,24 @@
 </thead>
 <tbody>
 <tr>
-<th>任务与版本</th>
-<td>场景实例号 SC4-01-C01，版本 1.0；关联交付任务 T4-DEL-01 与返回任务 T4-RET-01。运行包绑定路线、地图、角色及平台配置版本。</td>
-<td>两项任务顺序执行，分别生成批准引用和结果，按任务号保存证据，并以场景实例号关联。</td>
+<th>任务</th>
+<td>场景 SC4-01-C01，版本1.0。交付 T4-DEL-01 与返回 T4-RET-01 顺序执行、分别批准并关闭。</td>
 </tr>
 <tr>
-<th>任务成果</th>
-<td>A→B 单程 60 m，交付一件标识为 CARGO-01 的 5 kg 惰性配重；B→A 空载返回，总路程 120 m。</td>
-<td>交付任务在到站停稳、收讫和记录核认后关闭；返回任务在 A 停稳后单独关闭。场景记录汇集两项结论。</td>
+<th>成果</th>
+<td>向B交付 CARGO-01、5 kg惰性配重，收讫核认后关闭交付任务。空载返回A另行关闭，总路程120 m。</td>
 </tr>
 <tr>
-<th>运行环境</th>
-<td>白天、20 ℃、无降水、干燥地面；路线已踏勘，移动期间通行区清空。</td>
-<td>环境与场地放行记录有效，观察和定位信息可用。</td>
+<th>环境与平台</th>
+<td>20 ℃、白天、干燥；0.4 m/s、3°坡段、30 mm台阶。初始电量80%，定位、健康和安全许可有效。</td>
 </tr>
 <tr>
-<th>地形与设施</th>
-<td>平整段、3° 坡段及一处 30 mm 局部台阶，沿途固定隔离设施、标记检查点和两端交接区。</td>
-<td>坡度、台阶及扫掠包络净距均满足本页运行设计条件，固定设施不侵入触发区。</td>
+<th>人员</th>
+<td>OP-01操作员、SF-01安全员、RC-01装载兼交接人；维护人员在保障区待命。运动中人员在区外。</td>
 </tr>
 <tr>
-<th>平台设定</th>
-<td>计划速度 0.4 m/s，能源初始值 80%，定位和健康检查通过，日志与安全许可链可用。</td>
-<td>逐项满足启动门槛。80% 为场景输入，任务能源消耗由试验取得。</td>
-</tr>
-<tr>
-<th>人员配置</th>
-<td>一名受训操作员 OP-01、一名安全员 SF-01、一名交接人 RC-01，RC-01 兼任装载；维护人员在保障区待命。</td>
-<td>职责和权限有效，操作员与安全员在运动期间持续履职。物资交接按进出区许可实施。</td>
-</tr>
-<tr>
-<th>时间预算</th>
-<td>准备与关闭计划约 16 min，其中首次启动至返回停稳的计划窗口约 11 min。</td>
-<td>交付与返回各自满足 ≤30 min 的既有包络。时间窗口用于排程，验收记录实际时长。</td>
+<th>排程</th>
+<td>计划约16 min，首次启动至返回停稳约11 min。单项任务≤30 min，验收记录实际时长与能源消耗。</td>
 </tr>
 </tbody>
 </table>
@@ -395,7 +418,7 @@
 <th>0–3 min<br>准备与放行</th>
 <td>检查 → 待命。A2 校验运行包，A3/A5 提交有效状态，A4 装载确认，A7 保持运动禁止直到获准。</td>
 <td>装载人按说明固定配重后退出。安全员检查路线和隔离，操作员核对任务号、状态及角色授权。</td>
-<td>放行、自检、载荷与清场均有效，能源 >25%，人工明确启动。保存检查与授权记录。</td>
+<td>放行、自检、载荷与清场均有效，能源 &gt;25%，人工明确启动。保存检查与授权记录。</td>
 </tr>
 <tr>
 <th>3–7 min<br>装载去程</th>
@@ -411,7 +434,7 @@
 </tr>
 <tr>
 <th>10–14 min<br>空载返回</th>
-<td>待命 → 转运。载入返回任务，核对空载状态、有效环境和能源 >25% 后接受启动；沿 B→A 返回，持续遵守运行门槛。</td>
+<td>待命 → 转运。载入返回任务，核对空载状态、有效环境和能源 &gt;25% 后接受启动；沿 B→A 返回，持续遵守运行门槛。</td>
 <td>安全员重新确认路线和隔离，操作员核对新任务号并明确启动，持续监督。</td>
 <td>返回 A 停稳锁定，形成返回任务的位置、时间及实际能量记录。能源不足时保持停驻并安排保障。</td>
 </tr>
@@ -424,7 +447,7 @@
 </tbody>
 </table>
 </div>
-<p>0.4 m/s匀速下单程60 m为150 s，往返300 s。排程另计加减速、核对与交接。作业2的交付完成率仍在B点收讫及核认时判断，返回另列台账，介入与回收计入人员暴露。</p>
+<p>单程60÷0.4＝150 s，往返300 s，排程另计加减速和交接。返回单列台账，介入与回收计入人员暴露。</p>
 </details>
 <details id="case-variants">
 <summary>展开边界与异常变体</summary>
@@ -451,7 +474,7 @@
 </tr>
 <tr>
 <th>C03 环境超界</th>
-<td>坡度 >5°、台阶 >50 mm、载荷 >5 kg 或地面湿滑。</td>
+<td>坡度 &gt;5°、台阶 &gt;50 mm、载荷 &gt;5 kg 或地面湿滑。</td>
 <td>准备时阻止放行。运行中发现变化时组织安全停驻、记录和重新评估。</td>
 </tr>
 <tr>
@@ -469,9 +492,9 @@
 </div>
 </details>
 </section>
-<section class="card" id="risks">
+<section class="card" id="risks" data-tone="amber">
 <h2>风险场景与验证</h2>
-<p id="risk-method">改变SC4-01的环境、系统或人员条件，检查H-01危险运动、H-02越界、H-03稳定/能源不足、H-04许可与认知不一致。记录触发、后果、控制和证据，发生频率与措施有效性待试验取得。</p>
+<p id="risk-method">在典型任务中改变环境、系统或人员条件，记录风险触发、控制与验证。F4用例分别对应同号RS4风险。</p>
 <div id="risk-list">
 <div class="table-wrap" tabindex="0" role="region" aria-label="SC4-01 的十项风险场景及控制证据">
 <table>
@@ -487,62 +510,62 @@
 <tbody>
 <tr id="rs4-01">
 <th>RS4-01 交接人尚未退出<br>L4＋人员状态</th>
-<td>平台已收讫，交接人仍在 B 区，操作员误将收讫视为返回授权，形成 H-01、H-04，可能导致人员碰撞。</td>
-<td>收讫和运动许可分别判定。交接区保持锁定，人员退出、清场复核及明确启动齐全后才返回。</td>
+<td>收讫后人员未退出，误将交付完成视为返回许可，可能碰撞。</td>
+<td>保持锁定，退出、清场和新任务启动分别确认。</td>
 <td>SYS-03、12；SAF-05<br>F4-01，结合 V-03、SV-05</td>
 </tr>
 <tr id="rs4-02">
 <th>RS4-02 人员从入口误入<br>L2＋L4</th>
-<td>临时开门或隔离失效，人员进入正在移动的平台邻近区域，形成 H-01。人员继续靠近可能进一步缩短距离。</td>
-<td>安全员先行维持场地隔离。发现侵入立即发出停止，保持运动锁定，组织人员退出。动态人员场景须单独验证识别及人工处置链路。</td>
+<td>门禁或隔离失效，人员进入运动区。</td>
+<td>撤销放行、立即停止并组织退出，动态人员场景专项验证。</td>
 <td>SAF-02、03、05；OP4-02<br>F4-02，结合 SV-02、03</td>
 </tr>
 <tr id="rs4-03">
 <th>RS4-03 地形或临时设施改变<br>L1＋L3</th>
-<td>核准 30 mm 台阶被临时物覆盖，或锥桶进入通道，旧路线仍被执行，形成 H-02、H-03，可能碰撞、越界或倾覆。</td>
-<td>运行前踏勘和版本核对，运行中把未确认可通行区作为停止条件。重测几何、更新批准后重新放行。</td>
+<td>台阶被覆盖或围挡侵入，旧路线可能碰撞、越界或失稳。</td>
+<td>未确认可通行区触发停止，重测并重新批准。</td>
 <td>SYS-09、22；SAF-02、03<br>F4-03，结合 V-09、22</td>
 </tr>
 <tr id="rs4-04">
 <th>RS4-04 降水或遮蔽变化<br>L5＋L1 / L6</th>
-<td>运行中降水、逆光或遮挡使地表条件、观察或定位信息失效，控制器沿旧包络继续执行，形成 H-02、H-03。</td>
-<td>准备时确认干燥与信息有效。安全员发现环境变化撤销现场放行并要求停止；定位失效由本地安全链触发。重新确认地面和信息能力后才批准继续。</td>
+<td>降水、遮挡或眩光使地面或定位条件失效。</td>
+<td>撤销现场放行，定位失效由本地链触发停止，复核后恢复。</td>
 <td>SYS-17；SAF-03；OP4-01<br>F4-04，结合 V-17、SV-03</td>
 </tr>
 <tr id="rs4-05">
 <th>RS4-05 控制连接中断<br>L6＋系统状态</th>
-<td>A1 控制心跳中断，而 A2 车载任务仍更新，旧运动意图持续，形成 H-01、H-02。</td>
-<td>A7 分别监测 A1 与 A2 新鲜度，任一满 0.5 s 撤销许可。停止后锁定，通信恢复进入复核流程。</td>
+<td>A1失联而A2仍更新，旧运动请求持续。</td>
+<td>A7独立监测两条链路，任一满0.5 s撤销许可。</td>
 <td>SAF-01、02、05<br>F4-05，结合 SV-01、02、05</td>
 </tr>
 <tr id="rs4-06">
 <th>RS4-06 遥测冻结但心跳正常<br>L6＋人员状态</th>
-<td>界面收到心跳却持续展示旧画面或旧状态，人员误以为平台仍正常并继续放行，形成 H-04，可能进一步导致 H-01。</td>
-<td>按数据采样时间显示新鲜度。遥测超过 1 s 失效后取消启动和复位，并撤销当前运行许可、组织锁定停驻。该过程响应作为本次新增运行规则验证。</td>
+<td>心跳正常但遥测冻结，人员据旧状态继续放行。</td>
+<td>遥测&gt;1 s标识失效、停止并撤销许可，验证OP4-01。</td>
 <td>SAF-04、05；OP4-01<br>F4-06</td>
 </tr>
 <tr id="rs4-07">
 <th>RS4-07 定位冻结或地图错版<br>L6＋L2</th>
-<td>位置仍显示在通道内，实际路线或设施已变，平台外轮廓接近边界且余量不足，形成 H-02。</td>
-<td>版本不匹配在启用前拒绝；定位无效、超时或达到边界触发线撤销许可，重新测绘和批准。</td>
+<td>位置冻结或地图错版，误判边界与停止余量。</td>
+<td>错版拒绝启用；定位失效、超时或到达边界触发线时停驻。</td>
 <td>SYS-01、11、22；SAF-03<br>F4-07，结合 V-01、11、22、SV-03</td>
 </tr>
 <tr id="rs4-08">
 <th>RS4-08 低能量或载荷变化<br>L4＋系统状态</th>
-<td>返回前电量不满足启动门槛，或途中载荷松动导致装载状态失效，仍继续行驶，形成 H-03。</td>
-<td>启动电量须 >25%，运行电量须 >20%。达到停止门槛或装载失效即停驻。由保障人员在隔离条件下处理。</td>
+<td>低电量或装载失效时仍行驶，可能失稳。</td>
+<td>启动&gt;25%，运行&gt;20%；达到门槛或装载失效即锁定停驻。</td>
 <td>SYS-16；SAF-02、07<br>F4-08，结合 V-16、SV-02、07</td>
 </tr>
 <tr id="rs4-09">
 <th>RS4-09 停止反馈与实际运动矛盾<br>系统状态＋L1</th>
-<td>终端显示已停，而平台仍缓慢运动或在坡面滑移，交接人据此入区，形成 H-01、H-03、H-04。</td>
-<td>核对实际运动与保持反馈，矛盾时锁定并报告故障，人员保持在隔离区外。按坡面停驻要求复验后处理。</td>
+<td>界面显示已停但平台仍运动，人员可能误入。</td>
+<td>反馈矛盾时锁定报故障，核对实际运动和坡面保持。</td>
 <td>SAF-02、08<br>F4-09，结合 SV-02、08</td>
 </tr>
 <tr id="rs4-10">
 <th>RS4-10 日志缺口被误认完整<br>L6＋资料管理</th>
-<td>断连后结果看似完成，但异常、交接或入区记录缺失，可能形成 H-04，影响任务验收和人员暴露统计。</td>
-<td>本地事件按任务号补传，无法恢复的缺口显式标记并保留实际结论。完整性核验通过后归档。</td>
+<td>断连后日志缺失，影响交付核认与暴露统计。</td>
+<td>按任务号补传，缺口显式标记，核验后归档。</td>
 <td>SYS-04、19、20、21<br>F4-10，结合 V-04、19、20、21</td>
 </tr>
 </tbody>
@@ -581,19 +604,7 @@
 <p>先检查单因素和门槛，再检查“失联＋任务更新”“冻结＋心跳正常”“收讫＋人员未退出”“坡面＋停止反馈矛盾”。失败关联SYS、SAF或OP4并复验。人员侵入采用受控仿真或替代物，1.2 m触发区与隔离、监督共同承担防护。</p>
 </details>
 </section>
-<section class="card" id="review">
-<h2>依据与待确认项</h2>
-<p>本页覆盖六层要素、环境设计范围、系统和人员状态、典型实例及十项风险场景。速度、载荷、地形、温度、电量与停驻上限沿用作业3；通道净宽、日间限制、实例值和OP4规则为本次拟定补充。</p>
-<p class="note">待确认扫掠外轮廓、净距与计量误差、光照/能见度判据、人员响应时间、遥测停止预算及能源初始状态。条件改变后更新场景版本，复核受影响用例。</p>
-<ul>
-<li>交付项依据课堂“小组作业-4”投影片。</li>
-<li>六层方法按训练场机器人作课程适配。<a href="https://www.pegasusprojekt.de/en/pegasus-method">PEGASUS方法</a>
-</li>
-<li>参考以属性与边界表达外部范围。<a href="https://www.asam.net/standards/detail/openodd/">ASAM OpenODD</a>
-</li>
-<li>业务与系统基线见<a href="../assignment-2/">作业2</a>、<a href="../assignment-3/">作业3</a>。</li>
-</ul>
-</section>
+
 </div>
 </main>
 <footer class="site-footer">

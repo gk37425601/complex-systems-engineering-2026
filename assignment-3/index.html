@@ -25,8 +25,7 @@
 <p class="eyebrow">小组作业 3 · 系统定义与分析</p>
 <h1>轮腿式无人作战平台</h1>
 <p class="lead">系统需求与架构</p>
-<p>从相关方需求到功能分配、控制闭环与安全验证。</p>
-<p class="chapter-meta">13 类系统需求 · 24 项 SYS / V · 8 项 SAF / SV</p>
+<p class="chapter-meta">课程概念设计 · 13 类需求 · 24 项 SYS / V · 8 项 SAF / SV</p>
 </div>
 <main id="main-content" class="container page-layout">
 <aside class="toc" aria-label="本页目录">
@@ -37,27 +36,26 @@
 <a href="#control-structure">控制闭环</a>
 <a href="#safety">STPA 安全分析</a>
 <a href="#safety4">安全改进架构</a>
-<a href="#review">追溯与参考</a>
 </aside>
 <div class="report">
-<section id="syrs" class="card" aria-labelledby="syrs-title">
+<section id="syrs" class="card" data-tone="blue" aria-labelledby="syrs-title">
 <h2 id="syrs-title">系统需求规格说明 <small>SyRS</small>
 </h2>
 <section id="syrs1" aria-labelledby="syrs1-title">
 <h3 id="syrs1-title">1. 简介</h3>
 <h4>1.1 目的</h4>
-<p>将作业 2 的 ST-01～ST-15 转为可分配、可验证的系统条款。SYS / V 与安全分析导出的 SAF / SV 共同构成架构和验收基线。</p>
+<p>将 ST-01～ST-15 转为系统条款，逐项关联架构分配及验证。SYS / V 与安全分析导出的 SAF / SV 共同构成验收基线。</p>
 <h4>1.2 范围</h4>
 <p>一台平台、一条核准路线、一名操作员和一名安全员，在封闭、干燥训练场内执行非武装巡检及惰性物资转运。系统含移动平台、载荷接口、操作终端及记录导出，场地隔离、通信、供电、维护和组织档案库由外部提供。</p>
 <h4>1.3 概况</h4>
 <div class="two-col">
 <div>
 <h5>1.3.1 上下文</h5>
-<p>主管批准任务，操作员监督，安全员放行与处置，交接人确认收讫，维护方管理设备，资料员接收证据。输入为运行包及环境约束，输出为任务成果、状态、事件与保障记录。</p>
+<p>主管批准任务，操作员监督，安全员放行，交接人确认收讫，维护方管理设备，资料员接收证据。系统输出任务成果、状态、事件与保障记录。</p>
 </div>
 <div>
 <h5>1.3.2 功能与分配</h5>
-<p>A1～A6 承担任务、运动、环境、能源与记录职责，<a href="#safety4">A7 负责安全许可</a>。逻辑单元规定职责和信息关系，物理实现经后续评审确定。</p>
+<p>A1～A6 承担任务、运动、环境、能源及记录，<a href="#safety4">A7 负责安全许可</a>。下文给出职责、接口和候选物理分配。</p>
 </div>
 </div>
 <h5>1.3.3 用户特征</h5>
@@ -71,16 +69,42 @@
 <dt>越界 / 安全停驻</dt>
 <dd>越界以平台投影外轮廓判断。安全停驻须停止、稳定保持及运动锁定，现场确认并重新授权后才可启动。</dd>
 </dl>
-<p class="note">数值为课程设计拟议包络。实测、验证执行及相关方签认待开展，实施前由场地、使用、保障和验收方评审冻结。</p>
 </section>
 <section id="syrs2" aria-labelledby="syrs2-title">
 <h3 id="syrs2-title">2. 参考</h3>
-<p>以上游 <a href="../assignment-2/#s5">StRS 需求矩阵</a>、课程系统定义与分析讲义，以及 ISO/IEC/IEEE 29148:2018 §8.4 / §9.5 为依据，保留五章 SyRS 与十三类需求结构。教材第 5 章表 5-1 全文仍待核对。完整书目见<a href="#references">参考依据</a>。</p>
+<p>沿用<a href="../assignment-2/#s5">作业 2 的 ST 需求</a>及课程讲义，SyRS 采用 ISO/IEC/IEEE 29148:2018 §8.4 / §9.5，安全分析采用 Leveson 与 Thomas 的 STPA 方法。<a href="https://www.iso.org/standard/72089.html">ISO 目录</a> · <a href="https://www.mit.stamp-institute.com/get_file.php?name=STPA_handbook.pdf">STPA 手册</a></p>
 </section>
 <section id="syrs3" aria-labelledby="syrs3-title">
 <h3 id="syrs3-title">3. 系统需求</h3>
-<p>各条款均为建议必需项。需求、ST 来源、逻辑分配及 V 验证逐行对应，速度、载荷、环境限值共同适用。安全触发、停止余量与能源门槛见 <a href="#safety3">SAF 条款</a>。</p>
-<section id="q31">
+<p>每行对应系统条款、ST 来源、逻辑分配和验证判据，速度、载荷及环境限值共同适用。安全门槛见 <a href="#safety3">SAF 条款</a>。</p>
+<form id="requirement-filters" class="interactive-panel" role="search" aria-label="筛选系统需求" hidden>
+  <div class="control-row">
+    <label for="requirement-category">需求类别
+      <select id="requirement-category" name="category">
+        <option value="">全部 13 类</option>
+<option value="q31">3.1 功能需求</option>
+<option value="q32">3.2 可用性需求</option>
+<option value="q33">3.3 性能需求</option>
+<option value="q34">3.4 接口需求</option>
+<option value="q35">3.5 运行需求</option>
+<option value="q36">3.6 模式与状态需求</option>
+<option value="q37">3.7 物理特性需求</option>
+<option value="q38">3.8 环境条件需求</option>
+<option value="q39">3.9 安全性与保密需求</option>
+<option value="q310">3.10 信息管理需求</option>
+<option value="q311">3.11 政策与规则需求</option>
+<option value="q312">3.12 生存周期保障需求</option>
+<option value="q313">3.13 包装、搬运与运输需求</option>
+      </select>
+    </label>
+    <label for="requirement-query">搜索条款
+      <input id="requirement-query" name="query" type="search" placeholder="编号、条款或验证关键词" autocomplete="off">
+    </label>
+    <button type="reset">重置</button>
+  </div>
+  <p id="requirement-status" class="filter-status" role="status" aria-live="polite" aria-atomic="true">显示 24 / 24 项需求</p>
+</form>
+<section id="q31" data-requirement-category="q31">
 <h4>3.1 功能需求</h4>
 <div class="table-wrap" tabindex="0" role="region" aria-label="功能需求及对应验证">
 <table>
@@ -130,7 +154,7 @@
 </table>
 </div>
 </section>
-<section id="q32">
+<section id="q32" data-requirement-category="q32">
 <h4>3.2 可用性需求</h4>
 <div class="table-wrap" tabindex="0" role="region" aria-label="可用性需求及对应验证">
 <table>
@@ -164,7 +188,7 @@
 </table>
 </div>
 </section>
-<section id="q33">
+<section id="q33" data-requirement-category="q33">
 <h4>3.3 性能需求</h4>
 <div class="table-wrap" tabindex="0" role="region" aria-label="性能需求及对应验证">
 <table>
@@ -206,7 +230,7 @@
 </table>
 </div>
 </section>
-<section id="q34">
+<section id="q34" data-requirement-category="q34">
 <h4>3.4 接口需求</h4>
 <div class="table-wrap" tabindex="0" role="region" aria-label="接口需求及对应验证">
 <table>
@@ -244,7 +268,7 @@
 </table>
 </div>
 </section>
-<section id="q35">
+<section id="q35" data-requirement-category="q35">
 <h4>3.5 运行需求</h4>
 <div class="table-wrap" tabindex="0" role="region" aria-label="运行需求及对应验证">
 <table>
@@ -278,7 +302,7 @@
 </table>
 </div>
 </section>
-<section id="q36">
+<section id="q36" data-requirement-category="q36">
 <h4>3.6 模式与状态需求</h4>
 <div class="table-wrap" tabindex="0" role="region" aria-label="模式与状态需求及对应验证">
 <table>
@@ -312,7 +336,7 @@
 </table>
 </div>
 </section>
-<section id="q37">
+<section id="q37" data-requirement-category="q37">
 <h4>3.7 物理特性需求</h4>
 <div class="table-wrap" tabindex="0" role="region" aria-label="物理特性需求及对应验证">
 <table>
@@ -338,7 +362,7 @@
 </table>
 </div>
 </section>
-<section id="q38">
+<section id="q38" data-requirement-category="q38">
 <h4>3.8 环境条件需求</h4>
 <div class="table-wrap" tabindex="0" role="region" aria-label="环境条件需求及对应验证">
 <table>
@@ -364,7 +388,7 @@
 </table>
 </div>
 </section>
-<section id="q39">
+<section id="q39" data-requirement-category="q39">
 <h4>3.9 安全性与保密需求</h4>
 <div class="table-wrap" tabindex="0" role="region" aria-label="安全性与保密需求及对应验证">
 <table>
@@ -398,7 +422,7 @@
 </table>
 </div>
 </section>
-<section id="q310">
+<section id="q310" data-requirement-category="q310">
 <h4>3.10 信息管理需求</h4>
 <div class="table-wrap" tabindex="0" role="region" aria-label=" 信息管理需求及对应验证">
 <table>
@@ -432,7 +456,7 @@
 </table>
 </div>
 </section>
-<section id="q311">
+<section id="q311" data-requirement-category="q311">
 <h4>3.11 政策与规则需求</h4>
 <div class="table-wrap" tabindex="0" role="region" aria-label=" 政策与规则需求及对应验证">
 <table>
@@ -458,7 +482,7 @@
 </table>
 </div>
 </section>
-<section id="q312">
+<section id="q312" data-requirement-category="q312">
 <h4>3.12 生存周期保障需求</h4>
 <div class="table-wrap" tabindex="0" role="region" aria-label=" 生存周期保障需求及对应验证">
 <table>
@@ -484,7 +508,7 @@
 </table>
 </div>
 </section>
-<section id="q313">
+<section id="q313" data-requirement-category="q313">
 <h4>3.13 包装、搬运与运输需求</h4>
 <div class="table-wrap" tabindex="0" role="region" aria-label=" 包装、搬运与运输需求及对应验证">
 <table>
@@ -513,7 +537,7 @@
 </section>
 <section id="syrs4" aria-labelledby="syrs4-title">
 <h3 id="syrs4-title">4. 系统验证</h3>
-<p>逐项输入与通过准则见上表 V-01～V-24。T 为测试，D 为演示，I 为检查，A 为分析。执行前冻结运行包、配置、用例、责任人和计量不确定度，上限指标计入测量不确定度，每项保留实际结果与证据。</p>
+<p>V-01～V-24 的输入与判据见对应条款。T 测试、D 演示、I 检查、A 分析。执行前冻结运行包、配置、用例、责任人及计量方法，上限指标计入测量不确定度，逐项保存结果与证据。</p>
 <figure class="diagram">
 <figcaption>验证闭环</figcaption>
 <ol class="flow">
@@ -629,21 +653,20 @@
 </table>
 </div>
 </details>
-<p class="note">验证状态均为待执行。常规任务按巡检、转运各 10 次登记，准备失败计入分母。故障注入独立登记，SV-01～SV-08 须全部通过。</p>
+<p class="note">常规任务按巡检、转运各 10 次登记，准备失败计入分母。故障注入独立登记，SV-01～SV-08 须全部通过。</p>
 </section>
 <section id="syrs5" aria-labelledby="syrs5-title">
 <h3 id="syrs5-title">5. 附录</h3>
-<h4>5.1 假设与待确认项</h4>
-<p>拟议包络为 0～0.5 m/s、载荷≤5 kg、坡度绝对值≤5°、台阶≤50 mm、5～35 ℃、干燥无降水和任务≤30 min。三名受训人员、15 s 判读及验证次数同为拟定准则。实物能力、场地几何、停止余量、计量方法、初始能源、任务剖面和接口版本须联合冻结，失败用例保留实际结果与原因。</p>
+<h4>5.1 运行包络</h4>
+<p>运行包络为 0～0.5 m/s、载荷≤5 kg、坡度绝对值≤5°、台阶≤50 mm、5～35 ℃、干燥无降水、任务≤30 min。停止距离、定位误差、能源和恢复门槛按 SAF 条款共同执行。</p>
 <h4>5.2 缩写</h4>
 <p>SyRS 系统需求规格说明，StRS 相关方需求规格说明，ST / SYS / SAF 分别为相关方、系统与安全需求，V / SV 为对应验证，A1～A7 为逻辑单元。</p>
 </section>
 </section>
-<section id="architecture" class="card" aria-labelledby="architecture-title">
+<section id="architecture" class="card" data-tone="purple" aria-labelledby="architecture-title">
 <h2 id="architecture-title">初始架构</h2>
 <section id="arch1" aria-labelledby="arch1-title">
 <h3 id="arch1-title">1. 功能流与系统边界</h3>
-<p>人提供批准任务和现场放行，平台在人工监督下执行核准路线，正常完成和异常处置均按任务号留痕。</p>
 <figure class="diagram">
 <figcaption>任务级功能流</figcaption>
 <ol class="flow">
@@ -706,7 +729,7 @@
 </section>
 <section id="arch3" aria-labelledby="arch3-title">
 <h3 id="arch3-title">3. 物理分配与方案选择</h3>
-<p>按范围与验证可行性选择“批准路线执行 + 人工监督”。实现型号与资源经详细设计确定，人员暴露和完成率按作业 2 口径评估。</p>
+<p>选择“批准路线执行 + 人工监督”，人员暴露与完成率沿用作业 2 口径。</p>
 <div class="table-wrap" tabindex="0" role="region" aria-label="AD-01 运行架构选择">
 <table>
 <caption>AD-01 运行架构选择</caption>
@@ -881,7 +904,7 @@
 <p>CA-01～03 为持续信号，CA-04～05 为本次异常或工单的一次性授权。其危险上下文在 STPA 中检查。</p>
 </section>
 </section>
-<section id="safety" class="card" aria-labelledby="safety-title">
+<section id="safety" class="card" data-tone="amber" aria-labelledby="safety-title">
 <h2 id="safety-title">STPA 安全分析</h2>
 <section id="safety1">
 <h3>1. 损失、危险与约束</h3>
@@ -1133,98 +1156,14 @@
 </tbody>
 </table>
 </div>
-<p>A7 候选为独立于任务进程的本地监督器和可验证许可通道。共享供电、传感器和执行器的失效，以及减速、支撑保持和能源隔离顺序，仍须实体设计与注入试验确认。</p>
+<p>A7 采用独立于任务进程的本地监督职责。验证须覆盖共享供电、感知和执行器失效，以及减速、保持和能源隔离顺序。</p>
 </section>
 <section id="safety5">
 <h3>5. 安全验证与边界</h3>
 <p>SV-01～08 全部通过才可放行。失败后修订需求或架构并复验受影响链路，每次注入关联 UCA、CS、SAF、版本、配置、条件及实际结果。路线附着、载荷稳定、感知有效性、失电保持与人工处置须补充实体证据，超出包络时重评停止预算、危险和安全约束。</p>
 </section>
 </section>
-<section id="review" class="card" aria-labelledby="review-title">
-<h2 id="review-title">追溯与评审</h2>
-<figure class="diagram">
-<figcaption>从业务目标到可核验结果</figcaption>
-<ol class="flow">
-<li>
-<strong>BR / ST</strong>
-<small>业务及相关方目标</small>
-</li>
-<li>
-<strong>SYS / SAF</strong>
-<small>系统及安全条款</small>
-</li>
-<li>
-<strong>A0-S</strong>
-<small>职责、接口与许可链</small>
-</li>
-<li>
-<strong>V / SV</strong>
-<small>条件、证据与判据</small>
-</li>
-</ol>
-</figure>
-<div class="table-wrap" tabindex="0" role="region" aria-label="业务目标与本轮证据">
-<table>
-<caption>业务目标与本轮证据</caption>
-<thead>
-<tr>
-<th scope="col">上游目标</th>
-<th scope="col">本轮深化</th>
-<th scope="col">验收口径</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th scope="row">BR-01 人员暴露下降</th>
-<td>SYS-04、V-04</td>
-<td>同任务量、路线、计时规则比较人·分钟，计入装卸、中止、处置及回收。</td>
-</tr>
-<tr>
-<th scope="row">BR-02 完成率 ≥90%</th>
-<td>SYS-02、03、09、13</td>
-<td>预排巡检 / 转运各 10 次，至少 18/20 通过。准备失败计入分母，两类结果分别报告。</td>
-</tr>
-<tr>
-<th scope="row">BR-03 安全响应全部通过</th>
-<td>SAF-01～08、SV-01～08</td>
-<td>故障注入单独登记，全部 SV 通过。</td>
-</tr>
-<tr>
-<th scope="row">BR-04 记录完整率 100%</th>
-<td>SYS-19～21、V-19～21</td>
-<td>含失败和异常任务，逐项对账并核验导出权限。</td>
-</tr>
-<tr>
-<th scope="row">BR-05 保障准备</th>
-<td>SYS-15、23、24</td>
-<td>部署、维护、搬运与退役清单闭环。</td>
-</tr>
-</tbody>
-</table>
-</div>
-<details>
-<summary>AI 辅助分析问答</summary>
-<dl>
-<dt>怎样将“便于操作”转成需求？</dt>
-<dd>规定必须呈现的信息、受训人员判读时间及准确率，并关联 V-05 / V-06。</dd>
-<dt>任务软件能停止，为什么新增 A7？</dt>
-<dd>进程挂起、指令重放与反馈失效可能破坏停止闭环，须以独立许可、锁定及故障注入检验。</dd>
-<dt>怎样记录尚未验证的指标？</dt>
-<dd>保留拟定状态、适用包络和验证计划，实测证据取得后再填写验收结论。</dd>
-</dl>
-</details>
-<h3 id="references">参考依据</h3>
-<ol>
-<li>张玉新，《5-系统工程开发过程2-复杂系统工程2026》。第 9～18 页为需求定义，第 20～29 页为架构，第 109～124 页为 STPA，第 144 页为作业要求。第 18 页引用教材表 5-1 题名，表格全文待核对。</li>
-<li>ISO/IEC/IEEE 29148:2018，§8.4 / §9.5，SyRS 目录及内容参考。<a href="https://www.iso.org/standard/72089.html">ISO 官方目录</a>
-</li>
-<li>Nancy G. Leveson、John P. Thomas，<i>STPA Handbook</i>，2018，第 2 章，四步分析、控制反馈与 UCA 四类检查。<a href="https://www.mit.stamp-institute.com/get_file.php?name=STPA_handbook.pdf">MIT 发布手册</a>
-</li>
-<li>本课题作业 2，BRS / StRS 及 BR-01～05、ST-01～15 上游基线。<a href="../assignment-2/">查看作业 2</a>
-</li>
-</ol>
-<p class="note">评审须确认运行包络、停止预算、授权界面、载荷稳定、数据保留期限及验收资源。变更时保留版本和原因，沿 ST → SYS / SAF → 架构 → 验证检查影响。</p>
-</section>
+
 </div>
 </main>
 <footer class="site-footer">
@@ -1233,5 +1172,84 @@
 <a href="#top">返回页首</a>
 </div>
 </footer>
+<script>
+(() => {
+  const form = document.getElementById("requirement-filters");
+  const category = document.getElementById("requirement-category");
+  const query = document.getElementById("requirement-query");
+  const status = document.getElementById("requirement-status");
+
+  function normalize(text) {
+    return text.normalize("NFKC").toLocaleLowerCase().replace(/\s+/g, " ").trim();
+  }
+
+  const groups = Array.from(document.querySelectorAll("[data-requirement-category]")).map(section => ({
+    section,
+    rows: Array.from(section.querySelectorAll('tbody > tr[id^="sys-"]')).map(row => ({
+      element: row,
+      text: normalize(row.textContent)
+    }))
+  }));
+  const total = groups.reduce((count, group) => count + group.rows.length, 0);
+
+  function applyFilters() {
+    const words = normalize(query.value).split(" ").filter(Boolean);
+    let matches = 0;
+    let visibleGroups = 0;
+
+    groups.forEach(group => {
+      const categoryMatches = !category.value || category.value === group.section.dataset.requirementCategory;
+      let groupMatches = 0;
+
+      group.rows.forEach(row => {
+        const visible = categoryMatches && words.every(word => row.text.includes(word));
+        row.element.hidden = !visible;
+        if (visible) groupMatches += 1;
+      });
+
+      group.section.hidden = groupMatches === 0;
+      if (groupMatches) visibleGroups += 1;
+      matches += groupMatches;
+    });
+
+    status.textContent = matches
+      ? "显示 " + matches + " / " + total + " 项需求，覆盖 " + visibleGroups + " 类"
+      : "没有匹配条款，请调整类别或关键词。";
+  }
+
+  function resetFilters() {
+    category.value = "";
+    query.value = "";
+    applyFilters();
+  }
+
+  function revealLinkedRequirement(hash) {
+    const id = hash.slice(1);
+    if (!/^(sys|v)-\d{2}$/.test(id)) return;
+
+    const target = document.getElementById(id);
+    if (!target || !target.closest('tr[id^="sys-"]')) return;
+
+    resetFilters();
+    requestAnimationFrame(() => {
+      target.scrollIntoView({ block: "start", inline: "nearest", behavior: "instant" });
+    });
+  }
+
+  form.addEventListener("submit", event => event.preventDefault());
+  form.addEventListener("reset", resetFilters);
+  category.addEventListener("change", applyFilters);
+  query.addEventListener("input", applyFilters);
+  window.addEventListener("hashchange", () => revealLinkedRequirement(window.location.hash));
+  document.addEventListener("click", event => {
+    const link = event.target.closest('a[href^="#"]');
+    if (link) revealLinkedRequirement(link.hash);
+  });
+
+  form.hidden = false;
+  applyFilters();
+  revealLinkedRequirement(window.location.hash);
+})();
+</script>
 </body>
 </html>

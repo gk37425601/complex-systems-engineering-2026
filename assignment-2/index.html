@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="轮腿式无人作战平台的业务需求、相关方需求、运营与运行概念及验收追溯。">
+<meta name="description" content="轮腿式无人作战平台的业务目标、相关方需求与运行流程。">
 <meta name="theme-color" content="#112d32">
 <title>业务与相关方需求 · 作业 2 | 轮腿式无人作战平台</title>
 <link rel="stylesheet" href="../assets/course.css">
@@ -26,7 +26,7 @@
 <h1>轮腿式无人作战平台</h1>
 <p class="lead">业务需求与相关方需求</p>
 <p>封闭训练场内的非武装巡检与惰性物资转运。</p>
-<p class="note">课程概念稿。指标与分工为拟议基线，相关方确认和实体试验待开展。</p>
+<p class="note">课程概念稿 · 指标为拟议验证基线，尚未实测。</p>
 </div>
 <main id="main-content" class="container page-layout" tabindex="-1">
 <aside class="toc" aria-label="章节目录">
@@ -39,20 +39,19 @@
 <a href="#stakeholders">相关方列表</a>
 <a href="#s5">15 项用户需求</a>
 <a href="#opscon">OpsCon · 运行概念</a>
-<a href="#review">追溯与评审</a>
 </nav>
 </aside>
 <div class="report">
-<section id="brs" class="card" aria-labelledby="brs-title">
+<section id="brs" class="card" data-tone="blue" aria-labelledby="brs-title">
 <h2 id="brs-title">BRS · 业务需求规格说明</h2>
 <section id="b1" aria-labelledby="b1-title">
 <h3 id="b1-title">1. 简介</h3>
 <h4>1.1 业务目的</h4>
-<p>以人工巡检和搬运为基线，评估平台能否减少人员进入受控作业区的时间，并留下可复核的任务记录。</p>
+<p>以人工巡检和搬运为基线，评估平台能否减少人员入区时间并留下可复核记录。</p>
 <h4>1.2 业务范围</h4>
-<p>覆盖申请、放行、监督执行、异常处置、验收、维护和退役。概念验证采用单台平台、单场地、单任务。系统包括轮腿式载体、操作终端与记录接口，外部提供场地隔离、通信、供电、维修和档案库。</p>
+<p>覆盖申请至退役各环节，按单台平台、单场地、单任务验证。系统含移动载体、操作终端和记录接口，外部提供隔离、通信、供电、维修及档案库。</p>
 <h4>1.3 业务概况</h4>
-<p>发起方提出点位、时段与交付要求，任务主管协调场地并放行，操作员监督执行，验收与保障岗位关闭任务、归档并决定设备后续状态。</p>
+<p>发起方提出任务，主管协调放行，操作员监督执行，验收与保障岗位关闭、归档并判定设备状态。</p>
 <h4>1.4 定义</h4>
 <dl>
 <dt>受控作业区</dt>
@@ -65,7 +64,7 @@
 <dd>停止运动并保持，状态可判定，后续动作经过人工授权。</dd>
 </dl>
 <h4>1.5 主要相关方</h4>
-<p>任务主管、操作员、安全员、物资交接人、维护保障、场地与资料管理员、采办与验收方的需要和职责见 <a href="#stakeholders">SH-01～SH-07</a>。</p>
+<p>角色、需要和职责见 <a href="#stakeholders">SH-01～SH-07</a>。</p>
 </section>
 <section id="b2" aria-labelledby="b2-title">
 <h3 id="b2-title">2. 参考文献</h3>
@@ -156,7 +155,7 @@
 </section>
 <section id="b4" aria-labelledby="b4-title">
 <h3 id="b4-title">4. 业务运行需求与 ConOps</h3>
-<p>运营概念从组织层面规定班组如何受理、放行、监督、验收和保障。任务主管负责放行与关闭，安全员提供独立现场判断。</p>
+<p>ConOps 规定组织如何受理、放行、监督、验收和保障。主管负责放行与关闭，安全员独立判断现场条件。</p>
 <figure class="diagram" aria-labelledby="conops-caption">
 <figcaption id="conops-caption">组织运营流程 · ConOps</figcaption>
 <ol class="flow">
@@ -247,7 +246,7 @@
 <section id="b5" aria-labelledby="b5-title">
 <h3 id="b5-title">5. 提案系统初步运行概念</h3>
 <h4>5.1 初步运行概念</h4>
-<p>平台接收批准任务，执行巡检或转运并反馈位置、进度与事件，异常时安全保持。用户涵盖操作、安全、交接与维护岗位，依赖核准场地、通信、充电维护和归档环境。完整交互见 <a href="#opscon">OpsCon</a>。</p>
+<p>平台执行批准任务并反馈状态，异常时安全保持。各岗位及支持环境见 BRS 1，系统交互见 <a href="#opscon">OpsCon</a>。</p>
 <h4>5.2 初步运行场景</h4>
 <p>
 <a href="#sc-01">SC-01 巡检</a>、<a href="#sc-02">SC-02 转运</a>覆盖常规交付；<a href="#sc-03">SC-03 失联</a>、<a href="#sc-04">SC-04 障碍或低能量</a>覆盖安全处置；<a href="#sc-05">SC-05 维护与退役</a>覆盖保障。流程关联与证据见 StRS 6.2。</p>
@@ -266,14 +265,14 @@
 <p>BRS 为业务需求规格说明（Business Requirements Specification），StRS 为相关方需求规格说明；ConOps 为运营概念（Concept of Operations），OpsCon 为运行概念（Operational Concept）。BR、BP、R、SC 分别为业务需求、业务过程、业务规则及场景编号。</p>
 </section>
 </section>
-<section id="strs" class="card" aria-labelledby="strs-title">
+<section id="strs" class="card" data-tone="teal" aria-labelledby="strs-title">
 <h2 id="strs-title">StRS · 相关方需求规格说明</h2>
 <section id="s1" aria-labelledby="s1-title">
 <h3 id="s1-title">1. 简介</h3>
 <h4>1.1 相关方目的</h4>
 <p>将各方需要转为可确认需求，明确平台行为、任务完成和运行放行依据。</p>
 <h4>1.2 相关方范围</h4>
-<p>关注系统包括移动载体、状态与巡检记录、惰性载荷接口、操作终端和导出能力。采用一台平台、一条核准路线、一名操作员及一名安全员，外部资源沿用 BRS 1.2。</p>
+<p>系统边界沿用 BRS 1.2，具备巡检记录、载荷接口及导出能力。一次试用配置一台平台、一条核准路线、一名操作员和一名安全员。</p>
 <h4>1.3 系统概况</h4>
 <div class="table-wrap" tabindex="0" role="region" aria-label="系统边界与交互">
 <table>
@@ -327,7 +326,7 @@
 <tr>
 <th scope="row">SH-01 任务主管</th>
 <td>降低暴露、成果可复核，确认基线、对照和完成定义。</td>
-<td>ST-01、03、04、05、09</td>
+<td>ST-01、03、04、05、09、14</td>
 </tr>
 <tr>
 <th scope="row">SH-02 操作员</th>
@@ -337,7 +336,7 @@
 <tr>
 <th scope="row">SH-03 安全员</th>
 <td>条件不满足时阻止运动，确认停机、清场和再放行，保有暂停权。</td>
-<td>ST-01、02、06、07、08、11</td>
+<td>ST-01、02、06、07、08、11、15</td>
 </tr>
 <tr>
 <th scope="row">SH-04 交接人</th>
@@ -347,7 +346,7 @@
 <tr>
 <th scope="row">SH-05 维护保障</th>
 <td>故障可追查、维修不误启动，确认隔离、恢复与退役。</td>
-<td>ST-08、11、12、13</td>
+<td>ST-08、11、12、13、15</td>
 </tr>
 <tr>
 <th scope="row">SH-06 场地与资料</th>
@@ -451,9 +450,27 @@
 </section>
 <section id="s5" aria-labelledby="s5-title">
 <h3 id="s5-title">5. 用户需求</h3>
-<p>各项为拟议必需条款，ST-01、06、07、08、11 为安全放行项。测试记录响应，演示观察交互，检查核对交付物，分析复核计量结果。</p>
+<p>各项为拟议必需条款，ST-01、06、07、08、11 为安全放行项。</p>
+<div class="interactive-panel" aria-labelledby="requirement-filter-title">
+<h4 id="requirement-filter-title">按相关方查看需求</h4>
+<div class="control-row">
+<label for="stakeholder-filter">相关方</label>
+<select id="stakeholder-filter" aria-controls="stakeholder-requirements">
+  <option value="all">全部相关方</option>
+  <option value="01">SH-01 任务主管</option>
+  <option value="02">SH-02 操作员</option>
+  <option value="03">SH-03 安全员</option>
+  <option value="04">SH-04 物资交接人</option>
+  <option value="05">SH-05 维护保障</option>
+  <option value="06">SH-06 场地与资料</option>
+  <option value="07">SH-07 采办与验收</option>
+</select>
+<button id="reset-requirement-filter" type="button">显示全部</button>
+</div>
+<p id="requirement-filter-status" class="filter-status" role="status" aria-live="polite">显示 15 / 15 项需求</p>
+</div>
 <div class="table-wrap" tabindex="0" role="region" aria-label="15项相关方需求及验收追溯">
-<table>
+<table id="stakeholder-requirements">
 <caption>相关方需求、来源与通过条件</caption>
 <thead>
 <tr>
@@ -561,7 +578,7 @@
 <section id="s6" aria-labelledby="s6-title">
 <h3 id="s6-title">6. 详细生存周期概念</h3>
 <h4 id="opscon">6.1 运行概念 · OpsCon</h4>
-<p>运行概念从用户视角说明单台平台的输入、动作、反馈与异常退出。运行全过程由操作员监督，安全员保有暂停与再放行权。</p>
+<p>OpsCon 描述平台的任务、反馈与异常退出。操作员持续监督，安全员负责暂停与再放行。</p>
 <figure class="diagram" aria-labelledby="opscon-caption">
 <figcaption id="opscon-caption">平台运行与异常恢复</figcaption>
 <ol class="flow">
@@ -657,107 +674,7 @@
 <p>StRS 为 Stakeholder Requirements Specification，SoI 为关注系统；SH、ST、OR 分别为相关方、相关方需求、运行规则。表中“SH-01、03”表示 SH-01 和 SH-03，其余前缀同理。</p>
 </section>
 </section>
-<section id="review" class="card" aria-labelledby="review-title">
-<h2 id="review-title">需求追溯与评审</h2>
-<figure class="diagram" aria-labelledby="trace-caption">
-<figcaption id="trace-caption">从需要到验收证据</figcaption>
-<ol class="flow">
-<li>
-<strong>相关方需要</strong>
-<small>SH-03 · 异常及时停止</small>
-</li>
-<li>
-<strong>业务目标</strong>
-<small>BR-03 · 安全用例全通过</small>
-</li>
-<li>
-<strong>相关方需求</strong>
-<small>ST-06／07 · 急停与失联停驻</small>
-</li>
-<li>
-<strong>验证证据</strong>
-<small>触发点、停止点与锁定记录</small>
-</li>
-</ol>
-</figure>
-<div class="table-wrap" tabindex="0" role="region" aria-label="业务需求覆盖追溯">
-<table>
-<caption>五项业务目标的下游覆盖</caption>
-<thead>
-<tr>
-<th scope="col">业务需求</th>
-<th scope="col">相关方需求</th>
-<th scope="col">评审证据</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th scope="row">
-<a href="#br-01">BR-01</a>
-</th>
-<td>
-<a href="#st-01">ST-01</a>、<a href="#st-05">ST-05</a>
-</td>
-<td>配对暴露与未授权入区计数。</td>
-</tr>
-<tr>
-<th scope="row">
-<a href="#br-02">BR-02</a>
-</th>
-<td>
-<a href="#st-02">ST-02</a>、<a href="#st-03">03</a>、<a href="#st-04">04</a>、<a href="#st-14">14</a>
-</td>
-<td>预排常规任务及分类型验收。</td>
-</tr>
-<tr>
-<th scope="row">
-<a href="#br-03">BR-03</a>
-</th>
-<td>
-<a href="#st-01">ST-01</a>、<a href="#st-02">02</a>、<a href="#st-06">06</a>、<a href="#st-07">07</a>、<a href="#st-08">08</a>、<a href="#st-11">11</a>
-</td>
-<td>启动、停止、异常与恢复验证。</td>
-</tr>
-<tr>
-<th scope="row">
-<a href="#br-04">BR-04</a>
-</th>
-<td>
-<a href="#st-09">ST-09</a>、<a href="#st-10">ST-10</a>
-</td>
-<td>台账逐项对账及角色权限测试。</td>
-</tr>
-<tr>
-<th scope="row">
-<a href="#br-05">BR-05</a>
-</th>
-<td>
-<a href="#st-12">ST-12</a>、<a href="#st-13">13</a>、<a href="#st-15">15</a>
-</td>
-<td>部署、维修复验与退役交接。</td>
-</tr>
-</tbody>
-</table>
-</div>
-<details>
-<summary>AI 辅助分析摘要</summary>
-<dl>
-<dt>ConOps 与 OpsCon 的内容</dt>
-<dd>前者描述组织如何运营，后者描述平台如何在该组织中接收任务、反馈和处理异常。</dd>
-<dt>暴露与完成率的口径</dt>
-<dd>采用同条件配对，常规分母预先锁定并计入准备失败，计划故障用例另计。</dd>
-<dt>异常与任务交付的优先级</dt>
-<dd>安全停驻优先，未完成交付仍如实记录，复核、复位并再次启动后恢复。</dd>
-</dl>
-</details>
-<h3>待小组及相关角色确认</h3>
-<ul>
-<li>主管与验收方确认交付清单、基线配对、场次及资源限额。</li>
-<li>场地与安全岗位确认区域、地面、载荷、速度、低能量门槛及停止余量。</li>
-<li>资料与保障岗位确认权限、保留期限、隔离复验及退役责任。</li>
-</ul>
-<p class="note">依据课堂说明、参考章节及 AI 辅助分析编制。上述确认、实测与签认均为后续活动。</p>
-</section>
+
 </div>
 </main>
 <footer class="site-footer">
@@ -766,5 +683,51 @@
 <a href="#top">返回页首</a>
 </div>
 </footer>
+<script>
+  const stakeholderFilter = document.getElementById('stakeholder-filter');
+  const resetFilterButton = document.getElementById('reset-requirement-filter');
+  const filterStatus = document.getElementById('requirement-filter-status');
+  const requirementsTable = document.getElementById('stakeholder-requirements');
+  const requirementRows = Array.from(requirementsTable.tBodies[0].rows);
+
+  function applyStakeholderFilter() {
+    const selectedStakeholder = stakeholderFilter.value;
+    let visibleCount = 0;
+
+    requirementRows.forEach((row) => {
+      const sourceText = row.cells[2].textContent.split('BR-')[0];
+      const stakeholderNumbers = sourceText.match(/\d{2}/g) || [];
+      const matches = selectedStakeholder === 'all' || stakeholderNumbers.includes(selectedStakeholder);
+
+      row.hidden = !matches;
+      if (matches) visibleCount += 1;
+    });
+
+    const selectedLabel = stakeholderFilter.selectedOptions[0].textContent;
+    filterStatus.textContent = `${selectedLabel} · 显示 ${visibleCount} / ${requirementRows.length} 项需求`;
+  }
+
+  function showAllRequirements() {
+    stakeholderFilter.value = 'all';
+    applyStakeholderFilter();
+  }
+
+  function revealLinkedRequirement() {
+    const linkedId = window.location.hash.slice(1);
+    if (!/^st-\d{2}$/.test(linkedId)) return;
+
+    const linkedRow = document.getElementById(linkedId);
+    if (!linkedRow || !requirementsTable.contains(linkedRow)) return;
+
+    showAllRequirements();
+    linkedRow.scrollIntoView({ block: 'center' });
+  }
+
+  stakeholderFilter.addEventListener('change', applyStakeholderFilter);
+  resetFilterButton.addEventListener('click', showAllRequirements);
+  window.addEventListener('hashchange', revealLinkedRequirement);
+  applyStakeholderFilter();
+  revealLinkedRequirement();
+</script>
 </body>
 </html>
